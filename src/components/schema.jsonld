@@ -1,0 +1,26 @@
+{
+  "@context": "https://schema.org",
+  "@type": "LocalBusiness",
+  "name": "My Irish Tax",
+  "url": "https://myirishtax.com",
+  "description": "Independent Irish tax agency providing PAYE, non-resident, and self-employed tax services with guided onboarding.",
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "123 Example Quay",
+    "addressLocality": "Dublin",
+    "addressRegion": "Leinster",
+    "postalCode": "D02 AB12",
+    "addressCountry": "IE"
+  },
+  "telephone": "+353 (0)1 234 5678",
+  "email": "support@myirishtax.com",
+  "priceRange": "€€",
+  "aggregateRating": {
+    "@type": "AggregateRating",
+    "ratingValue": "4.8",
+    "reviewCount": "127"
+  },
+  "sameAs": [
+    "https://www.linkedin.com/company/myirishtax"
+  ]
+}

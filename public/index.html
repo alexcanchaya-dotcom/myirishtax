@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Irish tax calculator with PAYE, non-resident, and self-employed service options plus automation-ready workflows." />
+  <title>My Irish Tax | Irish Tax Calculator & Services</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/assets/css/main.min.css" />
+  <meta property="og:title" content="My Irish Tax" />
+  <meta property="og:description" content="Irish tax experts with guided onboarding, automated reminders, and transparent pricing." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://myirishtax.com" />
+  <meta property="og:image" content="/assets/images/og-graphic.svg" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="My Irish Tax" />
+  <meta name="twitter:description" content="Irish tax experts with guided onboarding, automated reminders, and transparent pricing." />
+  <meta name="theme-color" content="#0d1b2a" />
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "LocalBusiness",
+      "name": "My Irish Tax",
+      "description": "Online Irish tax calculator with service options for PAYE, non-resident, and self-employed filers.",
+      "url": "https://myirishtax.com",
+      "telephone": "+353 (0)1 234 5678",
+      "email": "support@myirishtax.com",
+      "priceRange": "€€",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "123 Example Quay",
+        "addressLocality": "Dublin",
+        "addressRegion": "Leinster",
+        "postalCode": "D02 AB12",
+        "addressCountry": "IE"
+      },
+      "sameAs": ["https://www.linkedin.com/company/myirishtax"]
+    }
+  </script>
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "How long does a PAYE tax return take?",
+          "acceptedAnswer": {"@type": "Answer", "text": "Most PAYE returns are reviewed within 2 business days once documents are submitted."}
+        },
+        {
+          "@type": "Question",
+          "name": "Do you support non-residents?",
+          "acceptedAnswer": {"@type": "Answer", "text": "Yes. We guide non-residents through relief claims, credits, and Irish tax obligations."}
+        },
+        {
+          "@type": "Question",
+          "name": "Is my data secure?",
+          "acceptedAnswer": {"@type": "Answer", "text": "All uploads are encrypted in transit. Integrations are ready for S3 storage and ISO-aligned controls."}
+        }
+      ]
+    }
+  </script>
+</head>
+<body>
+  <header>
+    <nav class="navbar" aria-label="Primary navigation">
+      <div class="brand" aria-label="My Irish Tax brand">
+        <span>MIT</span> My Irish Tax
+      </div>
+      <div class="nav-links">
+        <a href="#calculator">Calculator</a>
+        <a href="#how">How it works</a>
+        <a href="#services">Services</a>
+        <a href="#pricing">Pricing</a>
+        <a href="#faq">FAQ</a>
+        <a href="#automations">Automations</a>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero" id="top">
+      <div class="hero-content">
+        <p class="badge">Irish tax, simplified</p>
+        <h1>Calculate your Irish tax in minutes, then pick the service you need.</h1>
+        <p>Use the calculator below for a quick PAYE-style estimate. When you want support, choose a service or automation and continue on your terms.</p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#calculator">Open calculator</a>
+          <a class="btn btn-secondary" href="#services">View services</a>
+        </div>
+      </div>
+      <div class="hero-visual" aria-hidden="true"></div>
+    </section>
+
+    <section id="calculator" class="card">
+      <div class="section-heading">
+        <div>
+          <p class="badge">Estimator</p>
+          <h2>Irish tax calculator</h2>
+        </div>
+        <p>Quick estimate using common PAYE-style bands. This is a guide, not advice.</p>
+      </div>
+      <form id="tax-calculator" class="form-grid" aria-label="Irish tax calculator">
+        <div>
+          <label for="income">Annual gross income (€)</label>
+          <input id="income" name="income" type="number" min="0" step="500" required />
+        </div>
+        <div>
+          <label for="cutoff">Standard rate cutoff (€)</label>
+          <input id="cutoff" name="cutoff" type="number" min="0" step="500" value="42000" />
+        </div>
+        <div>
+          <label for="credits">Tax credits (€)</label>
+          <input id="credits" name="credits" type="number" min="0" step="50" value="3500" />
+        </div>
+        <div>
+          <label for="usc">Include USC</label>
+          <select id="usc" name="usc">
+            <option value="yes">Yes</option>
+            <option value="no">No</option>
+          </select>
+        </div>
+        <div>
+          <label for="prsi">Include PRSI (4%)</label>
+          <select id="prsi" name="prsi">
+            <option value="yes">Yes</option>
+            <option value="no">No</option>
+          </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Calculate</button>
+      </form>
+      <div id="results" class="card-grid calculator-results" aria-live="polite"></div>
+    </section>
+
+    <section id="how">
+      <div class="section-heading">
+        <div>
+          <p class="badge">Guided process</p>
+          <h2>How it works</h2>
+        </div>
+        <p>Simple 4-step flow with automated reminders and secure uploads.</p>
+      </div>
+      <div class="steps">
+        <div class="card step">
+          <h3>Use the calculator</h3>
+          <p>Enter your annual income, credits, and cut-off to see an approximate PAYE-style breakdown.</p>
+        </div>
+        <div class="card step">
+          <h3>Pick a service</h3>
+          <p>Choose PAYE, non-resident, or self-employed support with transparent pricing and optional add-ons.</p>
+        </div>
+        <div class="card step">
+          <h3>Automate or self-serve</h3>
+          <p>Opt into automation for reminders, document uploads, and status tracking, or keep it fully self-serve.</p>
+        </div>
+        <div class="card step">
+          <h3>File with confidence</h3>
+          <p>Download your calculation, gather documents, and proceed with filing support when ready.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="services">
+      <div class="section-heading">
+        <div>
+          <p class="badge">Services</p>
+          <h2>What we handle</h2>
+        </div>
+        <p>Full-stack compliance support plus optional automation add-ons.</p>
+      </div>
+      <div class="card-grid">
+        <article class="card">
+          <h3>PAYE tax returns</h3>
+          <p>Guided PAYE filings with credit checks, USC/PRSI breakdowns, and calculator-aligned summaries.</p>
+        </article>
+        <article class="card">
+          <h3>Non-resident filings</h3>
+          <p>Residency assessments, relief guidance, and cross-border documentation with simple status tracking.</p>
+        </article>
+        <article class="card">
+          <h3>Self-employed</h3>
+          <p>Income categorizer scaffolding, expense capture, and estimated payment reminders.</p>
+        </article>
+        <article class="card">
+          <h3>Upsell automations</h3>
+          <p>Tax residency assessment, PAYE estimate exports, and document trackers ready for API keys.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="pricing">
+      <div class="section-heading">
+        <div>
+          <p class="badge">Transparent</p>
+          <h2>Pricing</h2>
+        </div>
+        <p>No surprise fees. Add-ons priced after discovery.</p>
+      </div>
+      <div class="pricing-table">
+        <div class="price-card">
+          <h3>PAYE Tax Return</h3>
+          <div class="price">€49</div>
+          <ul class="features">
+            <li>PAYE + USC + PRSI review</li>
+            <li>Income & credits check</li>
+            <li>Email + PDF summary</li>
+          </ul>
+          <button class="btn btn-primary" data-plan="PAYE Tax Return">Choose PAYE</button>
+        </div>
+        <div class="price-card">
+          <h3>Non-Resident</h3>
+          <div class="price">€79</div>
+          <ul class="features">
+            <li>Residency review</li>
+            <li>Reliefs & treaty guidance</li>
+            <li>Revenue submission prep</li>
+          </ul>
+          <button class="btn btn-primary" data-plan="Non-Resident">Choose Non-Resident</button>
+        </div>
+        <div class="price-card">
+          <h3>Self-Employed</h3>
+          <div class="price">€149</div>
+          <ul class="features">
+            <li>Income categorizer ready</li>
+            <li>Expense import placeholders</li>
+            <li>Quarterly reminders</li>
+          </ul>
+          <button class="btn btn-primary" data-plan="Self-Employed">Choose Self-Employed</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="faq">
+      <div class="section-heading">
+        <div>
+          <p class="badge">FAQ</p>
+          <h2>Answers before you start</h2>
+        </div>
+        <p>Data handling, timelines, and compliance in one place.</p>
+      </div>
+      <div class="card-grid">
+        <div class="faq-item">
+          <div class="faq-question" aria-expanded="false">
+            <h3>How long does a PAYE return take?</h3>
+            <span>+</span>
+          </div>
+          <div class="faq-answer">Most PAYE returns are reviewed within 2 business days once we have the required documents.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question" aria-expanded="false">
+            <h3>Is my data secure?</h3>
+            <span>+</span>
+          </div>
+          <div class="faq-answer">All data is encrypted in transit. We prepare for S3 storage, access controls, and consent-based communications.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question" aria-expanded="false">
+            <h3>Do you support non-residents?</h3>
+            <span>+</span>
+          </div>
+          <div class="faq-answer">Yes. We evaluate residency, apply treaty reliefs where relevant, and keep guidance transparent.</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="automations">
+      <div class="section-heading">
+        <div>
+          <p class="badge">Automation-ready</p>
+          <h2>Set-and-forget workflows</h2>
+        </div>
+        <p>Use these optional modules when you want hands-off reminders and tracking.</p>
+      </div>
+      <div class="card-grid">
+        <article class="card">
+          <h3>Document upload</h3>
+          <p>Secure upload placeholders ready to connect to S3 or similar storage with encryption.</p>
+        </article>
+        <article class="card">
+          <h3>Reminder emails</h3>
+          <p>Automated nudges for missing documents, payment deadlines, or filing milestones.</p>
+        </article>
+        <article class="card">
+          <h3>Upsell tools</h3>
+          <p>Tax residency assessment, PAYE estimate exports, and income categorizer stubs for expansion.</p>
+        </article>
+        <article class="card">
+          <h3>Payments & CRM</h3>
+          <p>Stripe and CRM/Airtable scaffolding ready for API keys and webhook wiring.</p>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer" aria-label="Footer">
+    <div class="footer-grid">
+      <div>
+        <h3>My Irish Tax</h3>
+        <p>Online Irish tax calculator with PAYE, non-resident, and self-employed service options.</p>
+        <p id="business-identity">CRO: 123456 | 123 Example Quay, Dublin | +353 (0)1 234 5678 | support@myirishtax.com</p>
+      </div>
+      <div>
+        <h4>Legal</h4>
+        <a href="/privacy.html">Privacy Policy</a><br />
+        <a href="/terms.html">Terms & Conditions</a><br />
+        <a href="/cookies.html">Cookie Policy</a><br />
+        <a href="/refunds.html">Refund Policy</a>
+      </div>
+      <div>
+        <h4>Company</h4>
+        <a href="/about.html">About Us</a><br />
+        <a href="#calculator">Calculator</a><br />
+        <a href="#services">Services</a>
+      </div>
+    </div>
+    <p class="meta">© 2025 My Irish Tax. All rights reserved. Not affiliated with the Irish Revenue Commissioners.</p>
+  </footer>
+
+  <div id="cookie-banner" class="cookie-banner" role="dialog" aria-live="polite">
+    <p>We use cookies for analytics and experience. Choose accept to enable or reject to continue with essential cookies.</p>
+    <div class="hero-actions">
+      <button class="btn btn-primary" id="accept-cookies">Accept</button>
+      <button class="btn btn-secondary" id="reject-cookies">Reject</button>
+    </div>
+  </div>
+
+  <script src="/assets/js/main.min.js" defer></script>
+</body>
+</html>
