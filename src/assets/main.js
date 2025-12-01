@@ -1,7 +1,23 @@
 const faqItems = document.querySelectorAll('.faq-item');
-faqItems.forEach((item) => {
-  item.querySelector('.faq-question').addEventListener('click', () => {
-    item.classList.toggle('active');
+faqItems.forEach((item, index) => {
+  const question = item.querySelector('.faq-question');
+  const answer = item.querySelector('.faq-answer');
+  const toggle = item.querySelector('.faq-toggle');
+
+  if (!question || !answer) return;
+
+  const answerId = answer.id || `faq-answer-${index + 1}`;
+  answer.id = answerId;
+  question.setAttribute('aria-controls', answerId);
+
+  const isInitiallyActive = item.classList.contains('active');
+  answer.hidden = !isInitiallyActive;
+
+  question.addEventListener('click', () => {
+    const isActive = item.classList.toggle('active');
+    question.setAttribute('aria-expanded', isActive ? 'true' : 'false');
+    answer.hidden = !isActive;
+    if (toggle) toggle.textContent = isActive ? '–' : '+';
   });
 });
 

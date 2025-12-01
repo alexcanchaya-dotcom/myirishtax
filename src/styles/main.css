@@ -83,6 +83,12 @@ header {
   font-size: 0.95rem;
 }
 
+.nav-cta {
+  padding: 0.55rem 0.95rem;
+  font-size: 0.9rem;
+  box-shadow: none;
+}
+
 .nav-links a {
   color: var(--white);
   padding: 0.4rem 0.7rem;
@@ -221,6 +227,23 @@ section {
 .hero-content p {
   margin: 0 0 1.5rem;
   color: rgba(255, 255, 255, 0.92);
+}
+
+.trust-list {
+  list-style: none;
+  padding: 0;
+  margin: 1rem 0 0;
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  color: rgba(255, 255, 255, 0.88);
+}
+
+.trust-list li {
+  padding: 0.55rem 0.8rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.12);
 }
 
 .hero-actions {
@@ -364,6 +387,13 @@ section {
 }
 
 .faq-question {
+  background: none;
+  border: none;
+  width: 100%;
+  padding: 0;
+  text-align: left;
+  color: inherit;
+  font: inherit;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -372,9 +402,12 @@ section {
 }
 
 .faq-answer {
-  display: none;
   margin-top: 0.6rem;
   color: var(--muted);
+}
+
+[hidden] {
+  display: none !important;
 }
 
 .faq-item.active .faq-answer {
@@ -414,6 +447,22 @@ textarea:focus {
 
 textarea {
   min-height: 140px;
+}
+
+.helper {
+  margin: 0.35rem 0 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.rate-grid .card,
+.trust-grid .card {
+  box-shadow: none;
+  border: 1px solid #e1e8f2;
+}
+
+.rate-grid .meta {
+  color: var(--muted);
 }
 
 .calculator-results {
@@ -511,6 +560,11 @@ textarea {
 
   .nav-links {
     flex-wrap: wrap;
+  }
+
+  .nav-cta {
+    width: 100%;
+    justify-content: center;
   }
 
   .hero {

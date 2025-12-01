@@ -3,20 +3,20 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="Irish tax calculator with PAYE, non-resident, and self-employed service options plus automation-ready workflows." />
-  <title>My Irish Tax | Irish Tax Calculator & Services</title>
+  <meta name="description" content="Irish tax calculator 2025 with PAYE, USC, and PRSI estimates plus GDPR-ready consent, transparent pricing, and support options." />
+  <title>Irish Tax Calculator 2025 | My Irish Tax</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/assets/css/main.min.css" />
-  <meta property="og:title" content="My Irish Tax" />
-  <meta property="og:description" content="Irish tax experts with guided onboarding, automated reminders, and transparent pricing." />
+  <meta property="og:title" content="Irish Tax Calculator 2025 | My Irish Tax" />
+  <meta property="og:description" content="Calculate Irish PAYE, USC, and PRSI quickly with GDPR-safe consent and Google Ads-ready disclosures." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://myirishtax.com" />
   <meta property="og:image" content="/assets/images/og-graphic.svg" />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="My Irish Tax" />
-  <meta name="twitter:description" content="Irish tax experts with guided onboarding, automated reminders, and transparent pricing." />
+  <meta name="twitter:title" content="Irish Tax Calculator 2025 | My Irish Tax" />
+  <meta name="twitter:description" content="Irish tax calculator with PAYE, USC, PRSI, GDPR consent, and transparent pricing." />
   <meta name="theme-color" content="#0d1b2a" />
   <script type="application/ld+json">
     {
@@ -37,6 +37,26 @@
         "addressCountry": "IE"
       },
       "sameAs": ["https://www.linkedin.com/company/myirishtax"]
+    }
+  </script>
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "My Irish Tax Calculator",
+      "url": "https://myirishtax.com",
+      "applicationCategory": "FinanceApplication",
+      "operatingSystem": "Web",
+      "inLanguage": "en-IE",
+      "provider": { "@type": "Organization", "name": "My Irish Tax" },
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" },
+      "featureList": [
+        "Irish PAYE, USC, and PRSI estimates",
+        "Consent-based cookies for Google Ads and analytics",
+        "Transparent pricing for PAYE, non-resident, and self-employed services",
+        "Automation-ready reminders and document upload stubs"
+      ],
+      "countryOfOperation": "IE"
     }
   </script>
   <script type="application/ld+json">
@@ -76,6 +96,7 @@
         <a href="#pricing">Pricing</a>
         <a href="#faq">FAQ</a>
         <a href="#automations">Automations</a>
+        <a class="btn btn-primary nav-cta" href="#calculator">Start calculating</a>
       </div>
     </nav>
   </header>
@@ -85,11 +106,16 @@
       <div class="hero-content">
         <p class="badge">Irish tax, simplified</p>
         <h1>Calculate your Irish tax in minutes, then pick the service you need.</h1>
-        <p>Use the calculator below for a quick PAYE-style estimate. When you want support, choose a service or automation and continue on your terms.</p>
+        <p>Use the calculator below for a quick PAYE-style estimate with USC and PRSI options. Updated for the 2025 tax year with transparent consent and disclosure built in.</p>
         <div class="hero-actions">
           <a class="btn btn-primary" href="#calculator">Open calculator</a>
           <a class="btn btn-secondary" href="#services">View services</a>
         </div>
+        <ul class="trust-list" aria-label="Trust and compliance points">
+          <li>GDPR-safe consent choices</li>
+          <li>Last updated: 2025 tax year</li>
+          <li>Transparent pricing</li>
+        </ul>
       </div>
       <div class="hero-visual" aria-hidden="true"></div>
     </section>
@@ -106,14 +132,17 @@
         <div>
           <label for="income">Annual gross income (€)</label>
           <input id="income" name="income" type="number" min="0" step="500" required />
+          <p class="helper">Include bonuses or allowances you want to project for the tax year.</p>
         </div>
         <div>
           <label for="cutoff">Standard rate cutoff (€)</label>
           <input id="cutoff" name="cutoff" type="number" min="0" step="500" value="42000" />
+          <p class="helper">Common cut-off used for PAYE. Adjust for joint assessment where relevant.</p>
         </div>
         <div>
           <label for="credits">Tax credits (€)</label>
           <input id="credits" name="credits" type="number" min="0" step="50" value="3500" />
+          <p class="helper">Default personal + PAYE credits. Update for home carer or age credits.</p>
         </div>
         <div>
           <label for="usc">Include USC</label>
@@ -132,6 +161,38 @@
         <button type="submit" class="btn btn-primary">Calculate</button>
       </form>
       <div id="results" class="card-grid calculator-results" aria-live="polite"></div>
+    </section>
+
+    <section id="rates" class="card">
+      <div class="section-heading">
+        <div>
+          <p class="badge">Rates overview</p>
+          <h2>Key Irish tax bands</h2>
+        </div>
+        <p>Reference the latest PAYE, USC, and PRSI notes before filing or running ads.</p>
+      </div>
+      <div class="card-grid rate-grid">
+        <article class="card">
+          <h3>USC bands (illustrative)</h3>
+          <ul class="features">
+            <li>0.5% on income up to €12,012</li>
+            <li>2% on €12,013 – €25,460</li>
+            <li>4.5% on €25,461 – €55,216</li>
+            <li>8% on remaining income</li>
+          </ul>
+          <p class="meta">Confirm thresholds with Revenue before advertising or filing.</p>
+        </article>
+        <article class="card">
+          <h3>PRSI reminder</h3>
+          <p>Most Class A employees pay 4% PRSI. Self-employed use Class S with additional treatment.</p>
+          <p class="meta">Ensure exemptions and credits are applied for part-year or low-income cases.</p>
+        </article>
+        <article class="card">
+          <h3>Credits & allowances</h3>
+          <p>Personal + PAYE credits often total €3,500. Add home carer, age, or rent credit where eligible.</p>
+          <p class="meta">Keep evidence for claims and disclose assumptions in ad copy.</p>
+        </article>
+      </div>
     </section>
 
     <section id="how">
@@ -242,25 +303,25 @@
       </div>
       <div class="card-grid">
         <div class="faq-item">
-          <div class="faq-question" aria-expanded="false">
+          <button class="faq-question" type="button" aria-expanded="false" aria-controls="faq-answer-1">
             <h3>How long does a PAYE return take?</h3>
-            <span>+</span>
-          </div>
-          <div class="faq-answer">Most PAYE returns are reviewed within 2 business days once we have the required documents.</div>
+            <span class="faq-toggle" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-answer" id="faq-answer-1" hidden>Most PAYE returns are reviewed within 2 business days once we have the required documents.</div>
         </div>
         <div class="faq-item">
-          <div class="faq-question" aria-expanded="false">
+          <button class="faq-question" type="button" aria-expanded="false" aria-controls="faq-answer-2">
             <h3>Is my data secure?</h3>
-            <span>+</span>
-          </div>
-          <div class="faq-answer">All data is encrypted in transit. We prepare for S3 storage, access controls, and consent-based communications.</div>
+            <span class="faq-toggle" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-answer" id="faq-answer-2" hidden>All data is encrypted in transit. We prepare for S3 storage, access controls, and consent-based communications.</div>
         </div>
         <div class="faq-item">
-          <div class="faq-question" aria-expanded="false">
+          <button class="faq-question" type="button" aria-expanded="false" aria-controls="faq-answer-3">
             <h3>Do you support non-residents?</h3>
-            <span>+</span>
-          </div>
-          <div class="faq-answer">Yes. We evaluate residency, apply treaty reliefs where relevant, and keep guidance transparent.</div>
+            <span class="faq-toggle" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-answer" id="faq-answer-3" hidden>Yes. We evaluate residency, apply treaty reliefs where relevant, and keep guidance transparent.</div>
         </div>
       </div>
     </section>
@@ -289,6 +350,30 @@
         <article class="card">
           <h3>Payments & CRM</h3>
           <p>Stripe and CRM/Airtable scaffolding ready for API keys and webhook wiring.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="trust" class="card">
+      <div class="section-heading">
+        <div>
+          <p class="badge">Compliance</p>
+          <h2>Built for trust and Google Ads</h2>
+        </div>
+        <p>Clear disclosures, consent, and provenance so ads stay compliant.</p>
+      </div>
+      <div class="card-grid trust-grid">
+        <article class="card">
+          <h3>Consent-first</h3>
+          <p>Explicit accept/reject paths for cookies and analytics, with records stored locally.</p>
+        </article>
+        <article class="card">
+          <h3>Source transparency</h3>
+          <p>Calculations reference Revenue Commissioners guidance; display last-updated year alongside rates.</p>
+        </article>
+        <article class="card">
+          <h3>Contactable business</h3>
+          <p>Publish CRO number, address, refund, privacy, and cookie policies across the site footer.</p>
         </article>
       </div>
     </section>
