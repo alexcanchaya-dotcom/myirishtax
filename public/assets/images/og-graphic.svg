@@ -1,0 +1,33 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="My Irish Tax graphic">
+  <rect width="1200" height="630" rx="28" fill="#0d1b2a"/>
+  <rect x="40" y="40" width="1120" height="550" rx="22" fill="url(#grad1)" opacity="0.9"/>
+  <g opacity="0.6" filter="url(#shadow)">
+    <circle cx="260" cy="210" r="120" fill="#2dbf64"/>
+    <circle cx="900" cy="430" r="170" fill="#16a455"/>
+  </g>
+  <g filter="url(#panel)">
+    <rect x="240" y="180" width="720" height="270" rx="18" fill="#f5f7fb"/>
+    <rect x="270" y="215" width="230" height="22" rx="6" fill="#0d1b2a" opacity="0.75"/>
+    <rect x="270" y="250" width="190" height="16" rx="6" fill="#6b7a90" opacity="0.8"/>
+    <rect x="270" y="284" width="165" height="16" rx="6" fill="#6b7a90" opacity="0.8"/>
+    <rect x="520" y="215" width="190" height="22" rx="6" fill="#2dbf64" opacity="0.9"/>
+    <rect x="520" y="250" width="220" height="16" rx="6" fill="#0d1b2a" opacity="0.8"/>
+    <rect x="520" y="284" width="180" height="16" rx="6" fill="#0d1b2a" opacity="0.75"/>
+    <rect x="520" y="318" width="220" height="16" rx="6" fill="#6b7a90" opacity="0.8"/>
+    <rect x="520" y="352" width="175" height="16" rx="6" fill="#2dbf64" opacity="0.65"/>
+  </g>
+  <text x="270" y="380" fill="#0d1b2a" font-family="Inter, Arial, sans-serif" font-size="28" font-weight="700">Irish Tax Calculator</text>
+  <text x="270" y="416" fill="#6b7a90" font-family="Inter, Arial, sans-serif" font-size="18">Estimate PAYE, USC, and PRSI quickly</text>
+  <defs>
+    <linearGradient id="grad1" x1="120" y1="80" x2="1080" y2="550" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#14233a"/>
+      <stop offset="1" stop-color="#2dbf64" stop-opacity="0.85"/>
+    </linearGradient>
+    <filter id="shadow" x="100" y="70" width="920" height="500" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feGaussianBlur stdDeviation="70"/>
+    </filter>
+    <filter id="panel" x="200" y="150" width="800" height="340" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="18" stdDeviation="32" flood-color="#0d1b2a" flood-opacity="0.18"/>
+    </filter>
+  </defs>
+</svg>
