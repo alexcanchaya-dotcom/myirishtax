@@ -46,6 +46,22 @@ app.post('/api/contact', async (req, res) => {
   }
 });
 
+app.post('/api/summary', async (req, res) => {
+  const { email, summary, consent } = req.body;
+  if (!email || !consent || !summary) return res.status(400).json({ error: 'Missing email, consent, or summary' });
+  try {
+    await sendEmail({
+      to: email,
+      subject: 'Your My Irish Tax calculator summary',
+      html: `<p>Here is your requested summary:</p><p>${summary}</p><p>You can unsubscribe anytime by replying STOP.</p>`
+    });
+    res.json({ status: 'ok' });
+  } catch (err) {
+    console.error('Summary email error', err);
+    res.status(500).json({ error: 'Unable to send summary' });
+  }
+});
+
 app.post('/api/onboarding', async (req, res) => {
   const { email, filingType } = req.body;
   if (!email) return res.status(400).json({ error: 'Email is required' });
