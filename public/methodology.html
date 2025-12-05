@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>How Calculations Work | My Irish Tax</title>
+  <meta name="description" content="See the methodology behind the Irish PAYE, USC, and PRSI calculator, including assumptions, rounding, and how credits are applied." />
+  <link rel="canonical" href="https://myirishtax.com/methodology.html" />
+  <meta property="og:title" content="How Calculations Work" />
+  <meta property="og:description" content="Understand the PAYE, USC, PRSI, and credit logic that powers the My Irish Tax calculator." />
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="https://myirishtax.com/methodology.html" />
+  <meta property="og:image" content="/assets/images/og-graphic.svg" />
+  <link rel="stylesheet" href="/assets/css/main.min.css" />
+</head>
+<body>
+  <main>
+    <section class="card">
+      <p class="badge">Methodology</p>
+      <h1>How calculations work</h1>
+      <p>Our calculator is designed for speed and clarity. It provides a guide, not advice, and should be paired with <a href="/disclaimer.html">our non-advice disclaimer</a>. Thresholds and credits are updated for the latest tax year noted on the homepage.</p>
+
+      <h2>PAYE logic</h2>
+      <ul>
+        <li>Applies 20% to income up to the standard rate cut-off you enter, then 40% thereafter.</li>
+        <li>Subtracts the tax credits you provide; defaults use common personal plus PAYE credits for single filers.</li>
+        <li>Does not currently include age, home carer, or rent credits unless you add them to the credits input.</li>
+      </ul>
+
+      <h2>USC logic</h2>
+      <ul>
+        <li>Uses progressive bands: 0.5%, 2%, 4.5%, then 8% on the remainder unless you toggle USC off.</li>
+        <li>Exemption checks for very low income are not applied; confirm eligibility before filing.</li>
+      </ul>
+
+      <h2>PRSI logic</h2>
+      <ul>
+        <li>Calculates 4% Class A by default. Self-employed Class S users should validate surcharges separately.</li>
+        <li>Credits for low earnings and part-year exemptions are not simulated in this lightweight tool.</li>
+      </ul>
+
+      <h2>Rounding and timing</h2>
+      <ul>
+        <li>Outputs are rounded to two decimals for readability; Revenue calculations may round differently.</li>
+        <li>Assumes a full tax year with consistent income; mid-year changes and cumulative bases are out of scope.</li>
+      </ul>
+
+      <h2>What to do next</h2>
+      <p>Review the methodology before quoting figures in ads or client proposals. Use the <a href="/data-sources.html">data sources</a> page to confirm each rate, and consult our explainers for <a href="/guides/usc.html">USC</a>, <a href="/guides/prsi.html">PRSI</a>, <a href="/guides/pension-tax-relief.html">pension relief</a>, <a href="/guides/bik.html">BIK</a>, and <a href="/guides/rental-expenses.html">rental expenses</a>.</p>
+    </section>
+  </main>
+
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "TechArticle",
+      "headline": "How My Irish Tax calculations work",
+      "description": "Methodology for PAYE, USC, PRSI, and credits in the My Irish Tax calculator.",
+      "url": "https://myirishtax.com/methodology.html",
+      "author": {"@type": "Organization", "name": "My Irish Tax"},
+      "audience": {"@type": "Audience", "audienceType": "Irish taxpayers"},
+      "proficiencyLevel": "Beginner"
+    }
+  </script>
+</body>
+</html>
