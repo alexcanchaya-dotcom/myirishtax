@@ -81,23 +81,32 @@ function formatEuro(amount) {
   return `€${amount.toFixed(2)}`;
 }
 
-function calculateUSC(income) {
-  const bands = [
-    { limit: 12012, rate: 0.005 },
-    { limit: 25460, rate: 0.02 },
-    { limit: 55216, rate: 0.045 }
-  ];
-  let remaining = income;
-  let usc = 0;
-  for (const band of bands) {
-    const taxable = Math.min(remaining, band.limit - (bands[bands.indexOf(band) - 1]?.limit || 0));
-    if (taxable > 0) {
-      usc += taxable * band.rate;
-      remaining -= taxable;
+async function fetchJson(url, options) {
+  const response = await fetch(url, options);
+  if (!response.ok) throw new Error(`Request failed: ${response.status}`);
+  return response.json();
+}
+
+async function loadTaxYearOptions() {
+  if (!taxYearSelect) return;
+  try {
+    const { years } = await fetchJson('/api/tax/config');
+    taxYearSelect.innerHTML = '';
+    years.forEach((entry) => {
+      const option = document.createElement('option');
+      option.value = entry.year;
+      option.textContent = entry.year;
+      taxYearSelect.appendChild(option);
+    });
+    const latest = years.at(-1);
+    if (latest) {
+      taxYearSelect.value = latest.year;
+      const config = await ensureTaxYearConfig(latest.year);
+      applyDefaultCredits(config);
     }
+  } catch (err) {
+    console.error('Unable to load tax years', err);
   }
-  if (remaining > 0) usc += remaining * 0.08;
-  return usc;
 }
 
 function calculateEstimate({ income, cutoff, credits, includeUSC, includePRSI, pensionRate = 0, bonus = 0 }) {

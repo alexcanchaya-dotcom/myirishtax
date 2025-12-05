@@ -135,19 +135,24 @@
       </div>
       <form id="tax-calculator" class="form-grid" aria-label="Irish tax calculator">
         <div>
-          <label for="income">Annual gross income (€)</label>
+          <label for="tax-year">Tax year</label>
+          <select id="tax-year" name="tax-year" aria-describedby="tax-year-help"></select>
+          <p id="tax-year-help" class="helper">Loaded from Revenue-style configs at runtime.</p>
+        </div>
+        <div>
+          <label for="income">Primary employment (€)</label>
           <input id="income" name="income" type="number" min="0" step="500" required />
           <p class="helper">Include bonuses or allowances you want to project for the tax year.</p>
         </div>
         <div>
-          <label for="cutoff">Standard rate cutoff (€)</label>
-          <input id="cutoff" name="cutoff" type="number" min="0" step="500" value="42000" />
-          <p class="helper">Common cut-off used for PAYE. Adjust for joint assessment where relevant.</p>
+          <label for="secondary-income">Secondary employment (€)</label>
+          <input id="secondary-income" name="secondary-income" type="number" min="0" step="500" value="0" />
+          <p class="helper">Add if you have multiple employments; we'll flag credit/band guardrails.</p>
         </div>
         <div>
           <label for="credits">Tax credits (€)</label>
-          <input id="credits" name="credits" type="number" min="0" step="50" value="3500" />
-          <p class="helper">Default personal + PAYE credits. Update for home carer or age credits.</p>
+          <input id="credits" name="credits" type="number" min="0" step="50" value="0" />
+          <p class="helper">Defaults to Revenue personal + PAYE credits per the selected year.</p>
         </div>
         <div>
           <label for="usc">Include USC</label>
@@ -157,11 +162,16 @@
           </select>
         </div>
         <div>
-          <label for="prsi">Include PRSI (4%)</label>
+          <label for="prsi">Include PRSI (Class A)</label>
           <select id="prsi" name="prsi">
             <option value="yes">Yes</option>
             <option value="no">No</option>
           </select>
+        </div>
+        <div class="checkbox-field">
+          <input id="week1-month1" name="week1-month1" type="checkbox" />
+          <label for="week1-month1">Week 1 / Month 1 (non-cumulative) basis</label>
+          <p class="helper">We add guardrails and notes if emergency or non-cumulative basis applies.</p>
         </div>
         <button type="submit" class="btn btn-primary">Calculate</button>
       </form>

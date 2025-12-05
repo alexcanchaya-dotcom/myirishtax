@@ -1104,3 +1104,19 @@ textarea {
     transition-duration: 0.01ms !important;
   }
 }
+
+.card.warning {
+  border: 1px solid #d35400;
+  background: #fff7f0;
+}
+
+.checkbox-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.checkbox-field input[type='checkbox'] {
+  width: 1.1rem;
+  height: 1.1rem;
+}
