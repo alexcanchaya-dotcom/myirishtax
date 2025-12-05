@@ -1120,3 +1120,64 @@ textarea {
   width: 1.1rem;
   height: 1.1rem;
 }
+
+.ad-rail {
+  display: grid;
+  gap: var(--space-12);
+  align-items: stretch;
+  margin: var(--space-20) 0;
+}
+
+.ad-rail__copy {
+  background: var(--color-surface-muted);
+  border-radius: var(--radius-lg);
+  padding: var(--space-16);
+  border: 1px solid rgba(13, 27, 42, 0.05);
+}
+
+.ad-slot {
+  border: 1px dashed rgba(13, 27, 42, 0.2);
+  border-radius: var(--radius-lg);
+  padding: var(--space-12);
+  background: #f8fbff;
+  min-height: 140px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  justify-content: space-between;
+}
+
+.ad-slot h3 {
+  margin: 0 0 var(--space-4);
+}
+
+.ad-slot .helper {
+  color: var(--color-ink-400);
+  margin: 0;
+}
+
+.ad-slot--sidebar {
+  position: sticky;
+  top: 5.5rem;
+  min-height: 260px;
+}
+
+.ad-slot--inline {
+  margin: var(--space-16) 0;
+}
+
+.ad-slot--results {
+  margin: var(--space-12) 0 var(--space-8);
+}
+
+@media (min-width: 960px) {
+  .ad-rail {
+    grid-template-columns: 2fr 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .ad-slot--sidebar {
+    position: static;
+  }
+}

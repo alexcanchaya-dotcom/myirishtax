@@ -125,6 +125,22 @@
       <div class="hero-visual" aria-hidden="true"></div>
     </section>
 
+    <section class="ad-rail" aria-label="Monetisation-ready rail">
+      <div class="ad-rail__copy">
+        <p class="badge">Performance-friendly</p>
+        <h2>Privacy-first analytics with planned sponsor space</h2>
+        <p>Consent-gated Plausible/GA4 loads alongside Web Vitals tracking to keep Core Web Vitals healthy while reserving space for sponsors.</p>
+      </div>
+      <aside class="ad-slot ad-slot--sidebar" data-ad-slot="sidebar" data-ad-position="rail" aria-label="Sidebar ad slot">
+        <div>
+          <p class="badge">Sidebar slot</p>
+          <h3>300x250/300x600 ready</h3>
+          <p class="meta">Lazy load creative after consent while the reserved container prevents layout shifts.</p>
+        </div>
+        <p class="helper">Sticky on desktop, stacked on mobile for a non-intrusive rail.</p>
+      </aside>
+    </section>
+
     <section id="calculator" class="card">
       <div class="section-heading">
         <div>
@@ -177,6 +193,19 @@
       </form>
       <p class="meta">Need help with inputs? Review the guides on <a href="/guides/usc.html">USC bands</a>, <a href="/guides/prsi.html">PRSI classes</a>, <a href="/guides/pension-tax-relief.html">pension relief</a>, <a href="/guides/bik.html">benefit-in-kind</a>, and <a href="/guides/rental-expenses.html">rental expenses</a>.</p>
       <div id="results" class="card-grid calculator-results" aria-live="polite"></div>
+      <div
+        class="ad-slot ad-slot--results"
+        data-ad-slot="after-results"
+        data-ad-position="calculator"
+        aria-label="Sponsored card after calculator results"
+      >
+        <div>
+          <p class="badge">After-result slot</p>
+          <h3>Contextual offer card</h3>
+          <p class="meta">Serve lightweight text/image creative once results render, preserving LCP with a fixed-height shell.</p>
+        </div>
+        <p class="helper">Use CSS contain and lazy loading to protect CLS.</p>
+      </div>
       <div class="card-grid calculator-insights">
         <div class="card">
           <div class="card-heading">
@@ -349,6 +378,20 @@
         </div>
       </div>
     </section>
+
+    <div
+      class="ad-slot ad-slot--inline"
+      data-ad-slot="inline"
+      data-ad-position="how-section"
+      aria-label="Inline sponsored message"
+    >
+      <div>
+        <p class="badge">Inline slot</p>
+        <h3>Mid-article placement</h3>
+        <p class="meta">A 728x90 or native text unit fits here without interrupting the reading flow.</p>
+      </div>
+      <p class="helper">Only lazy-load after consent to avoid unexpected network requests.</p>
+    </div>
 
     <section id="services">
       <div class="section-heading">
