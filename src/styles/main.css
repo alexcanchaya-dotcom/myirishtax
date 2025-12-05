@@ -473,6 +473,139 @@ textarea {
   background: rgba(13, 27, 42, 0.02);
 }
 
+.calculator-insights {
+  margin-top: 1.5rem;
+}
+
+.card-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.input-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0.65rem 0;
+}
+
+.input-row input[type='range'] {
+  width: 100%;
+}
+
+.slider-value {
+  min-width: 96px;
+  text-align: right;
+  font-weight: 700;
+}
+
+.scenario-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.pill {
+  background: rgba(13, 27, 42, 0.04);
+  border-radius: var(--radius);
+  padding: 1rem;
+  border: 1px solid #e7ecf4;
+  display: grid;
+  gap: 0.35rem;
+}
+
+.pill.success {
+  border-color: rgba(45, 191, 100, 0.35);
+  background: rgba(45, 191, 100, 0.08);
+}
+
+.pill.muted {
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.big-number {
+  font-size: 1.5rem;
+  margin: 0;
+}
+
+.button-row {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin: 0.5rem 0 1rem;
+}
+
+.mini-form {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.mini-form input,
+.mini-form select {
+  padding: 0.8rem 1rem;
+  border-radius: 12px;
+  border: 1px solid #d7deeb;
+}
+
+.mini-form .checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.95rem;
+}
+
+.checklist {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.checklist label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem;
+  border-radius: 12px;
+  background: rgba(13, 27, 42, 0.03);
+  border: 1px solid #e7ecf4;
+}
+
+.history {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.history-bars {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.history-bars .bar {
+  position: relative;
+  background: rgba(13, 27, 42, 0.08);
+  border-radius: 10px;
+  padding: 0.65rem;
+  color: var(--navy);
+  min-width: 160px;
+}
+
+.history-bars .bar.active {
+  background: linear-gradient(120deg, rgba(45, 191, 100, 0.75), rgba(45, 191, 100, 0.55));
+  color: var(--white);
+}
+
+.card .meta,
+.history .meta {
+  color: var(--muted);
+}
+
 .contact-card {
   background: var(--navy);
   color: var(--white);
