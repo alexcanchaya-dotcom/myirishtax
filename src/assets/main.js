@@ -59,62 +59,129 @@ document.getElementById('reject-cookies')?.addEventListener('click', () => {
 
 const calculatorForm = document.getElementById('tax-calculator');
 const resultsContainer = document.getElementById('results');
+const taxYearSelect = document.getElementById('tax-year');
+const creditsInput = document.getElementById('credits');
+const secondaryIncomeInput = document.getElementById('secondary-income');
+
+const taxYearCache = new Map();
 
 function formatEuro(amount) {
   return `€${amount.toFixed(2)}`;
 }
 
-function calculateUSC(income) {
-  const bands = [
-    { limit: 12012, rate: 0.005 },
-    { limit: 25460, rate: 0.02 },
-    { limit: 55216, rate: 0.045 }
-  ];
-  let remaining = income;
-  let usc = 0;
-  for (const band of bands) {
-    const taxable = Math.min(remaining, band.limit - (bands[bands.indexOf(band) - 1]?.limit || 0));
-    if (taxable > 0) {
-      usc += taxable * band.rate;
-      remaining -= taxable;
-    }
-  }
-  if (remaining > 0) usc += remaining * 0.08;
-  return usc;
+async function fetchJson(url, options) {
+  const response = await fetch(url, options);
+  if (!response.ok) throw new Error(`Request failed: ${response.status}`);
+  return response.json();
 }
 
-calculatorForm?.addEventListener('submit', (e) => {
-  e.preventDefault();
-  if (!resultsContainer) return;
+async function loadTaxYearOptions() {
+  if (!taxYearSelect) return;
+  try {
+    const { years } = await fetchJson('/api/tax/config');
+    taxYearSelect.innerHTML = '';
+    years.forEach((entry) => {
+      const option = document.createElement('option');
+      option.value = entry.year;
+      option.textContent = entry.year;
+      taxYearSelect.appendChild(option);
+    });
+    const latest = years.at(-1);
+    if (latest) {
+      taxYearSelect.value = latest.year;
+      const config = await ensureTaxYearConfig(latest.year);
+      applyDefaultCredits(config);
+    }
+  } catch (err) {
+    console.error('Unable to load tax years', err);
+  }
+}
 
+async function ensureTaxYearConfig(year) {
+  if (taxYearCache.has(year)) return taxYearCache.get(year);
+  const data = await fetchJson(`/api/tax/config/${year}`);
+  taxYearCache.set(year, data);
+  return data;
+}
+
+function applyDefaultCredits(config) {
+  if (!creditsInput || !config?.income_tax?.credits) return;
+  const defaultCredits = (config.income_tax.credits.personal || 0) + (config.income_tax.credits.paye || 0);
+  creditsInput.value = defaultCredits;
+}
+
+function renderWarnings(warnings = []) {
+  if (!warnings.length) return '';
+  const items = warnings.map((warning) => `<li>${warning}</li>`).join('');
+  return `<div class="card warning"><h3>Guardrails</h3><ul class="features">${items}</ul></div>`;
+}
+
+function renderBreakdown(liabilities = []) {
+  return liabilities
+    .filter((item) => item.type !== 'bik')
+    .map(
+      (item) => `<li>${item.type.toUpperCase()}: ${formatEuro(item.liability || 0)}</li>`
+    )
+    .join('');
+}
+
+calculatorForm?.addEventListener('change', async (e) => {
+  if (e.target === taxYearSelect && taxYearSelect.value) {
+    try {
+      const config = await ensureTaxYearConfig(taxYearSelect.value);
+      applyDefaultCredits(config);
+    } catch (err) {
+      console.error('Unable to load selected year', err);
+    }
+  }
+});
+
+calculatorForm?.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  if (!resultsContainer || !taxYearSelect) return;
+
+  const taxYear = taxYearSelect.value;
   const income = Number(calculatorForm.income.value) || 0;
-  const cutoff = Number(calculatorForm.cutoff.value) || 0;
-  const credits = Number(calculatorForm.credits.value) || 0;
+  const secondaryIncome = Number(secondaryIncomeInput?.value) || 0;
+  const creditsValue = creditsInput?.value ?? '';
+  const credits = creditsValue === '' ? null : Number(creditsValue);
   const includeUSC = calculatorForm.usc.value === 'yes';
   const includePRSI = calculatorForm.prsi.value === 'yes';
+  const week1Month1Basis = calculatorForm['week1-month1']?.checked || false;
 
-  const standardTax = Math.min(income, cutoff) * 0.2;
-  const higherTax = Math.max(0, income - cutoff) * 0.4;
-  let paye = Math.max(0, standardTax + higherTax - credits);
-  const usc = includeUSC ? calculateUSC(income) : 0;
-  const prsi = includePRSI ? income * 0.04 : 0;
-  const totalDeductions = paye + usc + prsi;
-  const net = Math.max(0, income - totalDeductions);
+  try {
+    const payload = {
+      taxYear,
+      employments: [income, secondaryIncome],
+      taxCredits: Number.isFinite(credits) ? credits : null,
+      includeUSC,
+      includePRSI,
+      week1Month1Basis
+    };
 
-  resultsContainer.innerHTML = `
-    <div class="card">
-      <h3>Summary</h3>
-      <p><strong>Estimated net pay:</strong> ${formatEuro(net)}</p>
-      <p><strong>Total deductions:</strong> ${formatEuro(totalDeductions)}</p>
-    </div>
-    <div class="card">
-      <h3>Breakdown</h3>
-      <ul class="features">
-        <li>PAYE (est.): ${formatEuro(paye)}</li>
-        <li>USC (est.): ${formatEuro(usc)}</li>
-        <li>PRSI (est.): ${formatEuro(prsi)}</li>
-      </ul>
-      <p class="meta">Approximation based on common bands. Actual liability depends on Revenue rules, thresholds, and your circumstances.</p>
-    </div>
-  `;
+    const { result } = await fetchJson('/api/tax/calculate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    const warningBlock = renderWarnings(result.warnings);
+    resultsContainer.innerHTML = `
+      <div class="card">
+        <h3>Summary (${result.configMeta.year})</h3>
+        <p><strong>Estimated net pay:</strong> ${formatEuro(result.summary.netIncome)}</p>
+        <p><strong>Total deductions:</strong> ${formatEuro(result.summary.totalLiability)}</p>
+      </div>
+      <div class="card">
+        <h3>Breakdown</h3>
+        <ul class="features">${renderBreakdown(result.liabilities)}</ul>
+        <p class="meta">Runtime config driven by Revenue-style thresholds. Use as guidance only.</p>
+      </div>
+      ${warningBlock}
+    `;
+  } catch (err) {
+    resultsContainer.innerHTML = `<div class="card warning"><h3>Calculation error</h3><p>${err.message}</p></div>`;
+  }
 });
+
+loadTaxYearOptions();
