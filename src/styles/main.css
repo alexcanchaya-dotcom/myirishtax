@@ -332,6 +332,54 @@ section {
   border: 1px solid rgba(255, 255, 255, 0.12);
 }
 
+.whats-new {
+  margin-top: -1rem;
+  align-items: stretch;
+}
+
+.update-card {
+  position: relative;
+  padding: 1.75rem;
+  border-radius: var(--radius);
+  background: var(--white);
+  border: 1px solid #e7ecf4;
+  box-shadow: var(--shadow);
+}
+
+.update-card.muted {
+  background: var(--color-surface-muted);
+  border-style: dashed;
+}
+
+.update-card h2,
+.update-card h3 {
+  margin: 0.35rem 0 0.6rem;
+}
+
+.lead {
+  font-size: 1.1rem;
+  margin: 0 0 1rem;
+  color: var(--color-ink-600);
+}
+
+.update-list {
+  margin: 0 0 1rem;
+  padding-left: 1.1rem;
+  color: var(--color-ink-600);
+  display: grid;
+  gap: 0.35rem;
+}
+
+.update-list li strong {
+  color: var(--color-ink-900);
+}
+
+.update-meta {
+  font-size: 0.95rem;
+  color: var(--color-ink-500);
+  padding-top: 0.25rem;
+}
+
 .card-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
