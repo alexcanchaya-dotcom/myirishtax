@@ -220,12 +220,13 @@
             <button type="button" class="btn btn-secondary" id="download-pdf">Download PDF</button>
             <button type="button" class="btn btn-primary" id="download-csv">Download CSV</button>
           </div>
-          <form id="email-summary" class="mini-form" aria-label="Email summary">
-            <label for="email">Email my summary</label>
-            <input id="email" name="email" type="email" required placeholder="you@example.com" />
-            <label class="checkbox">
-              <input type="checkbox" name="consent" required />
-              <span>I agree to receive this one-off summary email.</span>
+            <form id="email-summary" class="mini-form" aria-label="Email summary">
+              <label for="email">Email my summary</label>
+              <input id="email" name="email" type="email" required placeholder="you@example.com" />
+              <input type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;height:1px;width:1px;" />
+              <label class="checkbox">
+                <input type="checkbox" name="consent" required />
+                <span>I agree to receive this one-off summary email.</span>
             </label>
             <button class="btn btn-primary" type="submit">Send summary</button>
             <p class="form-status meta" aria-live="polite"></p>
@@ -239,12 +240,13 @@
             </div>
             <p class="meta">Capture email with GDPR consent for gentle nudges like preliminary tax due.</p>
           </div>
-          <form id="reminder-form" class="mini-form" aria-label="Reminder capture">
-            <label for="reminder-email">Email for reminders</label>
-            <input id="reminder-email" name="email" type="email" required placeholder="you@example.com" />
-            <label for="reminder-type">Reminder type</label>
-            <select id="reminder-type" name="type">
-              <option value="preliminary">Preliminary tax due</option>
+            <form id="reminder-form" class="mini-form" aria-label="Reminder capture">
+              <label for="reminder-email">Email for reminders</label>
+              <input id="reminder-email" name="email" type="email" required placeholder="you@example.com" />
+              <input type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;height:1px;width:1px;" />
+              <label for="reminder-type">Reminder type</label>
+              <select id="reminder-type" name="type">
+                <option value="preliminary">Preliminary tax due</option>
               <option value="documents">Missing documents</option>
               <option value="balance">Balance due update</option>
             </select>

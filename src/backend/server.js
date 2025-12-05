@@ -18,9 +18,45 @@ dotenv.config();
 const app = express();
 const upload = multer({ dest: 'uploads/' });
 const PORT = process.env.PORT || 3000;
+const RATE_LIMIT_WINDOW_MS = 60_000;
+const RATE_LIMIT_MAX = 30;
+const requestCounts = new Map();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+app.use((req, res, next) => {
+  res.set({
+    'X-Content-Type-Options': 'nosniff',
+    'X-Frame-Options': 'SAMEORIGIN',
+    'Referrer-Policy': 'no-referrer-when-downgrade',
+    'Permissions-Policy': 'geolocation=()',
+    'Cross-Origin-Opener-Policy': 'same-origin',
+    'Cross-Origin-Resource-Policy': 'same-origin',
+    'Content-Security-Policy': "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; form-action 'self';"
+  });
+  next();
+});
+
+function rateLimit(req, res, next) {
+  const now = Date.now();
+  const ip = req.ip || req.connection.remoteAddress || 'unknown';
+  const entry = requestCounts.get(ip) || { count: 0, start: now };
+  if (now - entry.start > RATE_LIMIT_WINDOW_MS) {
+    requestCounts.set(ip, { count: 1, start: now });
+    return next();
+  }
+  if (entry.count >= RATE_LIMIT_MAX) return res.status(429).json({ error: 'Slow down and try again shortly.' });
+  entry.count += 1;
+  requestCounts.set(ip, entry);
+  return next();
+}
+
+app.use(rateLimit);
+
+function hasBotField(req) {
+  return typeof req.body?.website === 'string' && req.body.website.trim().length > 0;
+}
 
 // Health/SSL check endpoint
 app.get('/health', (_req, res) => {
@@ -29,6 +65,7 @@ app.get('/health', (_req, res) => {
 
 app.post('/api/contact', async (req, res) => {
   const { name, email, phone, service, message, consent } = req.body;
+  if (hasBotField(req)) return res.status(400).json({ error: 'Bot submission detected' });
   if (!name || !email || !message || !consent) return res.status(400).json({ error: 'Missing required fields' });
 
   const subject = `New enquiry: ${service || 'General'}`;
@@ -48,6 +85,7 @@ app.post('/api/contact', async (req, res) => {
 
 app.post('/api/summary', async (req, res) => {
   const { email, summary, consent } = req.body;
+  if (hasBotField(req)) return res.status(400).json({ error: 'Bot submission detected' });
   if (!email || !consent || !summary) return res.status(400).json({ error: 'Missing email, consent, or summary' });
   try {
     await sendEmail({
@@ -64,6 +102,7 @@ app.post('/api/summary', async (req, res) => {
 
 app.post('/api/onboarding', async (req, res) => {
   const { email, filingType } = req.body;
+  if (hasBotField(req)) return res.status(400).json({ error: 'Bot submission detected' });
   if (!email) return res.status(400).json({ error: 'Email is required' });
   try {
     const onboarding = await startOnboarding({ email, filingType });
@@ -77,6 +116,7 @@ app.post('/api/onboarding', async (req, res) => {
 
 app.post('/api/upload', upload.single('file'), async (req, res) => {
   if (!req.file) return res.status(400).json({ error: 'No file attached' });
+  if (hasBotField(req)) return res.status(400).json({ error: 'Bot submission detected' });
   try {
     const { storedAt } = await uploadDocument({
       filename: req.file.originalname,
@@ -92,6 +132,7 @@ app.post('/api/upload', upload.single('file'), async (req, res) => {
 
 app.post('/api/reminders', async (req, res) => {
   const { email, type, delayHours } = req.body;
+  if (hasBotField(req)) return res.status(400).json({ error: 'Bot submission detected' });
   if (!email || !type) return res.status(400).json({ error: 'Missing email or type' });
   try {
     await scheduleReminder({ email, type, delayHours });
@@ -104,6 +145,7 @@ app.post('/api/reminders', async (req, res) => {
 
 app.post('/api/upsell', async (req, res) => {
   const { email, service } = req.body;
+  if (hasBotField(req)) return res.status(400).json({ error: 'Bot submission detected' });
   if (!email || !service) return res.status(400).json({ error: 'Missing email or service' });
   try {
     const result = await createUpsellIntent({ email, service });

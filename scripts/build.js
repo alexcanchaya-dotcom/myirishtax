@@ -3,10 +3,12 @@ import path from 'path';
 
 const cssSrc = path.resolve('src/styles/main.css');
 const cssDest = path.resolve('public/assets/css/main.min.css');
-const jsSrc = path.resolve('src/assets/main.js');
-const jsDest = path.resolve('public/assets/js/main.min.js');
-const calculatorSrc = path.resolve('src/assets/calculator.js');
-const calculatorDest = path.resolve('public/assets/js/calculator.js');
+
+const jsEntries = [
+  { src: path.resolve('src/assets/main.js'), dest: path.resolve('public/assets/js/main.min.js') },
+  { src: path.resolve('src/assets/calculator.js'), dest: path.resolve('public/assets/js/calculator.js') },
+  { src: path.resolve('src/assets/tracking.js'), dest: path.resolve('public/assets/js/tracking.js') }
+];
 
 function minify(content) {
   return content
@@ -28,19 +30,13 @@ function buildCSS() {
 }
 
 function buildJS() {
-  const js = fs.readFileSync(jsSrc, 'utf-8');
-  ensureDir(jsDest);
-  fs.writeFileSync(jsDest, minify(js));
-  console.log('JS minified to', jsDest);
-}
-
-function copyCalculator() {
-  const js = fs.readFileSync(calculatorSrc, 'utf-8');
-  ensureDir(calculatorDest);
-  fs.writeFileSync(calculatorDest, minify(js));
-  console.log('Calculator exported to', calculatorDest);
+  jsEntries.forEach(({ src, dest }) => {
+    const js = fs.readFileSync(src, 'utf-8');
+    ensureDir(dest);
+    fs.writeFileSync(dest, minify(js));
+    console.log('JS processed to', dest);
+  });
 }
 
 buildCSS();
 buildJS();
-copyCalculator();
