@@ -547,6 +547,88 @@
         </article>
       </div>
     </section>
+
+    <section id="disclaimers" class="card">
+      <div class="section-heading">
+        <div>
+          <p class="badge">Disclaimers</p>
+          <h2>Clear, human-readable disclosures</h2>
+        </div>
+        <p>Our calculator is illustrative only, is not Revenue guidance, and does not constitute personalised tax advice.</p>
+      </div>
+      <ul class="features">
+        <li>Estimates rely on user inputs and common bands; confirm outcomes with Revenue before filing or relying on figures.</li>
+        <li>No client relationship is formed until we confirm acceptance in writing following AML/KYC checks.</li>
+        <li>Advertising placements are marked and separated from calculator logic to keep results unbiased.</li>
+      </ul>
+      <p class="meta">See the <a href="/disclaimer.html">full disclaimer</a> plus our <a href="/terms.html">Terms</a>, <a href="/privacy.html">Privacy Policy</a>, and <a href="/cookies.html">Cookie Policy</a>.</p>
+    </section>
+
+    <section id="contact" class="card">
+      <div class="section-heading">
+        <div>
+          <p class="badge">Imprint & Contact</p>
+          <h2>Talk to a human or send feedback</h2>
+        </div>
+        <p>Reach us for support, accessibility requests, or GDPR rights. We respond quickly and keep a written trail.</p>
+      </div>
+      <div class="card-grid trust-grid">
+        <article class="card">
+          <h3>Business identity</h3>
+          <p><strong>My Irish Tax Ltd</strong> | CRO: 123456</p>
+          <p>Registered office: 123 Example Quay, Dublin, Ireland</p>
+          <p>Phone: +353 (0)1 234 5678</p>
+          <p>Email: <a href="mailto:support@myirishtax.com">support@myirishtax.com</a></p>
+        </article>
+        <article class="card">
+          <h3>Data protection contact</h3>
+          <p>Data protection lead: privacy@myirishtax.com</p>
+          <p>Used for GDPR access, deletion, and restriction requests.</p>
+          <p>We log consent preferences locally for your records.</p>
+        </article>
+      </div>
+      <form id="feedback-form" class="card" aria-describedby="feedback-help">
+        <h3>Feedback & accessibility</h3>
+        <p id="feedback-help">Share bugs, accessibility issues, or service questions. Required fields are marked.</p>
+        <div class="input-grid">
+          <label>
+            Name*
+            <input type="text" name="name" required />
+          </label>
+          <label>
+            Email*
+            <input type="email" name="email" required />
+          </label>
+          <label>
+            Phone
+            <input type="tel" name="phone" inputmode="tel" />
+          </label>
+          <label>
+            Topic
+            <select name="service">
+              <option value="support">Support</option>
+              <option value="accessibility">Accessibility</option>
+              <option value="gdpr">Privacy / GDPR</option>
+              <option value="sales">Sales / onboarding</option>
+              <option value="other">Other</option>
+            </select>
+          </label>
+        </div>
+        <label>
+          Message*
+          <textarea name="message" rows="4" required></textarea>
+        </label>
+        <label>
+          <input type="checkbox" name="consent" required /> I agree to the Privacy Policy and for my data to be used to respond to this request.
+        </label>
+        <input type="text" name="website" aria-hidden="true" tabindex="-1" autocomplete="off" style="position: absolute; left: -9999px; opacity: 0;" />
+        <div class="hero-actions">
+          <button class="btn btn-primary" type="submit">Send message</button>
+          <button class="btn btn-secondary" type="button" id="open-cookie-settings">Cookie settings</button>
+        </div>
+        <p class="form-status" aria-live="polite"></p>
+      </form>
+    </section>
   </main>
 
   <footer class="footer" aria-label="Footer">
@@ -555,6 +637,7 @@
         <h3>My Irish Tax</h3>
         <p>Online Irish tax calculator with PAYE, non-resident, and self-employed service options.</p>
         <p id="business-identity">CRO: 123456 | 123 Example Quay, Dublin | +353 (0)1 234 5678 | support@myirishtax.com</p>
+        <p class="meta">For accessibility feedback email <a href="mailto:accessibility@myirishtax.com">accessibility@myirishtax.com</a>.</p>
       </div>
       <div>
         <h4>Legal</h4>
@@ -573,12 +656,22 @@
     <p class="meta">© 2025 My Irish Tax. All rights reserved. Not affiliated with the Irish Revenue Commissioners.</p>
   </footer>
 
-  <div id="cookie-banner" class="cookie-banner" role="dialog" aria-live="polite">
-    <p>We use cookies for analytics and experience. Choose accept to enable or reject to continue with essential cookies.</p>
-    <div class="hero-actions">
-      <button class="btn btn-primary" id="accept-cookies">Accept</button>
-      <button class="btn btn-secondary" id="reject-cookies">Reject</button>
-    </div>
+  <div id="cookie-banner" class="cookie-banner" role="dialog" aria-live="polite" aria-label="Cookie preferences" aria-hidden="true">
+    <form id="consent-form">
+      <p><strong>Privacy first:</strong> we only run optional analytics or performance monitoring if you choose. Essential cookies keep the site secure.</p>
+      <fieldset>
+        <legend>Choose your preferences</legend>
+        <label><input type="checkbox" id="consent-analytics" /> Analytics (anonymous usage to improve the site)</label><br />
+        <label><input type="checkbox" id="consent-performance" /> Performance (Web Vitals and uptime measurements)</label><br />
+        <label><input type="checkbox" id="consent-marketing" /> Marketing (future sponsorship pixels when relevant)</label>
+      </fieldset>
+      <p class="meta">We store your choice locally with a timestamp so you can evidence consent. Update anytime via Cookie settings.</p>
+      <div class="hero-actions">
+        <button class="btn btn-primary" type="button" id="accept-cookies">Accept all</button>
+        <button class="btn btn-secondary" type="button" id="reject-cookies">Reject optional</button>
+        <button class="btn" type="button" id="save-cookies">Save preferences</button>
+      </div>
+    </form>
   </div>
 
   <script type="module" src="/assets/js/main.min.js" defer></script>
