@@ -21,7 +21,7 @@
     "nodemailer": "^6.9.8"
   },
   "devDependencies": {
-    "@vitest/coverage-c8": "^2.0.5",
+    "@vitest/coverage-v8": "^2.0.5",
     "artillery": "^2.0.10",
     "eslint": "^9.10.0",
     "eslint-config-prettier": "^9.1.0",
