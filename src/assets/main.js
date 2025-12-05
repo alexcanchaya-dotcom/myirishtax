@@ -1,170 +1,141 @@
-import { buildExportSummary, calculateTaxResult, formatEuro } from './calculator.js';
+import { calculateTaxResult, formatEuro } from './calculator.js';
 
-const faqItems = document.querySelectorAll('.faq-item');
-faqItems.forEach((item, index) => {
-  const question = item.querySelector('.faq-question');
-  const answer = item.querySelector('.faq-answer');
-  const toggle = item.querySelector('.faq-toggle');
+const DEFAULT_CUTOFF = 42000;
+const DEFAULT_CREDITS = 3500;
+const HISTORY_KEY = 'mit-year-history';
+const CONSENT_KEY = 'mit-consent';
 
-  if (!question || !answer) return;
+function setupFaq() {
+  document.querySelectorAll('.faq-item').forEach((item, index) => {
+    const question = item.querySelector('.faq-question');
+    const answer = item.querySelector('.faq-answer');
+    const toggle = item.querySelector('.faq-toggle');
+    if (!question || !answer) return;
 
-  const answerId = answer.id || `faq-answer-${index + 1}`;
-  answer.id = answerId;
-  question.setAttribute('aria-controls', answerId);
+    const answerId = answer.id || `faq-answer-${index + 1}`;
+    answer.id = answerId;
+    question.setAttribute('aria-controls', answerId);
+    question.setAttribute('tabindex', '0');
 
-  const isInitiallyActive = item.classList.contains('active');
-  answer.hidden = !isInitiallyActive;
+    const syncState = (isActive) => {
+      question.setAttribute('aria-expanded', isActive ? 'true' : 'false');
+      answer.hidden = !isActive;
+      if (toggle) toggle.textContent = isActive ? '–' : '+';
+    };
 
-  question.addEventListener('click', () => {
-    const isActive = item.classList.toggle('active');
-    question.setAttribute('aria-expanded', isActive ? 'true' : 'false');
-    answer.hidden = !isActive;
-    if (toggle) toggle.textContent = isActive ? '–' : '+';
+    syncState(item.classList.contains('active'));
+
+    const toggleItem = () => {
+      const isActive = item.classList.toggle('active');
+      syncState(isActive);
+    };
+
+    question.addEventListener('click', toggleItem);
+    question.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        toggleItem();
+      }
+    });
   });
-});
+}
 
-const navLinks = document.querySelectorAll('.nav-links a[href^="#"]');
-navLinks.forEach((link) => {
-  link.addEventListener('click', (e) => {
-    const target = document.querySelector(link.getAttribute('href'));
-    if (target) {
-      e.preventDefault();
-      target.scrollIntoView({ behavior: 'smooth' });
-    }
+function setupSmoothScroll() {
+  document.querySelectorAll('.nav-links a[href^="#"]').forEach((link) => {
+    link.addEventListener('click', (event) => {
+      const target = document.querySelector(link.getAttribute('href'));
+      if (target) {
+        event.preventDefault();
+        target.scrollIntoView({ behavior: 'smooth' });
+        target.setAttribute('tabindex', '-1');
+        target.focus({ preventScroll: true });
+      }
+    });
   });
-});
+}
 
 function toggleCookieBanner(show) {
   const banner = document.getElementById('cookie-banner');
   if (!banner) return;
-  if (show) {
-    banner.classList.add('show');
-  } else {
-    banner.classList.remove('show');
-  }
+  banner.classList.toggle('show', Boolean(show));
 }
 
-const consent = localStorage.getItem('mit-consent');
-if (!consent) {
-  setTimeout(() => toggleCookieBanner(true), 900);
-}
-
-document.getElementById('accept-cookies')?.addEventListener('click', () => {
-  localStorage.setItem('mit-consent', 'accepted');
-  toggleCookieBanner(false);
-});
-
-document.getElementById('reject-cookies')?.addEventListener('click', () => {
-  localStorage.setItem('mit-consent', 'rejected');
-  toggleCookieBanner(false);
-});
-
-const calculatorForm = document.getElementById('tax-calculator');
-const resultsContainer = document.getElementById('results');
-const scenarioNet = document.getElementById('scenario-net');
-const baselineNet = document.getElementById('baseline-net');
-const scenarioSavings = document.getElementById('scenario-savings');
-const pensionSlider = document.getElementById('pension-rate');
-const bonusSlider = document.getElementById('bonus-amount');
-const pensionValue = document.getElementById('pension-value');
-const bonusValue = document.getElementById('bonus-value');
-const pdfButton = document.getElementById('download-pdf');
-const csvButton = document.getElementById('download-csv');
-const emailForm = document.getElementById('email-summary');
-const reminderForm = document.getElementById('reminder-form');
-const checklist = document.getElementById('credits-checklist');
-const historyContainer = document.getElementById('history-bars');
-const historyMeta = document.getElementById('history-meta');
-
-let lastResult = null;
-const HISTORY_KEY = 'mit-year-history';
-
-calculatorForm?.addEventListener('submit', (e) => {
-  e.preventDefault();
-  if (!resultsContainer) return;
-function formatEuro(amount) {
-  return `€${amount.toFixed(2)}`;
-}
-
-async function fetchJson(url, options) {
-  const response = await fetch(url, options);
-  if (!response.ok) throw new Error(`Request failed: ${response.status}`);
-  return response.json();
-}
-
-async function loadTaxYearOptions() {
-  if (!taxYearSelect) return;
+async function loadTracking(consent) {
+  if (consent !== 'accepted') return;
   try {
-    const { years } = await fetchJson('/api/tax/config');
-    taxYearSelect.innerHTML = '';
-    years.forEach((entry) => {
-      const option = document.createElement('option');
-      option.value = entry.year;
-      option.textContent = entry.year;
-      taxYearSelect.appendChild(option);
-    });
-    const latest = years.at(-1);
-    if (latest) {
-      taxYearSelect.value = latest.year;
-      const config = await ensureTaxYearConfig(latest.year);
-      applyDefaultCredits(config);
-    }
-  } catch (err) {
-    console.error('Unable to load tax years', err);
+    const module = await import('./tracking.js');
+    module.bootstrapTracking();
+  } catch (error) {
+    console.warn('Optional tracking failed to load', error);
   }
 }
 
-function calculateEstimate({ income, cutoff, credits, includeUSC, includePRSI, pensionRate = 0, bonus = 0 }) {
-  const pensionDecimal = Math.max(0, pensionRate) / 100;
-  const bonusAmount = Math.max(0, Number(bonus) || 0);
-  const grossWithBonus = income + bonusAmount;
-  const pensionContribution = grossWithBonus * pensionDecimal;
-  const taxableIncome = Math.max(0, grossWithBonus - pensionContribution);
+function setupConsent() {
+  const acceptButton = document.getElementById('accept-cookies');
+  const rejectButton = document.getElementById('reject-cookies');
+  const consent = localStorage.getItem(CONSENT_KEY);
 
-  const standardTax = Math.min(taxableIncome, cutoff) * 0.2;
-  const higherTax = Math.max(0, taxableIncome - cutoff) * 0.4;
-  const paye = Math.max(0, standardTax + higherTax - credits);
-  const usc = includeUSC ? calculateUSC(taxableIncome) : 0;
-  const prsi = includePRSI ? taxableIncome * 0.04 : 0;
-  const totalDeductions = paye + usc + prsi + pensionContribution;
-  const net = Math.max(0, grossWithBonus - totalDeductions);
+  if (!consent) {
+    setTimeout(() => toggleCookieBanner(true), 600);
+  } else {
+    loadTracking(consent);
+  }
 
-  return { paye, usc, prsi, pensionContribution, totalDeductions, net, grossWithBonus };
+  acceptButton?.addEventListener('click', () => {
+    localStorage.setItem(CONSENT_KEY, 'accepted');
+    toggleCookieBanner(false);
+    loadTracking('accepted');
+  });
+
+  rejectButton?.addEventListener('click', () => {
+    localStorage.setItem(CONSENT_KEY, 'rejected');
+    toggleCookieBanner(false);
+  });
 }
 
-function getInputs() {
+function getCalculatorInputs() {
+  const primaryIncome = Number(document.getElementById('income')?.value) || 0;
+  const secondaryIncome = Number(document.getElementById('secondary-income')?.value) || 0;
+  const credits = Number(document.getElementById('credits')?.value) || DEFAULT_CREDITS;
+  const includeUSC = document.getElementById('usc')?.value !== 'no';
+  const includePRSI = document.getElementById('prsi')?.value !== 'no';
+
   return {
-    income: Number(calculatorForm?.income.value) || 0,
-    cutoff: Number(calculatorForm?.cutoff.value) || 0,
-    credits: Number(calculatorForm?.credits.value) || 0,
-    includeUSC: calculatorForm?.usc.value === 'yes',
-    includePRSI: calculatorForm?.prsi.value === 'yes'
+    income: Math.max(primaryIncome + secondaryIncome, 0),
+    cutoff: DEFAULT_CUTOFF,
+    credits: Math.max(credits, 0),
+    includeUSC,
+    includePRSI
   };
 }
 
-function renderResults(baseResult) {
+function renderResults(result) {
+  const resultsContainer = document.getElementById('results');
   if (!resultsContainer) return;
+
   resultsContainer.innerHTML = `
-    <div class="card">
+    <div class="card" role="status" aria-live="polite">
       <h3>Summary</h3>
-      <p><strong>Estimated net pay:</strong> ${formatEuro(baseResult.net)}</p>
-      <p><strong>Total deductions:</strong> ${formatEuro(baseResult.totalDeductions)}</p>
+      <p><strong>Estimated net pay:</strong> ${formatEuro(result.net)}</p>
+      <p><strong>Total deductions:</strong> ${formatEuro(result.totalDeductions)}</p>
     </div>
     <div class="card">
       <h3>Breakdown</h3>
       <ul class="features">
-        <li>PAYE (est.): ${formatEuro(baseResult.paye)}</li>
-        <li>USC (est.): ${formatEuro(baseResult.usc)}</li>
-        <li>PRSI (est.): ${formatEuro(baseResult.prsi)}</li>
-        <li>Pension contribution: ${formatEuro(baseResult.pensionContribution)}</li>
+        <li>PAYE (est.): ${formatEuro(result.paye)}</li>
+        <li>USC (est.): ${formatEuro(result.usc)}</li>
+        <li>PRSI (est.): ${formatEuro(result.prsi)}</li>
       </ul>
-      <p class="meta">Approximation based on common bands. Actual liability depends on Revenue rules, thresholds, and your circumstances.</p>
+      <p class="meta">Approximation based on common bands. Confirm against Revenue thresholds.</p>
     </div>
-    <pre class="meta">PDF/export snapshot:\n${JSON.stringify(snapshot, null, 2)}</pre>
   `;
 }
 
 function renderScenario(baseResult, scenarioResult) {
+  const scenarioNet = document.getElementById('scenario-net');
+  const baselineNet = document.getElementById('baseline-net');
+  const scenarioSavings = document.getElementById('scenario-savings');
+
   if (!scenarioNet || !baselineNet || !scenarioSavings) return;
   baselineNet.textContent = formatEuro(baseResult.net);
   scenarioNet.textContent = formatEuro(scenarioResult.net);
@@ -172,22 +143,28 @@ function renderScenario(baseResult, scenarioResult) {
   scenarioSavings.textContent = `${delta >= 0 ? 'Up' : 'Down'} ${formatEuro(Math.abs(delta))} vs. baseline`;
 }
 
+function updateSliders() {
+  const pensionSlider = document.getElementById('pension-rate');
+  const bonusSlider = document.getElementById('bonus-amount');
+  const pensionValue = document.getElementById('pension-value');
+  const bonusValue = document.getElementById('bonus-value');
+
+  if (pensionValue && pensionSlider) pensionValue.textContent = `${pensionSlider.value}%`;
+  if (bonusValue && bonusSlider) bonusValue.textContent = `€${Number(bonusSlider.value).toLocaleString()}`;
+}
+
 function displayHistory(records = []) {
+  const historyContainer = document.getElementById('history-bars');
+  const historyMeta = document.getElementById('history-meta');
   if (!historyContainer || !historyMeta) return;
-  if (records.length === 0) {
-    historyContainer.innerHTML = '<p class="meta">Run a calculation to start your saved draft history.</p>';
+
+  if (records.length < 2) {
+    historyContainer.innerHTML = '<p class="meta">Run two calculations to see your change over time.</p>';
     historyMeta.textContent = '';
     return;
   }
 
-  const lastTwo = records.slice(-2);
-  if (lastTwo.length < 2) {
-    historyContainer.innerHTML = '<p class="meta">Run another calculation to see year-over-year changes.</p>';
-    historyMeta.textContent = '';
-    return;
-  }
-
-  const [prev, current] = lastTwo;
+  const [prev, current] = records.slice(-2);
   const maxNet = Math.max(prev.net, current.net, 1);
   historyContainer.innerHTML = `
     <div class="bar" aria-label="Previous year net" style="width:${(prev.net / maxNet) * 100}%">
@@ -202,48 +179,20 @@ function displayHistory(records = []) {
   historyMeta.textContent = `${yearOverYear >= 0 ? 'Increase' : 'Decrease'} of ${formatEuro(Math.abs(yearOverYear))} based on your saved drafts.`;
 }
 
-function updateHistory(baseResult) {
-  if (!historyContainer || !historyMeta) return;
-  const record = { net: baseResult.net, income: getInputs().income, timestamp: Date.now() };
-  const existing = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
-  existing.push(record);
-  const trimmed = existing.slice(-4);
-  localStorage.setItem(HISTORY_KEY, JSON.stringify(trimmed));
-  displayHistory(trimmed);
+function saveHistory(result) {
+  const records = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+  records.push({ net: result.net, timestamp: Date.now() });
+  localStorage.setItem(HISTORY_KEY, JSON.stringify(records.slice(-4)));
+  displayHistory(records.slice(-4));
 }
 
-function renderStoredHistory() {
-  const existing = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
-  displayHistory(existing);
-}
-
-function syncChecklist() {
-  if (!checklist) return;
-  const stored = JSON.parse(localStorage.getItem('mit-credits-checklist') || '{}');
-  checklist.querySelectorAll('input[type="checkbox"]').forEach((box) => {
-    const key = box.id;
-    box.checked = Boolean(stored[key]);
-    box.addEventListener('change', () => {
-      stored[key] = box.checked;
-      localStorage.setItem('mit-credits-checklist', JSON.stringify(stored));
-    });
-  });
-}
-
-function exportData(format) {
-  if (!lastResult) {
-    alert('Run the calculator first to export results.');
-    return;
-  }
-
+function exportData(result, format) {
   const rows = [
-    ['Gross (incl. bonus)', formatEuro(lastResult.grossWithBonus)],
-    ['Net pay', formatEuro(lastResult.net)],
-    ['PAYE', formatEuro(lastResult.paye)],
-    ['USC', formatEuro(lastResult.usc)],
-    ['PRSI', formatEuro(lastResult.prsi)],
-    ['Pension contribution', formatEuro(lastResult.pensionContribution)],
-    ['Total deductions', formatEuro(lastResult.totalDeductions)]
+    ['Net pay', formatEuro(result.net)],
+    ['Total deductions', formatEuro(result.totalDeductions)],
+    ['PAYE', formatEuro(result.paye)],
+    ['USC', formatEuro(result.usc)],
+    ['PRSI', formatEuro(result.prsi)]
   ];
 
   if (format === 'csv') {
@@ -267,110 +216,158 @@ function exportData(format) {
   }
 }
 
-function attachExports() {
-  pdfButton?.addEventListener('click', () => exportData('pdf'));
-  csvButton?.addEventListener('click', () => exportData('csv'));
+function setupExports(lastResultRef) {
+  document.getElementById('download-pdf')?.addEventListener('click', () => {
+    if (lastResultRef.value) exportData(lastResultRef.value, 'pdf');
+  });
+  document.getElementById('download-csv')?.addEventListener('click', () => {
+    if (lastResultRef.value) exportData(lastResultRef.value, 'csv');
+  });
 }
 
-function attachEmailSummary() {
-  if (!emailForm) return;
-  emailForm.addEventListener('submit', async (event) => {
+function setupEmailForm(lastResultRef) {
+  const form = document.getElementById('email-summary');
+  if (!form) return;
+
+  form.addEventListener('submit', async (event) => {
     event.preventDefault();
-    if (!lastResult) {
-      alert('Calculate your estimate before sending a summary.');
+    const status = form.querySelector('.form-status');
+    if (!lastResultRef.value) {
+      status.textContent = 'Calculate your estimate before sending a summary.';
       return;
     }
-    const email = emailForm.email.value;
-    const consent = emailForm.consent.checked;
-    if (!consent) {
-      alert('Consent is required before emailing your summary.');
-      return;
-    }
-    const summary = `Net pay: ${formatEuro(lastResult.net)} | Total deductions: ${formatEuro(lastResult.totalDeductions)} | Pension: ${formatEuro(lastResult.pensionContribution)}`;
+
+    const honeypot = form.querySelector('[name="website"]');
+    if (honeypot?.value) return;
+
+    const payload = {
+      email: form.email.value,
+      summary: `Net pay: ${formatEuro(lastResultRef.value.net)} | Total deductions: ${formatEuro(lastResultRef.value.totalDeductions)}`,
+      consent: form.consent.checked,
+      website: honeypot?.value || ''
+    };
+
     try {
       const response = await fetch('/api/summary', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, summary, consent })
+        body: JSON.stringify(payload)
       });
       if (!response.ok) throw new Error('Unable to send summary');
-      emailForm.reset();
-      emailForm.querySelector('.form-status').textContent = 'Summary emailed securely.';
-    } catch (err) {
-      emailForm.querySelector('.form-status').textContent = 'Email failed. Please try again.';
-      console.error(err);
+      form.reset();
+      status.textContent = 'Summary emailed securely.';
+    } catch (error) {
+      status.textContent = 'Email failed. Please try again.';
+      console.error(error);
     }
   });
 }
 
-function attachReminderForm() {
-  if (!reminderForm) return;
-  reminderForm.addEventListener('submit', async (event) => {
+function setupReminderForm() {
+  const form = document.getElementById('reminder-form');
+  if (!form) return;
+
+  form.addEventListener('submit', async (event) => {
     event.preventDefault();
-    const email = reminderForm.email.value;
-    const type = reminderForm.elements.type.value;
-    const consent = reminderForm.consent.checked;
-    if (!consent) {
-      alert('Consent is required before scheduling reminders.');
-      return;
-    }
+    const status = form.querySelector('.form-status');
+    const honeypot = form.querySelector('[name="website"]');
+    if (honeypot?.value) return;
+
+    const payload = {
+      email: form.email.value,
+      type: form.elements.type.value,
+      consent: form.consent.checked,
+      website: honeypot?.value || ''
+    };
+
     try {
       const response = await fetch('/api/reminders', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, type })
+        body: JSON.stringify(payload)
       });
       if (!response.ok) throw new Error('Unable to schedule reminder');
-      reminderForm.reset();
-      reminderForm.querySelector('.form-status').textContent = 'Reminder saved with GDPR consent noted.';
-    } catch (err) {
-      reminderForm.querySelector('.form-status').textContent = 'Could not save reminder.';
-      console.error(err);
+      form.reset();
+      status.textContent = 'Reminder saved with GDPR consent noted.';
+    } catch (error) {
+      status.textContent = 'Could not save reminder.';
+      console.error(error);
     }
   });
 }
 
-function updateSliderLabels() {
-  if (pensionValue && pensionSlider) {
-    pensionValue.textContent = `${pensionSlider.value}%`;
-  }
-  if (bonusValue && bonusSlider) {
-    bonusValue.textContent = `€${Number(bonusSlider.value).toLocaleString()}`;
-  }
+function lazyLoadHistory() {
+  const section = document.getElementById('year-over-year');
+  if (!section) return;
+
+  const observer = new IntersectionObserver(
+    () => {
+      const records = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+      displayHistory(records);
+      observer.disconnect();
+    },
+    { threshold: 0.2 }
+  );
+
+  observer.observe(section);
 }
 
-function runScenario(baseResult) {
-  if (!pensionSlider || !bonusSlider) return;
-  const scenario = calculateEstimate({
-    ...getInputs(),
-    pensionRate: Number(pensionSlider.value),
-    bonus: Number(bonusSlider.value)
+function setupCalculator() {
+  const form = document.getElementById('tax-calculator');
+  if (!form) return;
+  const lastResultRef = { value: null };
+
+  const recalculate = () => {
+    const inputs = getCalculatorInputs();
+    const baseResult = calculateTaxResult(inputs);
+    lastResultRef.value = baseResult;
+    renderResults(baseResult);
+
+    const pensionRate = Number(document.getElementById('pension-rate')?.value) || 0;
+    const bonusAmount = Number(document.getElementById('bonus-amount')?.value) || 0;
+    const scenarioResult = calculateTaxResult({
+      ...inputs,
+      income: inputs.income + bonusAmount,
+      credits: Math.max(inputs.credits - (inputs.income + bonusAmount) * (pensionRate / 100), 0)
+    });
+    renderScenario(baseResult, scenarioResult);
+    saveHistory(baseResult);
+  };
+
+  form.addEventListener('submit', (event) => {
+    event.preventDefault();
+    recalculate();
   });
-  renderScenario(baseResult, scenario);
+
+  document.getElementById('pension-rate')?.addEventListener('input', () => {
+    updateSliders();
+    if (lastResultRef.value) recalculate();
+  });
+  document.getElementById('bonus-amount')?.addEventListener('input', () => {
+    updateSliders();
+    if (lastResultRef.value) recalculate();
+  });
+
+  setupExports(lastResultRef);
+  setupEmailForm(lastResultRef);
+  setupReminderForm();
+  updateSliders();
+  lazyLoadHistory();
 }
 
-calculatorForm?.addEventListener('submit', (e) => {
-  e.preventDefault();
-  const inputs = getInputs();
-  const baseResult = calculateEstimate({ ...inputs });
-  lastResult = { ...baseResult, ...inputs };
-  renderResults(baseResult);
-  runScenario(baseResult);
-  updateHistory(baseResult);
-});
+function enhanceForms() {
+  document.querySelectorAll('form').forEach((form) => {
+    form.addEventListener('invalid', (event) => {
+      const target = event.target;
+      if (target instanceof HTMLElement) {
+        target.setAttribute('aria-invalid', 'true');
+      }
+    }, true);
+  });
+}
 
-pensionSlider?.addEventListener('input', () => {
-  updateSliderLabels();
-  if (lastResult) runScenario(lastResult);
-});
-bonusSlider?.addEventListener('input', () => {
-  updateSliderLabels();
-  if (lastResult) runScenario(lastResult);
-});
-
-attachExports();
-attachEmailSummary();
-attachReminderForm();
-syncChecklist();
-updateSliderLabels();
-renderStoredHistory();
+setupFaq();
+setupSmoothScroll();
+setupConsent();
+setupCalculator();
+enhanceForms();
