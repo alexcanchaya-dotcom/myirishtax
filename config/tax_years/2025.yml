@@ -1,0 +1,122 @@
+metadata:
+  year: 2025
+  currency: EUR
+  sources:
+    - "Budget 2025 announcements"
+    - "Revenue PAYE, USC, PRSI updates"
+  notes: "Draft until Revenue publishes final thresholds; gate with TAX_YEARS_ENABLED when unsure."
+
+income_tax:
+  standard_rate: 0.2
+  higher_rate: 0.4
+  standard_rate_bands:
+    single: 45000
+    married_one_income: 52000
+    married_two_incomes:
+      base: 52000
+      increase_per_earner: 33000
+      max: 85000
+    single_parent: 49000
+  credits:
+    personal: 1950
+    paye: 1950
+    earned_income: 1800
+    home_carer: 1900
+    rent_credit:
+      single: 800
+      married_or_civil_partner: 1600
+      parents_paying_student_rent: 800
+
+usc:
+  bands:
+    - up_to: 13000
+      rate: 0.005
+    - up_to: 28000
+      rate: 0.02
+    - up_to: 74000
+      rate: 0.04
+    - up_to: null
+      rate: 0.08
+  surcharge:
+    self_employed_over_100k: 0.03
+  exemptions:
+    income_under: 14000
+    medical_card_max_income_single: 65000
+    over_70_or_medical_card_lower_rates: true
+
+prsi:
+  class_a:
+    employee_rate: 0.04
+    employer_rate_low: 0.09
+    employer_rate_high: 0.115
+    employer_threshold_weekly: 455
+    credit:
+      max_weekly_credit: 12
+      lower_threshold_weekly: 355
+      upper_threshold_weekly: 430
+
+pensions:
+  earnings_cap: 120000
+  age_related_relief_rates:
+    under_30: 0.15
+    age_30_to_39: 0.20
+    age_40_to_49: 0.25
+    age_50_to_54: 0.30
+    age_55_to_59: 0.35
+    age_60_and_over: 0.40
+  employer_contributions_excluded_from_bik: true
+
+bik:
+  company_car:
+    co2_categories:
+      a: {co2_range: "0-59g/km", base_percentage: 0.225}
+      b: {co2_range: "60-99g/km", base_percentage: 0.2625}
+      c: {co2_range: "100-139g/km", base_percentage: 0.30}
+      d: {co2_range: "140-179g/km", base_percentage: 0.3375}
+      e: {co2_range: ">=180g/km", base_percentage: 0.375}
+    business_km_discounts:
+      - {min_km: 0, max_km: 26000, discount: 0.0}
+      - {min_km: 26001, max_km: 39000, discount: 0.20}
+      - {min_km: 39001, max_km: 52000, discount: 0.30}
+      - {min_km: 52001, max_km: null, discount: 0.40}
+    electric_vehicle_omv_deduction: 30000
+  medical_or_dental_insurance: {taxable_value: "gross_premium"}
+  other_benefits: {taxable_value: "market_value_or_revenue_rule"}
+
+rental_income:
+  allowable_expenses:
+    - repairs_and_maintenance
+    - insurance
+    - letting_fees
+    - service_charges
+    - prtb_registration_fees
+    - wear_and_tear_allowance
+  interest_deduction:
+    rate: 1.0
+    conditions: "100% deductible where RTB registered"
+  pre_letting_expenses:
+    max_deduction: 5000
+    minimum_vacancy_months: 12
+    clawback_period_years: 4
+
+self_employed:
+  preliminary_tax:
+    options:
+      - {method: "100_percent_prior_year", description: "100% of prior year final liability"}
+      - {method: "90_percent_current_year", description: "90% of current year expected liability"}
+      - {method: "105_percent_two_years_prior_dd", description: "105% of liability two years prior via ROS direct debit"}
+  prsi_class_s_rate: 0.04
+  usc_high_income_surcharge_rate: 0.03
+
+capital_allowances:
+  plant_and_machinery_rate: 0.125
+  industrial_buildings_rate: 0.04
+  energy_efficient_equipment_first_year_allowance: 1.0
+
+cgt:
+  standard_rate: 0.33
+  entrepreneur_relief_rate: 0.10
+  annual_exemption: 1270
+  payment_dates:
+    - {period: "disposals Jan-Nov", due: "15 December"}
+    - {period: "disposals December", due: "31 January following year"}

@@ -10,6 +10,8 @@ import {
   scheduleReminder,
   createUpsellIntent
 } from '../automations/workflows.js';
+import { listAvailableTaxYears, loadTaxYearConfig } from './config/taxYearRepository.js';
+import { runTaxPipeline } from './tax/calculationPipeline.js';
 
 dotenv.config();
 
@@ -41,6 +43,22 @@ app.post('/api/contact', async (req, res) => {
   } catch (err) {
     console.error('Contact error', err);
     res.status(500).json({ error: 'Unable to send message' });
+  }
+});
+
+app.post('/api/summary', async (req, res) => {
+  const { email, summary, consent } = req.body;
+  if (!email || !consent || !summary) return res.status(400).json({ error: 'Missing email, consent, or summary' });
+  try {
+    await sendEmail({
+      to: email,
+      subject: 'Your My Irish Tax calculator summary',
+      html: `<p>Here is your requested summary:</p><p>${summary}</p><p>You can unsubscribe anytime by replying STOP.</p>`
+    });
+    res.json({ status: 'ok' });
+  } catch (err) {
+    console.error('Summary email error', err);
+    res.status(500).json({ error: 'Unable to send summary' });
   }
 });
 
@@ -93,6 +111,39 @@ app.post('/api/upsell', async (req, res) => {
   } catch (err) {
     console.error('Upsell error', err);
     res.status(500).json({ error: 'Unable to queue upsell' });
+  }
+});
+
+app.get('/api/tax/config', async (_req, res) => {
+  try {
+    const years = await listAvailableTaxYears();
+    res.json({ years });
+  } catch (err) {
+    res.status(500).json({ error: 'Unable to load tax configs', detail: err.message });
+  }
+});
+
+app.get('/api/tax/config/:year', async (req, res) => {
+  try {
+    const config = await loadTaxYearConfig(req.params.year);
+    res.json({
+      metadata: config.metadata,
+      income_tax: config.income_tax,
+      usc: config.usc,
+      prsi: config.prsi,
+      bik: config.bik
+    });
+  } catch (err) {
+    res.status(404).json({ error: `Config not found for ${req.params.year}`, detail: err.message });
+  }
+});
+
+app.post('/api/tax/calculate', async (req, res) => {
+  try {
+    const result = await runTaxPipeline(req.body);
+    res.json({ status: 'ok', result });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
   }
 });
 
