@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Design System | My Irish Tax</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/assets/css/main.min.css" />
+</head>
+<body>
+  <main>
+    <section class="hero" style="padding: 2.5rem; gap: 1.5rem;">
+      <div class="hero-content">
+        <p class="badge">Interface system</p>
+        <h1>Design tokens and components for consistent experiences.</h1>
+        <p>Reusable color, typography, spacing, and interaction patterns to keep the calculator and marketing pages consistent and accessible.</p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="/">Return home</a>
+          <a class="btn btn-secondary" href="#components">Jump to components</a>
+        </div>
+        <div class="hero-proof" aria-label="Design system benefits">
+          <div class="pill">WCAG AA+ contrast</div>
+          <div class="pill">Responsive 12-column grid</div>
+          <div class="pill">Iconography for help, info, warning</div>
+        </div>
+      </div>
+      <div class="hero-visual" aria-hidden="true"></div>
+    </section>
+
+    <section id="tokens" class="card">
+      <div class="component-header">
+        <div>
+          <p class="badge">Tokens</p>
+          <h2>Color, typography, spacing</h2>
+        </div>
+        <p>Foundations applied across surfaces, controls, and feedback.</p>
+      </div>
+
+      <div class="token-grid">
+        <div class="token-swatch">
+          <div class="swatch-preview" style="background: var(--color-primary-500);"></div>
+          <div>
+            <strong>Primary</strong>
+            <p class="token-meta">--color-primary-500 (#2DBF64)</p>
+          </div>
+        </div>
+        <div class="token-swatch">
+          <div class="swatch-preview" style="background: var(--color-accent-500);"></div>
+          <div>
+            <strong>Accent</strong>
+            <p class="token-meta">--color-accent-500 (#2CA4C8)</p>
+          </div>
+        </div>
+        <div class="token-swatch">
+          <div class="swatch-preview" style="background: var(--color-warning-500);"></div>
+          <div>
+            <strong>Warning</strong>
+            <p class="token-meta">--color-warning-500 (#E5A20E)</p>
+          </div>
+        </div>
+        <div class="token-swatch">
+          <div class="swatch-preview" style="background: var(--color-danger-500);"></div>
+          <div>
+            <strong>Danger</strong>
+            <p class="token-meta">--color-danger-500 (#D64550)</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="type-scale" aria-label="Typography scale">
+        <div class="type-row">
+          <span class="type-label">Heading XL — var(--font-size-700)</span>
+          <div style="font-size: var(--font-size-700); line-height: var(--line-height-snug);">Financial clarity for every filer</div>
+        </div>
+        <div class="type-row">
+          <span class="type-label">Heading L — var(--font-size-600)</span>
+          <div style="font-size: var(--font-size-600); line-height: var(--line-height-snug);">Calculated, contrasted, legible</div>
+        </div>
+        <div class="type-row">
+          <span class="type-label">Body — var(--font-size-200)</span>
+          <div style="font-size: var(--font-size-200);">Default copy uses a 16px base with relaxed line height for readability.</div>
+        </div>
+        <div class="type-row">
+          <span class="type-label">Caption — var(--font-size-100)</span>
+          <div style="font-size: var(--font-size-100);">Helpers and metadata stay above AA contrast on muted surfaces.</div>
+        </div>
+      </div>
+
+      <ul class="spacing-list" aria-label="Spacing scale">
+        <li class="spacing-item">
+          <div class="spacing-bar" style="width: 32px;"></div>
+          <div>
+            <strong>4px / --space-4</strong>
+            <p class="token-meta">Tight control padding, chip spacing</p>
+          </div>
+        </li>
+        <li class="spacing-item">
+          <div class="spacing-bar" style="width: 64px;"></div>
+          <div>
+            <strong>8px / --space-8</strong>
+            <p class="token-meta">Input padding, pill gaps</p>
+          </div>
+        </li>
+        <li class="spacing-item">
+          <div class="spacing-bar" style="width: 120px;"></div>
+          <div>
+            <strong>16px / --space-16</strong>
+            <p class="token-meta">Card gutters, grid columns</p>
+          </div>
+        </li>
+      </ul>
+
+      <ul class="radius-list" aria-label="Radii options">
+        <li class="radius-item">
+          <div class="radius-sample" style="border-radius: var(--radius-sm);"></div>
+          <div>
+            <strong>Small radius</strong>
+            <p class="token-meta">--radius-sm (8px) buttons, pills</p>
+          </div>
+        </li>
+        <li class="radius-item">
+          <div class="radius-sample" style="border-radius: var(--radius-lg);"></div>
+          <div>
+            <strong>Large radius</strong>
+            <p class="token-meta">--radius-lg (16px) cards, hero panels</p>
+          </div>
+        </li>
+      </ul>
+
+      <ul class="shadow-list" aria-label="Shadow system">
+        <li class="shadow-item">
+          <div class="shadow-box" style="box-shadow: var(--shadow-sm);"></div>
+          <div>
+            <strong>Shadow small</strong>
+            <p class="token-meta">List rows, pills</p>
+          </div>
+        </li>
+        <li class="shadow-item">
+          <div class="shadow-box" style="box-shadow: var(--shadow-md);"></div>
+          <div>
+            <strong>Shadow medium</strong>
+            <p class="token-meta">Buttons, hover states</p>
+          </div>
+        </li>
+        <li class="shadow-item">
+          <div class="shadow-box" style="box-shadow: var(--shadow-lg);"></div>
+          <div>
+            <strong>Shadow large</strong>
+            <p class="token-meta">Hero, elevated surfaces</p>
+          </div>
+        </li>
+      </ul>
+    </section>
+
+    <section id="layout" class="card">
+      <div class="component-header">
+        <div>
+          <p class="badge">Layout</p>
+          <h2>Responsive grid</h2>
+        </div>
+        <p>Auto-fit columns keep content readable from mobile up.</p>
+      </div>
+      <div class="layout-grid">
+        <div class="card">
+          <h3>Card</h3>
+          <p>Ideal for feature summaries with 16px gutters.</p>
+        </div>
+        <div class="card">
+          <h3>Card</h3>
+          <p>Cards stack on narrow viewports to preserve line length.</p>
+        </div>
+        <div class="card">
+          <h3>Card</h3>
+          <p>Use max-width 1200px page container for predictability.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="components" class="component-gallery">
+      <div class="component-card">
+        <div class="component-header">
+          <div>
+            <p class="badge">Navigation</p>
+            <h2>Tabs</h2>
+          </div>
+          <p>Keyboard-friendly, evenly spaced</p>
+        </div>
+        <div class="tabs" data-tabs>
+          <div class="tab-list" role="tablist">
+            <button role="tab" aria-selected="true" aria-controls="tab-panel-1" id="tab-calculator">Calculator</button>
+            <button role="tab" aria-selected="false" aria-controls="tab-panel-2" id="tab-rates">Rates</button>
+            <button role="tab" aria-selected="false" aria-controls="tab-panel-3" id="tab-help">Support</button>
+          </div>
+          <div id="tab-panel-1" class="tab-panel" role="tabpanel" aria-hidden="false" aria-labelledby="tab-calculator">
+            <p>Use for switching between calculator, summary, and FAQ content without leaving the page.</p>
+          </div>
+          <div id="tab-panel-2" class="tab-panel" role="tabpanel" aria-hidden="true" aria-labelledby="tab-rates">
+            <p>Present rates, allowances, and caveats in adjacent panels for clarity.</p>
+          </div>
+          <div id="tab-panel-3" class="tab-panel" role="tabpanel" aria-hidden="true" aria-labelledby="tab-help">
+            <p>Link to guidance, accessibility notes, and audit trails directly.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="component-card">
+        <div class="component-header">
+          <div>
+            <p class="badge">Disclosure</p>
+            <h2>Accordion</h2>
+          </div>
+          <p>WCAG focus states retained</p>
+        </div>
+        <div class="accordion" data-accordion>
+          <div class="accordion-item active">
+            <button class="accordion-header" data-accordion-toggle aria-expanded="true">
+              How do you calculate USC?
+              <span aria-hidden="true">–</span>
+            </button>
+            <div class="accordion-body" role="region">
+              We follow the defined bands with default thresholds and 8% applied to remaining income unless exempted.
+            </div>
+          </div>
+          <div class="accordion-item">
+            <button class="accordion-header" data-accordion-toggle aria-expanded="false">
+              Can I export my results?
+              <span aria-hidden="true">+</span>
+            </button>
+            <div class="accordion-body" role="region">
+              Add links to PDF or CSV export flows once the calculation is complete.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="component-card">
+        <div class="component-header">
+          <div>
+            <p class="badge">Forms</p>
+            <h2>Fields</h2>
+          </div>
+          <p>Aligned labels, helper text</p>
+        </div>
+        <div class="form-stack">
+          <div class="field">
+            <label for="income-demo">Annual income (€)</label>
+            <input id="income-demo" type="number" placeholder="50,000" />
+            <p class="helper">Use numeric inputs with 8px padding and 16px radius.</p>
+          </div>
+          <div class="field">
+            <label for="select-demo">Assessment type</label>
+            <select id="select-demo">
+              <option>PAYE</option>
+              <option>Self-employed</option>
+              <option>Non-resident</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="component-card">
+        <div class="component-header">
+          <div>
+            <p class="badge">Tabular</p>
+            <h2>Tables</h2>
+          </div>
+          <p>Striped separators, readable labels</p>
+        </div>
+        <table class="data-table" aria-label="Sample deductions">
+          <thead>
+            <tr>
+              <th scope="col">Item</th>
+              <th scope="col">Rate</th>
+              <th scope="col">Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>PAYE</td>
+              <td>20% / 40%</td>
+              <td>Apply credits before calculating total deductions.</td>
+            </tr>
+            <tr>
+              <td>USC</td>
+              <td>0.5–8%</td>
+              <td>Band-driven; confirm eligibility for reduced rates.</td>
+            </tr>
+            <tr>
+              <td>PRSI</td>
+              <td>4%</td>
+              <td>Class A default for most employees.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="component-card">
+        <div class="component-header">
+          <div>
+            <p class="badge">Feedback</p>
+            <h2>Alerts & icons</h2>
+          </div>
+          <p>Help, info, warning affordances</p>
+        </div>
+        <div class="alert info">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm0 4.75a1.25 1.25 0 1 1 0 2.5 1.25 1.25 0 0 1 0-2.5Zm1.35 11.25h-2.7v-1.5h0.6v-4.5h-0.6v-1.5h2.1v6h0.6Z"/></svg>
+          <div>
+            <strong>Info</strong>
+            <p class="helper">Provide context without blocking the task.</p>
+          </div>
+        </div>
+        <div class="alert warning" style="margin-top: 0.75rem;">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5 2.75 20.5h18.5L12 3.5Zm1 13.5h-2v-2h2v2Zm0-3.5h-2v-4h2v4Z"/></svg>
+          <div>
+            <strong>Warning</strong>
+            <p class="helper">Flag missing inputs or upcoming deadlines.</p>
+          </div>
+        </div>
+        <div class="alert" style="margin-top: 0.75rem;">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm1 15h-2v-2h2v2Zm0-3.5h-2v-6h2v6Z"/></svg>
+          <div>
+            <strong>Help</strong>
+            <p class="helper">Pair with tooltips for clarifying definitions.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="component-card">
+        <div class="component-header">
+          <div>
+            <p class="badge">Calls to action</p>
+            <h2>Primary & supportive CTAs</h2>
+          </div>
+          <p>Use gradients sparingly for main actions</p>
+        </div>
+        <div class="cta-inline">
+          <div>
+            <p class="label-pill">Ready to calculate</p>
+            <h3 style="margin: 0 0 0.5rem;">Launch the tax calculator</h3>
+            <p style="margin: 0;">Keep the button at 16px text with strong contrast.</p>
+          </div>
+          <a class="btn btn-primary" href="#calculator">Calculate my tax</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="/assets/js/main.min.js" defer></script>
+</body>
+</html>
