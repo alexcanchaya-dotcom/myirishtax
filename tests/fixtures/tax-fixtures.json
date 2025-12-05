@@ -1,0 +1,21 @@
+{
+  "2024": [
+    {
+      "persona": "PAYE entrant",
+      "input": { "income": 38000, "cutoff": 42000, "credits": 3500, "includeUSC": true, "includePRSI": true },
+      "expected": { "paye": 4100, "usc": 762.36, "prsi": 1520 }
+    }
+  ],
+  "2025": [
+    {
+      "persona": "Higher earner",
+      "input": { "income": 82000, "cutoff": 42000, "credits": 3500, "includeUSC": true, "includePRSI": true },
+      "expected": { "paye": 14600, "usc": 2989.12, "prsi": 3280 }
+    },
+    {
+      "persona": "Part-time student",
+      "input": { "income": 18000, "cutoff": 42000, "credits": 3500, "includeUSC": true, "includePRSI": false },
+      "expected": { "paye": 0, "usc": 239.18, "prsi": 0 }
+    }
+  ]
+}

@@ -1,3 +1,5 @@
+import { buildExportSummary, calculateTaxResult, formatEuro } from './calculator.js';
+
 const faqItems = document.querySelectorAll('.faq-item');
 faqItems.forEach((item, index) => {
   const question = item.querySelector('.faq-question');
@@ -60,29 +62,6 @@ document.getElementById('reject-cookies')?.addEventListener('click', () => {
 const calculatorForm = document.getElementById('tax-calculator');
 const resultsContainer = document.getElementById('results');
 
-function formatEuro(amount) {
-  return `€${amount.toFixed(2)}`;
-}
-
-function calculateUSC(income) {
-  const bands = [
-    { limit: 12012, rate: 0.005 },
-    { limit: 25460, rate: 0.02 },
-    { limit: 55216, rate: 0.045 }
-  ];
-  let remaining = income;
-  let usc = 0;
-  for (const band of bands) {
-    const taxable = Math.min(remaining, band.limit - (bands[bands.indexOf(band) - 1]?.limit || 0));
-    if (taxable > 0) {
-      usc += taxable * band.rate;
-      remaining -= taxable;
-    }
-  }
-  if (remaining > 0) usc += remaining * 0.08;
-  return usc;
-}
-
 calculatorForm?.addEventListener('submit', (e) => {
   e.preventDefault();
   if (!resultsContainer) return;
@@ -93,28 +72,24 @@ calculatorForm?.addEventListener('submit', (e) => {
   const includeUSC = calculatorForm.usc.value === 'yes';
   const includePRSI = calculatorForm.prsi.value === 'yes';
 
-  const standardTax = Math.min(income, cutoff) * 0.2;
-  const higherTax = Math.max(0, income - cutoff) * 0.4;
-  let paye = Math.max(0, standardTax + higherTax - credits);
-  const usc = includeUSC ? calculateUSC(income) : 0;
-  const prsi = includePRSI ? income * 0.04 : 0;
-  const totalDeductions = paye + usc + prsi;
-  const net = Math.max(0, income - totalDeductions);
+  const result = calculateTaxResult({ income, cutoff, credits, includeUSC, includePRSI });
+  const snapshot = buildExportSummary(result, 2025);
 
   resultsContainer.innerHTML = `
     <div class="card">
       <h3>Summary</h3>
-      <p><strong>Estimated net pay:</strong> ${formatEuro(net)}</p>
-      <p><strong>Total deductions:</strong> ${formatEuro(totalDeductions)}</p>
+      <p><strong>Estimated net pay:</strong> ${formatEuro(result.net)}</p>
+      <p><strong>Total deductions:</strong> ${formatEuro(result.totalDeductions)}</p>
     </div>
     <div class="card">
       <h3>Breakdown</h3>
       <ul class="features">
-        <li>PAYE (est.): ${formatEuro(paye)}</li>
-        <li>USC (est.): ${formatEuro(usc)}</li>
-        <li>PRSI (est.): ${formatEuro(prsi)}</li>
+        <li>PAYE (est.): ${formatEuro(result.paye)}</li>
+        <li>USC (est.): ${formatEuro(result.usc)}</li>
+        <li>PRSI (est.): ${formatEuro(result.prsi)}</li>
       </ul>
       <p class="meta">Approximation based on common bands. Actual liability depends on Revenue rules, thresholds, and your circumstances.</p>
     </div>
+    <pre class="meta">PDF/export snapshot:\n${JSON.stringify(snapshot, null, 2)}</pre>
   `;
 });

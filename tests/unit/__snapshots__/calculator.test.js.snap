@@ -1,0 +1,19 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`calculator core functions creates export summary snapshot-friendly shape 1`] = `
+{
+  "breakdown": {
+    "paye": "€8900.00",
+    "prsi": "€2080.00",
+    "usc": "€1523.32"
+  },
+  "metadata": {
+    "disclaimer": "Illustrative calculator output only.",
+    "generatedAt": "2025-01-01T00:00:00.000Z"
+  },
+  "taxYear": 2025,
+  "totals": {
+    "deductions": "€12503.32",
+    "net": "€39496.68"
+  }
+}`;

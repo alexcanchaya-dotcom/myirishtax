@@ -1,0 +1,13 @@
+config:
+  target: "http://localhost:3000"
+  phases:
+    - duration: 120
+      arrivalRate: 50
+      name: "January rush spike"
+scenarios:
+  - name: "Health check under load"
+    flow:
+      - get:
+          url: "/health"
+          expect:
+            - statusCode: 200
