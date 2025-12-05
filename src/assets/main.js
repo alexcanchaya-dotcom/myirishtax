@@ -4,6 +4,13 @@ const DEFAULT_CUTOFF = 42000;
 const DEFAULT_CREDITS = 3500;
 const HISTORY_KEY = 'mit-year-history';
 const CONSENT_KEY = 'mit-consent';
+let trackingModule = null;
+
+function recordEvent(name, properties = {}) {
+  if (trackingModule?.trackEvent) {
+    trackingModule.trackEvent(name, properties);
+  }
+}
 
 function setupFaq() {
   document.querySelectorAll('.faq-item').forEach((item, index) => {
@@ -63,8 +70,8 @@ function toggleCookieBanner(show) {
 async function loadTracking(consent) {
   if (consent !== 'accepted') return;
   try {
-    const module = await import('./tracking.js');
-    module.bootstrapTracking();
+    trackingModule = await import('./tracking.js');
+    trackingModule.bootstrapTracking();
   } catch (error) {
     console.warn('Optional tracking failed to load', error);
   }
@@ -184,6 +191,7 @@ function saveHistory(result) {
   records.push({ net: result.net, timestamp: Date.now() });
   localStorage.setItem(HISTORY_KEY, JSON.stringify(records.slice(-4)));
   displayHistory(records.slice(-4));
+  recordEvent('scenario_saved', { net: result.net, count: records.length });
 }
 
 function exportData(result, format) {
@@ -218,10 +226,16 @@ function exportData(result, format) {
 
 function setupExports(lastResultRef) {
   document.getElementById('download-pdf')?.addEventListener('click', () => {
-    if (lastResultRef.value) exportData(lastResultRef.value, 'pdf');
+    if (lastResultRef.value) {
+      exportData(lastResultRef.value, 'pdf');
+      recordEvent('download', { format: 'pdf' });
+    }
   });
   document.getElementById('download-csv')?.addEventListener('click', () => {
-    if (lastResultRef.value) exportData(lastResultRef.value, 'csv');
+    if (lastResultRef.value) {
+      exportData(lastResultRef.value, 'csv');
+      recordEvent('download', { format: 'csv' });
+    }
   });
 }
 
@@ -256,6 +270,7 @@ function setupEmailForm(lastResultRef) {
       if (!response.ok) throw new Error('Unable to send summary');
       form.reset();
       status.textContent = 'Summary emailed securely.';
+      recordEvent('email_signup', { source: 'summary-email' });
     } catch (error) {
       status.textContent = 'Email failed. Please try again.';
       console.error(error);
@@ -289,6 +304,7 @@ function setupReminderForm() {
       if (!response.ok) throw new Error('Unable to schedule reminder');
       form.reset();
       status.textContent = 'Reminder saved with GDPR consent noted.';
+      recordEvent('email_signup', { source: 'reminder' });
     } catch (error) {
       status.textContent = 'Could not save reminder.';
       console.error(error);
@@ -366,8 +382,32 @@ function enhanceForms() {
   });
 }
 
+function setupAdSlots() {
+  const slots = document.querySelectorAll('[data-ad-slot]');
+  if (!slots.length) return;
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        const slot = entry.target;
+        slot.setAttribute('data-visible', 'true');
+        recordEvent('ad_slot_view', {
+          slot: slot.getAttribute('data-ad-slot'),
+          position: slot.getAttribute('data-ad-position')
+        });
+        observer.unobserve(slot);
+      });
+    },
+    { threshold: 0.25 }
+  );
+
+  slots.forEach((slot) => observer.observe(slot));
+}
+
 setupFaq();
 setupSmoothScroll();
 setupConsent();
 setupCalculator();
 enhanceForms();
+setupAdSlots();
