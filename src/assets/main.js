@@ -1,3 +1,5 @@
+import { buildExportSummary, calculateTaxResult, formatEuro } from './calculator.js';
+
 const faqItems = document.querySelectorAll('.faq-item');
 faqItems.forEach((item, index) => {
   const question = item.querySelector('.faq-question');
@@ -77,6 +79,9 @@ const historyMeta = document.getElementById('history-meta');
 let lastResult = null;
 const HISTORY_KEY = 'mit-year-history';
 
+calculatorForm?.addEventListener('submit', (e) => {
+  e.preventDefault();
+  if (!resultsContainer) return;
 function formatEuro(amount) {
   return `€${amount.toFixed(2)}`;
 }
@@ -155,6 +160,7 @@ function renderResults(baseResult) {
       </ul>
       <p class="meta">Approximation based on common bands. Actual liability depends on Revenue rules, thresholds, and your circumstances.</p>
     </div>
+    <pre class="meta">PDF/export snapshot:\n${JSON.stringify(snapshot, null, 2)}</pre>
   `;
 }
 
