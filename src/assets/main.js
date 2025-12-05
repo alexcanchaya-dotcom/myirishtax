@@ -118,3 +118,42 @@ calculatorForm?.addEventListener('submit', (e) => {
     </div>
   `;
 });
+
+const tabGroups = document.querySelectorAll('[data-tabs]');
+tabGroups.forEach((group) => {
+  const buttons = group.querySelectorAll('[role="tab"]');
+  const panels = group.querySelectorAll('[role="tabpanel"]');
+
+  buttons.forEach((button) => {
+    button.addEventListener('click', () => {
+      const targetId = button.getAttribute('aria-controls');
+      buttons.forEach((btn) => btn.setAttribute('aria-selected', btn === button ? 'true' : 'false'));
+      panels.forEach((panel) => panel.setAttribute('aria-hidden', panel.id === targetId ? 'false' : 'true'));
+    });
+  });
+});
+
+const accordions = document.querySelectorAll('[data-accordion]');
+accordions.forEach((accordion) => {
+  accordion.querySelectorAll('.accordion-item').forEach((item, index) => {
+    const toggle = item.querySelector('[data-accordion-toggle]');
+    const body = item.querySelector('.accordion-body');
+    if (!toggle || !body) return;
+
+    const bodyId = body.id || `accordion-body-${index + 1}`;
+    body.id = bodyId;
+    toggle.setAttribute('aria-controls', bodyId);
+
+    const isActive = item.classList.contains('active');
+    body.hidden = !isActive;
+    toggle.setAttribute('aria-expanded', isActive ? 'true' : 'false');
+
+    toggle.addEventListener('click', () => {
+      const nowActive = item.classList.toggle('active');
+      body.hidden = !nowActive;
+      toggle.setAttribute('aria-expanded', nowActive ? 'true' : 'false');
+      const icon = toggle.querySelector('span[aria-hidden="true"]');
+      if (icon) icon.textContent = nowActive ? '–' : '+';
+    });
+  });
+});
