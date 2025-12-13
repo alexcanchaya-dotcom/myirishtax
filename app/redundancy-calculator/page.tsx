@@ -5,7 +5,7 @@ import { calculateRedundancy, RedundancyInputs, RedundancyResults } from "@/lib/
 
 export default function RedundancyCalculatorPage() {
   const [inputs, setInputs] = useState<RedundancyInputs>({
-    salary: 0,
+    annualSalary: 0,
     weeklyPay: 0,
     years: 0,
     packageAmount: 0,
