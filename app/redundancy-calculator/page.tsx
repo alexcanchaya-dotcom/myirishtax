@@ -14,7 +14,6 @@ export default function RedundancyCalculatorPage() {
     hasPension: false,
     pensionLumpSum: 0,
     pensionWaived: false,
-    avgSalary: 0,
   });
 
   const [results, setResults] = useState<RedundancyResults | null>(null);
