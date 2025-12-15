@@ -7,7 +7,7 @@ export default function RedundancyCalculatorPage() {
   const [inputs, setInputs] = useState<RedundancyInputs>({
     annualSalary: 0,
     weeklyPay: 0,
-    years: 0,
+    yearsService: 0,
     packageAmount: 0,
     pilon: 0,
     holidayPay: 0,
