@@ -62,8 +62,8 @@ export default function RedundancyCalculatorPage() {
           <input
             type="number"
             className="w-full p-2 border rounded"
-            value={inputs.salary}
-            onChange={(e) => handleChange("salary", e.target.value)}
+            value={inputs.annualSalary}
+            onChange={(e) => handleChange("annualSalary", e.target.value)}
           />
         </div>
 
