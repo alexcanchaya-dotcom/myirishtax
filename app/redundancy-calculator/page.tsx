@@ -142,15 +142,6 @@ export default function RedundancyCalculatorPage() {
               />
             </div>
 
-            <div>
-              <label className="block font-medium">Average Salary for SCSB (€)</label>
-              <input
-                type="number"
-                className="w-full p-2 border rounded"
-                value={inputs.avgSalary}
-                onChange={(e) => handleChange("avgSalary", e.target.value)}
-              />
-            </div>
 
             <div className="col-span-2">
               <label className="flex items-center space-x-2">
