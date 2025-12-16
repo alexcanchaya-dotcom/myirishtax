@@ -173,7 +173,7 @@ export default function RedundancyCalculatorPage() {
         <div className="space-y-6">
           <div className="bg-green-50 p-6 rounded-2xl shadow">
             <h2 className="text-2xl font-bold mb-4">Summary</h2>
-            <p><strong>Total Statutory:</strong> €{results.statutory.toLocaleString()}</p>
+            <p><strong>Total Statutory:</strong> €{results.statutoryRedundancy.toLocaleString()}</p>
             <p><strong>Tax-Free Enhanced:</strong> €{results.taxFreeEnhanced.toLocaleString()}</p>
             <p><strong>Taxable Enhanced:</strong> €{results.taxableEnhanced.toLocaleString()}</p>
             <p><strong>PILON Tax:</strong> €{results.pilonTax.toLocaleString()}</p>
