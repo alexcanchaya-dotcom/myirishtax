@@ -178,8 +178,7 @@ export default function RedundancyCalculatorPage() {
             <p><strong>Taxable Enhanced:</strong> €{results.enhancedTaxable.toLocaleString()}</p>
             <p><strong>PILON Tax:</strong> €{results.pilonTaxDeductedApprox.toLocaleString()}</p>
             <p><strong>Holiday Pay Tax:</strong> €{results.pilonTaxDeduholidayTaxDeductedApproxctedApprox.toLocaleString()}</p>
-            <p><strong>Total Net:</strong> €{results.totalNet.toLocaleString()}</p>
-          </div>
+            div>
 
           <div className="bg-white p-6 rounded-2xl shadow space-y-3">
             <h3 className="text-xl font-semibold">Details</h3>
