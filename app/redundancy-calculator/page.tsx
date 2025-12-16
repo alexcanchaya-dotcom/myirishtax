@@ -176,8 +176,8 @@ export default function RedundancyCalculatorPage() {
             <p><strong>Total Statutory:</strong> €{results.statutoryRedundancy.toLocaleString()}</p>
             <p><strong>Tax-Free Enhanced:</strong> €{results.enhancedAfterLifetimeCap.toLocaleString()}</p>
             <p><strong>Taxable Enhanced:</strong> €{results.enhancedTaxable.toLocaleString()}</p>
-            <p><strong>PILON Tax:</strong> €{results.pilonTax.toLocaleString()}</p>
-            <p><strong>Holiday Pay Tax:</strong> €{results.holidayTax.toLocaleString()}</p>
+            <p><strong>PILON Tax:</strong> €{results.pilonTaxDeductedApprox.toLocaleString()}</p>
+            <p><strong>Holiday Pay Tax:</strong> €{results.pilonTaxDeduholidayTaxDeductedApproxctedApprox.toLocaleString()}</p>
             <p><strong>Total Net:</strong> €{results.totalNet.toLocaleString()}</p>
           </div>
 
