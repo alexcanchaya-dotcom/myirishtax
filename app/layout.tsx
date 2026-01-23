@@ -5,8 +5,8 @@ import { UserNav } from '@/components/auth/UserNav';
 import Link from 'next/link';
 
 export const metadata = {
-  title: 'MyIrishTax - Irish Tax Calculator',
-  description: 'Professional Irish tax calculator for PAYE, USC, PRSI, redundancy, and more',
+  title: 'MyIrishTax - Irish Tax Calculator & Investment Tax Platform',
+  description: 'Professional Irish tax calculator for PAYE, contractors, rental income, plus crypto & stock investment tax tracking. Calculate capital gains tax automatically.',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -32,6 +32,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   </Link>
                   <Link href="/redundancy-calculator" className="text-sm font-medium text-gray-700 hover:text-gray-900">
                     Redundancy
+                  </Link>
+                  <Link href="/portfolio" className="text-sm font-medium text-brand-700 hover:text-brand-900 flex items-center gap-1">
+                    <span>💼</span> Portfolio
                   </Link>
                   <UserNav />
                 </div>
