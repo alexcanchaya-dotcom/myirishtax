@@ -15,6 +15,7 @@ import {
   BarChart3,
   PieChart,
   Plus,
+  Link as LinkIcon,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -315,7 +316,21 @@ export default function PortfolioPage() {
         </div>
 
         {/* Quick Actions */}
-        <div className="grid md:grid-cols-3 gap-6">
+        <div className="grid md:grid-cols-4 gap-6">
+          <Link
+            href="/portfolio/connections"
+            className="bg-gradient-to-br from-brand-500 to-purple-600 text-white rounded-xl p-6 hover:shadow-lg transition-shadow relative overflow-hidden"
+          >
+            <div className="absolute top-0 right-0 bg-yellow-400 text-purple-900 text-xs font-bold px-2 py-1 rounded-bl-lg">
+              NEW
+            </div>
+            <LinkIcon className="h-8 w-8 mb-3" />
+            <h3 className="font-semibold mb-2">API Connections</h3>
+            <p className="text-sm text-white/90">
+              Auto-sync from exchanges
+            </p>
+          </Link>
+
           <Link
             href="/portfolio/transactions"
             className="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-md transition-shadow"
@@ -343,9 +358,9 @@ export default function PortfolioPage() {
             className="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-md transition-shadow"
           >
             <Plus className="h-8 w-8 text-purple-600 mb-3" />
-            <h3 className="font-semibold text-gray-900 mb-2">Add Transactions</h3>
+            <h3 className="font-semibold text-gray-900 mb-2">Import CSV</h3>
             <p className="text-sm text-gray-600">
-              Import from exchanges or add manually
+              Upload CSV files from exchanges
             </p>
           </Link>
         </div>

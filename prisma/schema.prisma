@@ -60,6 +60,9 @@ model User {
   accounts      Account[]
   sessions      Session[]
   calculations  SavedCalculation[]
+  exchangeConnections ExchangeConnection[]
+  transactions  Transaction[]
+  syncJobs      SyncJob[]
 }
 
 model VerificationToken {
@@ -75,7 +78,7 @@ model SavedCalculation {
   id        String   @id @default(cuid())
   userId    String
   name      String
-  type      String   // "PAYE", "REDUNDANCY", "RENTAL", "CONTRACTOR", "FULL_RETURN"
+  type      String   // "PAYE", "REDUNDANCY", "RENTAL", "CONTRACTOR", "FULL_RETURN", "INVESTMENT_IMPORT"
   data      String   // JSON string of calculation inputs/outputs
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -83,4 +86,138 @@ model SavedCalculation {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
+}
+
+// Exchange/Broker API Connections
+model ExchangeConnection {
+  id               String   @id @default(cuid())
+  userId           String
+  exchangeId       String   // "revolut", "binance", "coinbase", "kraken", "degiro", etc.
+  exchangeName     String   // Display name
+  accountName      String?  // User's nickname for this connection
+  connectionType   String   // "oauth", "api_key", "read_only"
+  status           String   @default("active") // "active", "disconnected", "error", "expired"
+
+  // OAuth tokens (encrypted)
+  accessToken      String?
+  refreshToken     String?
+  tokenExpiresAt   DateTime?
+
+  // API Keys (encrypted) - for exchanges that use API keys instead of OAuth
+  apiKey           String?
+  apiSecret        String?
+  apiPassphrase    String?  // Some exchanges like Coinbase Pro need this
+
+  // Sync settings
+  autoSync         Boolean  @default(true)
+  lastSyncAt       DateTime?
+  lastSyncStatus   String?  // "success", "error", "partial"
+  syncFrequency    String   @default("daily") // "realtime", "hourly", "daily", "manual"
+
+  // Metadata
+  exchangeUserId   String?  // User ID on the exchange
+  exchangeEmail    String?
+  permissions      String?  // JSON array of granted permissions
+
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions     Transaction[]
+  syncJobs         SyncJob[]
+
+  @@index([userId])
+  @@index([exchangeId])
+  @@unique([userId, exchangeId, exchangeUserId])
+}
+
+// Individual transactions (buys, sells, trades, transfers)
+model Transaction {
+  id                  String   @id @default(cuid())
+  userId              String
+  exchangeConnectionId String?
+
+  // Transaction basics
+  type                String   // "buy", "sell", "trade", "transfer_in", "transfer_out", "dividend", "interest", "fee"
+  date                DateTime
+
+  // Asset information
+  symbol              String   // "BTC", "ETH", "AAPL", "TSLA", etc.
+  assetName           String?
+  assetType           String   // "crypto", "stock", "etf", "bond"
+
+  // Quantities and prices
+  quantity            Float
+  price               Float    // Price per unit in EUR
+  fee                 Float    @default(0)
+  totalCost           Float    // Total cost including fees
+
+  // For trades (swap one asset for another)
+  toSymbol            String?
+  toQuantity          Float?
+  toPrice             Float?
+
+  // Location and source
+  exchangeId          String?  // Which exchange this came from
+  exchangeTxId        String?  // Transaction ID on the exchange (for deduplication)
+  walletAddress       String?  // For on-chain transfers
+
+  // Tax calculation fields (computed)
+  costBasis           Float?   // For sells: the cost basis used (FIFO)
+  capitalGain         Float?   // For sells: gain/loss
+  taxYear             Int?     // Tax year this transaction affects
+
+  // Metadata
+  notes               String?
+  category            String?  // User-defined category
+  isManual            Boolean  @default(false) // Manually added vs API imported
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  exchangeConnection  ExchangeConnection? @relation(fields: [exchangeConnectionId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([userId, date])
+  @@index([exchangeConnectionId])
+  @@index([exchangeTxId])
+  @@unique([userId, exchangeTxId, exchangeId])
+}
+
+// Background sync jobs
+model SyncJob {
+  id                  String   @id @default(cuid())
+  userId              String
+  exchangeConnectionId String
+
+  status              String   @default("pending") // "pending", "running", "completed", "failed", "cancelled"
+  type                String   // "full_sync", "incremental_sync", "realtime_update"
+
+  // Progress tracking
+  startedAt           DateTime?
+  completedAt         DateTime?
+  transactionsFound   Int      @default(0)
+  transactionsNew     Int      @default(0)
+  transactionsUpdated Int      @default(0)
+  transactionsSkipped Int      @default(0)
+
+  // Error handling
+  error               String?  // Error message if failed
+  retryCount          Int      @default(0)
+  maxRetries          Int      @default(3)
+
+  // Date range for sync
+  syncFromDate        DateTime?
+  syncToDate          DateTime?
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  exchangeConnection  ExchangeConnection @relation(fields: [exchangeConnectionId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([exchangeConnectionId])
+  @@index([status])
 }
