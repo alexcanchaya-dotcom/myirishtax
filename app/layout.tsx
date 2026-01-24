@@ -21,7 +21,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   <span className="text-xl font-bold text-brand-600">MyIrishTax</span>
                 </Link>
                 <div className="flex items-center gap-6">
-                  <Link href="/" className="text-sm font-medium text-gray-700 hover:text-gray-900">
+                  <Link href="/paye-calculator" className="text-sm font-medium text-gray-700 hover:text-gray-900">
                     PAYE
                   </Link>
                   <Link href="/contractor-calculator" className="text-sm font-medium text-gray-700 hover:text-gray-900">
