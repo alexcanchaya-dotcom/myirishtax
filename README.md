@@ -1,6 +1,17 @@
-# My Irish Tax – Calculator-first Landing + Automation Scaffolding
+# MyIrishTax.com - Professional Irish Tax Calculator Platform
 
-A refreshed, mobile-first site for **myirishtax.com** with an Irish tax calculator, service overviews, compliant legal pages, Google Ads–ready consent, and backend scaffolding for automation hooks.
+Complete Irish tax calculation platform with PAYE, contractor, rental income, and redundancy calculators. Built with Next.js 14, TypeScript, Prisma, and Stripe for subscriptions.
+
+## 🚀 Quick Start
+
+```bash
+npm install
+npx prisma generate
+npx prisma db push
+npm run dev
+```
+
+Visit `http://localhost:3000`
 
 ## Project structure
 ```
