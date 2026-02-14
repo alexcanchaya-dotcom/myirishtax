@@ -1,0 +1,9 @@
+gradio
+pandas
+numpy
+requests
+yfinance
+plotly
+scipy
+scikit-learn
+pytest
