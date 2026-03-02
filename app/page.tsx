@@ -8,19 +8,15 @@ import { BreakdownTable } from '../components/BreakdownTable';
 import { TaxSummaryCard } from '../components/TaxSummaryCard';
 import { ComparisonView } from '../components/ComparisonView';
 import { FloatingAIChat } from '../components/FloatingAIChat';
-import { FeatureGate } from '../components/paywall/FeatureGate';
-import { useSubscription } from '../lib/hooks/useSubscription';
 import { TaxBreakdown, compareScenarios } from '../lib/taxEngine';
 import { listSupportedYears } from '../lib/config/taxYearConfig';
-import { Download, Save, Lock, Crown, Sparkles } from 'lucide-react';
+import { Download, Save } from 'lucide-react';
 import Link from 'next/link';
 
 const years = listSupportedYears();
-const currentYear = new Date().getFullYear();
 
 export default function HomePage() {
   const { data: session } = useSession();
-  const { features, tier } = useSubscription();
   const [income, setIncome] = useState(60000);
   const [period, setPeriod] = useState<'annual' | 'monthly' | 'weekly'>('annual');
   const [maritalStatus, setMaritalStatus] = useState<'single' | 'married'>('single');
@@ -32,10 +28,8 @@ export default function HomePage() {
   const [isSaving, setIsSaving] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
 
-  // Filter available years based on subscription
-  const availableYears = features.canAccessAllYears
-    ? years
-    : years.filter(y => y === currentYear);
+  // All tax years available — no paywall filtering
+  const availableYears = years;
 
   useEffect(() => {
     const run = async () => {
@@ -163,26 +157,6 @@ export default function HomePage() {
             </div>
           </div>
 
-          {!features.canAccessAllYears && (
-            <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-4">
-              <div className="flex items-start gap-3">
-                <Lock className="h-5 w-5 text-yellow-600 flex-shrink-0 mt-0.5" />
-                <div>
-                  <h4 className="font-semibold text-yellow-900 text-sm">Historical Tax Years Locked</h4>
-                  <p className="text-yellow-800 text-sm mt-1">
-                    Upgrade to Premium to access tax calculations for 2023, 2024, and 2025.
-                  </p>
-                  <Link
-                    href="/dashboard/subscription"
-                    className="inline-block mt-2 text-sm font-medium text-yellow-900 hover:text-yellow-800 underline"
-                  >
-                    Unlock all years →
-                  </Link>
-                </div>
-              </div>
-            </div>
-          )}
-
           {result && (
             <div className="grid gap-4 md:grid-cols-3">
               <BreakdownTable title="PAYE" rows={result.paye} />
@@ -203,112 +177,104 @@ export default function HomePage() {
           <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
             <h3 className="text-sm font-semibold text-gray-800 mb-3">Actions</h3>
             <div className="space-y-2">
-              <FeatureGate feature="saveCalculations">
-                <button
-                  onClick={handleSaveCalculation}
-                  disabled={isSaving || !result}
-                  className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700 disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
-                >
-                  <Save className="h-4 w-4" />
-                  {isSaving ? 'Saving...' : 'Save Calculation'}
-                </button>
-              </FeatureGate>
+              {session?.user && (
+                <>
+                  <button
+                    onClick={handleSaveCalculation}
+                    disabled={isSaving || !result}
+                    className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700 disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
+                  >
+                    <Save className="h-4 w-4" />
+                    {isSaving ? 'Saving...' : 'Save Calculation'}
+                  </button>
 
-              <FeatureGate feature="exportPDF">
-                <button
-                  onClick={handleExportPDF}
-                  disabled={isExporting || !result}
-                  className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
-                >
-                  <Download className="h-4 w-4" />
-                  {isExporting ? 'Exporting...' : 'Export PDF'}
-                </button>
-              </FeatureGate>
+                  <button
+                    onClick={handleExportPDF}
+                    disabled={isExporting || !result}
+                    className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
+                  >
+                    <Download className="h-4 w-4" />
+                    {isExporting ? 'Exporting...' : 'Export PDF'}
+                  </button>
+                </>
+              )}
+              {!session?.user && (
+                <p className="text-xs text-gray-500 text-center">
+                  <Link href="/auth/login" className="text-brand-600 hover:underline font-medium">Sign in</Link> to save calculations and export PDFs.
+                </p>
+              )}
             </div>
           </div>
-
-          {tier === 'FREE' && (
-            <div className="rounded-xl border-2 border-blue-200 bg-gradient-to-br from-blue-50 to-purple-50 p-6 shadow-sm">
-              <div className="flex items-center gap-2 mb-3">
-                <Sparkles className="h-5 w-5 text-blue-600" />
-                <h3 className="text-lg font-bold text-gray-900">Unlock Premium</h3>
-              </div>
-              <ul className="space-y-2 mb-4 text-sm text-gray-700">
-                <li className="flex items-start gap-2">
-                  <span className="text-blue-600 mt-0.5">✓</span>
-                  <span>Access all tax years (2023-2026)</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-blue-600 mt-0.5">✓</span>
-                  <span>Save unlimited calculations</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-blue-600 mt-0.5">✓</span>
-                  <span>Export professional PDFs</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-blue-600 mt-0.5">✓</span>
-                  <span>Redundancy calculator</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-blue-600 mt-0.5">✓</span>
-                  <span>Rental income calculator</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-blue-600 mt-0.5">✓</span>
-                  <span>Contractor calculator</span>
-                </li>
-              </ul>
-              <Link
-                href="/dashboard/subscription"
-                className="block w-full text-center px-4 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 font-semibold text-sm"
-              >
-                Upgrade from €9.99/month
-              </Link>
-              <p className="text-xs text-gray-600 text-center mt-2">
-                7-day money-back guarantee
-              </p>
-            </div>
-          )}
-
-          {tier === 'PREMIUM' && (
-            <div className="rounded-xl border-2 border-purple-200 bg-gradient-to-br from-purple-50 to-pink-50 p-6 shadow-sm">
-              <div className="flex items-center gap-2 mb-3">
-                <Crown className="h-5 w-5 text-purple-600" />
-                <h3 className="text-lg font-bold text-gray-900">Go Professional</h3>
-              </div>
-              <ul className="space-y-2 mb-4 text-sm text-gray-700">
-                <li className="flex items-start gap-2">
-                  <span className="text-purple-600 mt-0.5">✓</span>
-                  <span>AI Tax Assistant (ChatGPT-powered)</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-purple-600 mt-0.5">✓</span>
-                  <span>CSV transaction imports</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-purple-600 mt-0.5">✓</span>
-                  <span>Full tax return computation</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-purple-600 mt-0.5">✓</span>
-                  <span>Unlimited saved calculations</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-purple-600 mt-0.5">✓</span>
-                  <span>Priority support</span>
-                </li>
-              </ul>
-              <Link
-                href="/dashboard/subscription"
-                className="block w-full text-center px-4 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 font-semibold text-sm"
-              >
-                Upgrade to Professional
-              </Link>
-            </div>
-          )}
         </div>
       </section>
+
+      {/* Cross-links to other calculators */}
+      <section className="mt-12 rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+        <h2 className="text-lg font-semibold text-gray-900 mb-4">More Irish Tax Calculators</h2>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <Link
+            href="/contractor-calculator"
+            className="flex flex-col gap-1 rounded-lg border border-gray-100 bg-gray-50 p-4 hover:border-brand-200 hover:bg-brand-50 transition-colors"
+          >
+            <span className="text-sm font-semibold text-gray-900">Contractor Tax Calculator</span>
+            <span className="text-xs text-gray-500">Calculate self-employed income tax, USC, and Class S PRSI</span>
+          </Link>
+          <Link
+            href="/rental-calculator"
+            className="flex flex-col gap-1 rounded-lg border border-gray-100 bg-gray-50 p-4 hover:border-brand-200 hover:bg-brand-50 transition-colors"
+          >
+            <span className="text-sm font-semibold text-gray-900">Rental Income Calculator</span>
+            <span className="text-xs text-gray-500">Work out tax on rental income and allowable expenses</span>
+          </Link>
+          <Link
+            href="/auto-enrolment-calculator"
+            className="flex flex-col gap-1 rounded-lg border border-gray-100 bg-gray-50 p-4 hover:border-brand-200 hover:bg-brand-50 transition-colors"
+          >
+            <span className="text-sm font-semibold text-gray-900">Auto-Enrolment Calculator</span>
+            <span className="text-xs text-gray-500">See your My Future Fund pension projections for 2026</span>
+          </Link>
+          <Link
+            href="/rent-tax-credit"
+            className="flex flex-col gap-1 rounded-lg border border-gray-100 bg-gray-50 p-4 hover:border-brand-200 hover:bg-brand-50 transition-colors"
+          >
+            <span className="text-sm font-semibold text-gray-900">Rent Tax Credit Calculator</span>
+            <span className="text-xs text-gray-500">Check how much rent credit you can claim (up to €1,000)</span>
+          </Link>
+          <Link
+            href="/redundancy-calculator"
+            className="flex flex-col gap-1 rounded-lg border border-gray-100 bg-gray-50 p-4 hover:border-brand-200 hover:bg-brand-50 transition-colors"
+          >
+            <span className="text-sm font-semibold text-gray-900">Redundancy Calculator</span>
+            <span className="text-xs text-gray-500">Calculate your statutory redundancy entitlements</span>
+          </Link>
+        </div>
+      </section>
+
+      {/* SEO text section */}
+      <section className="mt-8 rounded-xl border border-gray-100 bg-white p-6 shadow-sm">
+        <h2 className="text-lg font-semibold text-gray-900 mb-4">Understanding Your Irish Tax: PAYE, USC, and PRSI</h2>
+        <div className="grid gap-6 md:grid-cols-3 text-sm text-gray-600 leading-relaxed">
+          <div>
+            <h3 className="font-semibold text-gray-800 mb-2">PAYE – Pay As You Earn</h3>
+            <p>
+              PAYE is Ireland's income tax system for employees. Tax is deducted at source by your employer before you receive your pay. In 2026, the standard rate is 20% on income up to the standard rate cut-off point (€44,000 for a single person), with the higher rate of 40% applying to income above that threshold. Tax credits reduce the amount of tax you owe — the personal credit and PAYE credit together are worth €3,700 for 2026.
+            </p>
+          </div>
+          <div>
+            <h3 className="font-semibold text-gray-800 mb-2">USC – Universal Social Charge</h3>
+            <p>
+              The Universal Social Charge (USC) is a tax on gross income that applies to all earners over €13,000 per year. It is charged in addition to income tax and operates on a banded system: 0.5% on the first €12,012, 2% on the next €13,748, and 4% on income above €25,760 (with a higher 8% rate applying to non-PAYE income over €100,000). USC was introduced in 2011 to help consolidate Ireland's public finances.
+            </p>
+          </div>
+          <div>
+            <h3 className="font-semibold text-gray-800 mb-2">PRSI – Pay Related Social Insurance</h3>
+            <p>
+              PRSI funds Ireland's social welfare entitlements including the State Pension, Jobseeker's Benefit, and illness payments. Most employees pay Class A PRSI at 4% on gross earnings over €352 per week (no upper limit). Your employer also contributes — typically at 11.05%. Self-employed individuals pay Class S PRSI at 4% on all income over €5,000, but do not have access to the same benefits as employed workers.
+            </p>
+          </div>
+        </div>
+      </section>
+
       <FloatingAIChat />
     </main>
   );
