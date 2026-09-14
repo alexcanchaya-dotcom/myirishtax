@@ -38,6 +38,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                     <li><Link href="/redundancy-calculator" className="hover:text-gray-900">Redundancy Calculator</Link></li>
                     <li><Link href="/auto-enrolment-calculator" className="hover:text-gray-900">Auto-Enrolment Calculator</Link></li>
                     <li><Link href="/rent-tax-credit" className="hover:text-gray-900">Rent Tax Credit Calculator</Link></li>
+                    <li><a href="https://ledger.myirishtax.com" className="hover:text-gray-900">Paper Ledger — books for a small business</a></li>
                   </ul>
                 </div>
                 <div>
