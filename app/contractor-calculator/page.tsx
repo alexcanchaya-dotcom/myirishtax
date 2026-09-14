@@ -7,17 +7,17 @@ import { SelectField } from "@/components/SelectField";
 import { ContractorBreakdown, COMMON_EXPENSE_CATEGORIES } from "@/lib/taxEngine/contractorCalculator";
 import { listSupportedYears } from "@/lib/config/taxYearConfig";
 import {
-  Calculator,
   TrendingUp,
   Wallet,
   Calendar,
-  Info,
   Plus,
   X,
   Download,
   Save,
 } from "lucide-react";
 import Link from "next/link";
+import { TaxDisclaimer } from "@/components/TaxDisclaimer";
+import { PageHeader } from "@/components/PageHeader";
 
 const years = listSupportedYears();
 
@@ -110,32 +110,19 @@ export default function ContractorCalculatorPage() {
   }
 
   return (
-    <main className="mx-auto max-w-7xl px-4 py-10">
-      <header className="flex flex-col gap-4 rounded-3xl bg-gradient-to-r from-purple-600 to-pink-600 p-8 text-white mb-8">
-        <div className="flex items-center gap-3">
-          <Calculator className="h-10 w-10" />
-          <div>
-            <h1 className="text-4xl font-bold">Contractor Tax Calculator</h1>
-            <p className="text-lg mt-2">
-              Calculate your self-employed income tax, USC, and Class S PRSI
-            </p>
-          </div>
-        </div>
-        <div className="flex items-center gap-2 bg-white/10 rounded-lg px-4 py-2 text-sm">
-          <Info className="h-4 w-4" />
-          <span>
-            For contractors, freelancers, and self-employed individuals in Ireland
-          </span>
-        </div>
-      </header>
+    <main className="mx-auto max-w-5xl px-4 py-12 sm:px-6 sm:py-16">
+      <PageHeader title="Contractor tax">
+        <p>Estimate self-employed income tax, USC, and Class S PRSI. Free to use — no account needed.</p>
+        <TaxDisclaimer />
+      </PageHeader>
 
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Left Column - Inputs */}
         <div className="lg:col-span-2 space-y-6">
           {/* Income Section */}
-          <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+          <div className="card">
             <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-              <TrendingUp className="h-5 w-5 text-purple-600" />
+              <TrendingUp className="h-5 w-5 text-brand-600" />
               Income & Deductions
             </h2>
             <div className="grid gap-4 md:grid-cols-2">
@@ -157,7 +144,7 @@ export default function ContractorCalculatorPage() {
                 onChange={(v) => setMaritalStatus(v as any)}
                 options={[
                   { label: "Single", value: "single" },
-                  { label: "Married", value: "married" },
+                  { label: "Married (one income)", value: "married" },
                 ]}
               />
               <SelectField
@@ -170,15 +157,15 @@ export default function ContractorCalculatorPage() {
           </div>
 
           {/* Expenses Section */}
-          <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+          <div className="card">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                <Wallet className="h-5 w-5 text-purple-600" />
+                <Wallet className="h-5 w-5 text-brand-600" />
                 Business Expenses
               </h2>
               <button
                 onClick={addExpense}
-                className="flex items-center gap-1 text-sm font-medium text-purple-600 hover:text-purple-700"
+                className="flex items-center gap-1 text-sm font-medium text-brand-600 hover:text-brand-700"
               >
                 <Plus className="h-4 w-4" />
                 Add Expense
@@ -219,7 +206,7 @@ export default function ContractorCalculatorPage() {
               <div className="border-t pt-3 mt-3">
                 <div className="flex justify-between items-center text-sm font-semibold">
                   <span>Total Expenses:</span>
-                  <span className="text-lg text-purple-600">
+                  <span className="text-lg text-brand-600">
                     €{totalExpenses.toLocaleString()}
                   </span>
                 </div>
@@ -228,10 +215,10 @@ export default function ContractorCalculatorPage() {
           </div>
 
           {/* Preliminary Tax Section */}
-          <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+          <div className="card">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                <Calendar className="h-5 w-5 text-purple-600" />
+                <Calendar className="h-5 w-5 text-brand-600" />
                 Preliminary Tax (Optional)
               </h2>
               <label className="flex items-center gap-2">
@@ -239,7 +226,7 @@ export default function ContractorCalculatorPage() {
                   type="checkbox"
                   checked={includePreliminaryTax}
                   onChange={(e) => setIncludePreliminaryTax(e.target.checked)}
-                  className="rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+                  className="rounded border-line text-brand-600 focus:ring-brand-500"
                 />
                 <span className="text-sm font-medium text-gray-700">Calculate</span>
               </label>
@@ -265,7 +252,7 @@ export default function ContractorCalculatorPage() {
         {/* Right Column - Results */}
         <div className="space-y-6">
           {isLoading && (
-            <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+            <div className="card">
               <div className="animate-pulse space-y-3">
                 <div className="h-4 bg-gray-200 rounded w-3/4"></div>
                 <div className="h-4 bg-gray-200 rounded w-1/2"></div>
@@ -276,7 +263,7 @@ export default function ContractorCalculatorPage() {
           {result && !isLoading && (
             <>
               {/* Net Income Summary */}
-              <div className="rounded-xl border-2 border-purple-200 bg-gradient-to-br from-purple-50 to-pink-50 p-6 shadow-sm">
+              <div className="card">
                 <h3 className="text-sm font-semibold text-gray-600 mb-2">
                   NET INCOME
                 </h3>
@@ -306,7 +293,7 @@ export default function ContractorCalculatorPage() {
               </div>
 
               {/* Tax Breakdown */}
-              <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+              <div className="card">
                 <h3 className="font-semibold text-gray-900 mb-4">Tax Breakdown</h3>
                 <div className="space-y-3 text-sm">
                   <div className="flex justify-between">
@@ -330,9 +317,9 @@ export default function ContractorCalculatorPage() {
 
                   <div className="border-t pt-3 mt-3 space-y-2">
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Income Tax</span>
+                      <span className="text-gray-600">Income tax after credits</span>
                       <span className="font-semibold text-red-600">
-                        €{result.incomeTax.total.toLocaleString()}
+                        €{result.incomeTax.afterCredits.toLocaleString()}
                       </span>
                     </div>
                     <div className="flex justify-between">
@@ -388,7 +375,7 @@ export default function ContractorCalculatorPage() {
               )}
 
               {/* Actions */}
-              <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm space-y-2">
+              <div className="card space-y-2">
                 {session?.user ? (
                   <>
                     <button className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700 text-sm font-medium">
@@ -412,7 +399,7 @@ export default function ContractorCalculatorPage() {
       </div>
 
       {/* Info Section */}
-      <div className="mt-8 rounded-xl border border-blue-200 bg-blue-50 p-6">
+      <div className="card mt-8">
         <h3 className="font-semibold text-blue-900 mb-3">
           Contractor Tax Information
         </h3>
@@ -427,8 +414,8 @@ export default function ContractorCalculatorPage() {
           <div>
             <h4 className="font-semibold mb-1">Class S PRSI</h4>
             <p>
-              Self-employed PRSI at 4% on income over €5,000. Does not provide
-              unemployment benefits.
+              Class S PRSI on income over €5,000 at the year-book rate (4% in
+              2025, 4.2% in 2026). Does not provide unemployment benefits.
             </p>
           </div>
           <div>
@@ -448,40 +435,17 @@ export default function ContractorCalculatorPage() {
         </div>
       </div>
 
-      {/* Cross-links to other calculators */}
-      <section className="mt-8 rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">More Irish Tax Calculators</h2>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          <Link
-            href="/"
-            className="flex flex-col gap-1 rounded-lg border border-gray-100 bg-gray-50 p-4 hover:border-brand-200 hover:bg-brand-50 transition-colors"
-          >
-            <span className="text-sm font-semibold text-gray-900">PAYE Tax Calculator</span>
-            <span className="text-xs text-gray-500">Calculate income tax, USC, and PRSI for employees</span>
-          </Link>
-          <Link
-            href="/rental-calculator"
-            className="flex flex-col gap-1 rounded-lg border border-gray-100 bg-gray-50 p-4 hover:border-brand-200 hover:bg-brand-50 transition-colors"
-          >
-            <span className="text-sm font-semibold text-gray-900">Rental Income Calculator</span>
-            <span className="text-xs text-gray-500">Work out tax on rental income and allowable expenses</span>
-          </Link>
-          <Link
-            href="/auto-enrolment-calculator"
-            className="flex flex-col gap-1 rounded-lg border border-gray-100 bg-gray-50 p-4 hover:border-brand-200 hover:bg-brand-50 transition-colors"
-          >
-            <span className="text-sm font-semibold text-gray-900">Auto-Enrolment Calculator</span>
-            <span className="text-xs text-gray-500">See your My Future Fund pension projections for 2026</span>
-          </Link>
-          <Link
-            href="/redundancy-calculator"
-            className="flex flex-col gap-1 rounded-lg border border-gray-100 bg-gray-50 p-4 hover:border-brand-200 hover:bg-brand-50 transition-colors"
-          >
-            <span className="text-sm font-semibold text-gray-900">Redundancy Calculator</span>
-            <span className="text-xs text-gray-500">Calculate your statutory redundancy entitlements</span>
-          </Link>
-        </div>
-      </section>
+      <p className="mt-12 text-sm text-ink-muted">
+        Also:{' '}
+        <Link href="/" className="text-ink underline decoration-line underline-offset-2 hover:text-brand-700">
+          PAYE take-home
+        </Link>
+        ,{' '}
+        <Link href="/rent-tax-credit" className="text-ink underline decoration-line underline-offset-2 hover:text-brand-700">
+          rent tax credit
+        </Link>
+        . Figures you enter are sent to our server to compute the result.
+      </p>
     </main>
   );
 }

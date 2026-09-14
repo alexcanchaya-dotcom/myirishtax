@@ -4,6 +4,7 @@ import { useState } from "react";
 import { X, Check, Sparkles, Crown } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
+import { isStripeCheckoutEnabled } from "@/lib/config/payments";
 
 interface PaywallModalProps {
   isOpen: boolean;
@@ -127,10 +128,14 @@ export function PaywallModal({
 
             <button
               onClick={() => handleUpgrade("premium")}
-              disabled={isLoading}
-              className="w-full py-3 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium disabled:opacity-50"
+              disabled={isLoading || !isStripeCheckoutEnabled()}
+              className="w-full py-3 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isLoading ? "Loading..." : "Upgrade to Premium"}
+              {isStripeCheckoutEnabled()
+                ? isLoading
+                  ? "Loading..."
+                  : "Upgrade to Premium"
+                : "Payments not available yet"}
             </button>
           </div>
 
@@ -210,10 +215,14 @@ export function PaywallModal({
 
             <button
               onClick={() => handleUpgrade("professional")}
-              disabled={isLoading}
-              className="w-full py-3 px-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 font-medium disabled:opacity-50"
+              disabled={isLoading || !isStripeCheckoutEnabled()}
+              className="w-full py-3 px-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isLoading ? "Loading..." : "Upgrade to Professional"}
+              {isStripeCheckoutEnabled()
+                ? isLoading
+                  ? "Loading..."
+                  : "Upgrade to Professional"
+                : "Payments not available yet"}
             </button>
           </div>
         </div>

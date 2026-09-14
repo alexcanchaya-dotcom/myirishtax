@@ -4,6 +4,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Check, Crown, Sparkles, Loader2 } from "lucide-react";
+import { isStripeCheckoutEnabled } from "@/lib/config/payments";
 
 export default function SubscriptionPage() {
   const { data: session, status } = useSession();
@@ -56,6 +57,7 @@ export default function SubscriptionPage() {
   }
 
   const currentTier = session.user.subscriptionTier;
+  const paymentsOn = isStripeCheckoutEnabled();
 
   return (
     <div className="min-h-screen bg-gray-50 py-12">
@@ -116,9 +118,9 @@ export default function SubscriptionPage() {
 
           {/* Premium Plan */}
           <div className="bg-white rounded-lg shadow-lg p-8 border-2 border-blue-500 relative">
-            <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-              <span className="bg-blue-500 text-white text-sm px-4 py-1 rounded-full font-medium">
-                POPULAR
+            <div className="absolute top-0 left-1/2 hidden -translate-x-1/2 -translate-y-1/2">
+              <span className="rounded-full bg-brand-600 px-4 py-1 text-sm font-medium text-white">
+                Optional
               </span>
             </div>
             <div className="flex items-center gap-2 mb-2">
@@ -178,10 +180,12 @@ export default function SubscriptionPage() {
             ) : (
               <button
                 onClick={() => handleUpgrade("premium")}
-                disabled={isLoading === "premium"}
-                className="w-full py-3 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium disabled:opacity-50 flex items-center justify-center gap-2"
+                disabled={!paymentsOn || isLoading === "premium"}
+                className="w-full py-3 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
-                {isLoading === "premium" ? (
+                {!paymentsOn ? (
+                  "Payments not available yet"
+                ) : isLoading === "premium" ? (
                   <>
                     <Loader2 className="h-4 w-4 animate-spin" />
                     Loading...
@@ -194,7 +198,7 @@ export default function SubscriptionPage() {
           </div>
 
           {/* Professional Plan */}
-          <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-lg shadow-sm p-8 border-2 border-purple-300">
+          <div className="rounded-2xl border border-line bg-white p-8">
             <div className="flex items-center gap-2 mb-2">
               <Crown className="h-6 w-6 text-purple-600" />
               <h3 className="text-2xl font-bold text-gray-900">Professional</h3>
@@ -247,17 +251,19 @@ export default function SubscriptionPage() {
             {currentTier === "PROFESSIONAL" ? (
               <button
                 onClick={handleManageSubscription}
-                className="w-full py-3 px-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 font-medium"
+                className="w-full rounded-lg bg-brand-600 px-4 py-3 font-medium text-white hover:bg-brand-700"
               >
                 Manage Subscription
               </button>
             ) : (
               <button
                 onClick={() => handleUpgrade("professional")}
-                disabled={isLoading === "professional"}
-                className="w-full py-3 px-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 font-medium disabled:opacity-50 flex items-center justify-center gap-2"
+                disabled={!paymentsOn || isLoading === "professional"}
+                className="flex w-full items-center justify-center gap-2 rounded-lg bg-brand-600 px-4 py-3 font-medium text-white hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-50"
               >
-                {isLoading === "professional" ? (
+                {!paymentsOn ? (
+                  "Payments not available yet"
+                ) : isLoading === "professional" ? (
                   <>
                     <Loader2 className="h-4 w-4 animate-spin" />
                     Loading...

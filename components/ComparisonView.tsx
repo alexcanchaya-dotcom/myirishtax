@@ -1,21 +1,25 @@
 import React from 'react';
 import { ScenarioComparison } from '../lib/taxEngine';
 
+function money(n: number): string {
+  return `€${Math.round(n).toLocaleString('en-IE')}`;
+}
+
 export function ComparisonView({ comparison }: { comparison: ScenarioComparison }) {
   const { scenarioA, scenarioB, delta } = comparison;
   return (
-    <div className="grid gap-4 rounded-xl border border-gray-200 bg-white p-4 shadow-sm md:grid-cols-3">
-      <div>
-        <h3 className="text-sm font-semibold text-gray-800">Scenario A</h3>
-        <p className="text-2xl font-bold">€{scenarioA.netAnnual.toFixed(0)}</p>
+    <div className="grid gap-4 sm:grid-cols-3">
+      <div className="card">
+        <h3 className="text-xs font-semibold uppercase tracking-wider text-ink-muted">This income</h3>
+        <p className="mt-2 font-serif text-2xl">{money(scenarioA.netAnnual)}</p>
       </div>
-      <div>
-        <h3 className="text-sm font-semibold text-gray-800">Scenario B</h3>
-        <p className="text-2xl font-bold">€{scenarioB.netAnnual.toFixed(0)}</p>
+      <div className="card">
+        <h3 className="text-xs font-semibold uppercase tracking-wider text-ink-muted">Other income</h3>
+        <p className="mt-2 font-serif text-2xl">{money(scenarioB.netAnnual)}</p>
       </div>
-      <div>
-        <h3 className="text-sm font-semibold text-gray-800">Difference</h3>
-        <p className="text-2xl font-bold text-brand-600">€{delta.netAnnual.toFixed(0)}</p>
+      <div className="card">
+        <h3 className="text-xs font-semibold uppercase tracking-wider text-ink-muted">Difference</h3>
+        <p className="mt-2 font-serif text-2xl text-brand-700">{money(delta.netAnnual)}</p>
       </div>
     </div>
   );

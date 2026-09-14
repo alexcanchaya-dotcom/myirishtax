@@ -34,15 +34,15 @@ export function UserNav() {
       <div className="flex items-center gap-4">
         <Link
           href="/auth/login"
-          className="text-sm font-medium text-gray-700 hover:text-gray-900"
+          className="text-sm text-ink-muted hover:text-ink"
         >
           Sign in
         </Link>
         <Link
           href="/auth/signup"
-          className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-brand-600 hover:bg-brand-700"
+          className="text-sm text-ink-muted hover:text-ink"
         >
-          Get Started
+          Create account
         </Link>
       </div>
     );

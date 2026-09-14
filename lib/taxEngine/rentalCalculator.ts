@@ -1,10 +1,14 @@
 /**
  * Rental Income Tax Calculator for Ireland
  *
+ * NOT SHIPPED. The /rental-calculator route is a coming-soon page because
+ * this file still applies the expired 75% mortgage-interest restriction
+ * (config/tax_years notes 100% where RTB registered). Do not expose these
+ * numbers in the UI until this engine is rewritten against the live rate book.
+ *
  * Calculates tax on rental income including:
  * - Rental income tax at marginal rate
  * - Deductible expenses (mortgage interest, repairs, etc.)
- * - Rental Tax Credit (€600 for landlords)
  * - Pre-letting expenses
  */
 

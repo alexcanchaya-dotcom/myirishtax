@@ -12,10 +12,10 @@ type Props = {
 
 export function SelectField({ label, value, options, onChange }: Props) {
   return (
-    <label className="flex flex-col gap-1 text-sm font-medium text-gray-700">
+    <label className="flex flex-col gap-1.5 text-sm font-medium text-ink">
       {label}
       <select
-        className="rounded-lg border border-gray-200 bg-white px-3 py-2 shadow-sm"
+        className="field-control"
         value={value}
         onChange={(e) => onChange(e.target.value)}
       >

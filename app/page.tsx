@@ -3,17 +3,19 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { CalculatorInput } from '../components/CalculatorInput';
 import { SelectField } from '../components/SelectField';
-import { ToggleSwitch } from '../components/ToggleSwitch';
 import { BreakdownTable } from '../components/BreakdownTable';
 import { TaxSummaryCard } from '../components/TaxSummaryCard';
 import { ComparisonView } from '../components/ComparisonView';
-import { FloatingAIChat } from '../components/FloatingAIChat';
 import { TaxBreakdown, compareScenarios } from '../lib/taxEngine';
 import { listSupportedYears } from '../lib/config/taxYearConfig';
-import { Download, Save } from 'lucide-react';
 import Link from 'next/link';
+import { PageHeader } from '../components/PageHeader';
 
 const years = listSupportedYears();
+
+function formatEuro(n: number): string {
+  return `€${Math.round(n).toLocaleString('en-IE')}`;
+}
 
 export default function HomePage() {
   const { data: session } = useSession();
@@ -25,18 +27,21 @@ export default function HomePage() {
   const [taxYear, setTaxYear] = useState<number>(years[years.length - 1]);
   const [result, setResult] = useState<TaxBreakdown | null>(null);
   const [scenarioBIncome, setScenarioBIncome] = useState(65000);
-  const [isSaving, setIsSaving] = useState(false);
-  const [isExporting, setIsExporting] = useState(false);
-
-  // All tax years available — no paywall filtering
-  const availableYears = years;
+  const [showCompare, setShowCompare] = useState(false);
 
   useEffect(() => {
     const run = async () => {
       const response = await fetch('/api/calc', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ income, period, maritalStatus, pensionContribution: pension, additionalCredits: credits, taxYear }),
+        body: JSON.stringify({
+          income,
+          period,
+          maritalStatus,
+          pensionContribution: pension,
+          additionalCredits: credits,
+          taxYear,
+        }),
       });
       const data = await response.json();
       setResult(data.breakdown);
@@ -45,237 +50,155 @@ export default function HomePage() {
   }, [income, period, maritalStatus, pension, credits, taxYear]);
 
   const comparison = useMemo(() => {
-    if (!result) return null;
+    if (!result || !showCompare) return null;
     return compareScenarios(
       { income, period, maritalStatus, pensionContribution: pension, additionalCredits: credits, taxYear },
-      { income: scenarioBIncome, period, maritalStatus, pensionContribution: pension, additionalCredits: credits, taxYear }
+      {
+        income: scenarioBIncome,
+        period,
+        maritalStatus,
+        pensionContribution: pension,
+        additionalCredits: credits,
+        taxYear,
+      }
     );
-  }, [credits, income, maritalStatus, pension, period, result, scenarioBIncome, taxYear]);
-
-  const handleSaveCalculation = async () => {
-    if (!session?.user) {
-      window.location.href = '/auth/login';
-      return;
-    }
-
-    setIsSaving(true);
-    try {
-      const response = await fetch('/api/calculations/save', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: `PAYE Calculation - €${income.toLocaleString()}`,
-          type: 'PAYE',
-          data: { income, period, maritalStatus, pension, credits, taxYear, result },
-        }),
-      });
-
-      if (response.ok) {
-        alert('Calculation saved successfully!');
-      } else {
-        const error = await response.json();
-        alert(error.error || 'Failed to save calculation');
-      }
-    } catch (error) {
-      alert('Failed to save calculation');
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  const handleExportPDF = async () => {
-    if (!session?.user) {
-      window.location.href = '/auth/login';
-      return;
-    }
-
-    setIsExporting(true);
-    try {
-      const response = await fetch('/api/pdf/generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ result }),
-      });
-
-      if (response.ok) {
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `myirishtax-${taxYear}-${Date.now()}.pdf`;
-        a.click();
-      } else {
-        const error = await response.json();
-        alert(error.error || 'Failed to export PDF');
-      }
-    } catch (error) {
-      alert('Failed to export PDF');
-    } finally {
-      setIsExporting(false);
-    }
-  };
+  }, [credits, income, maritalStatus, pension, period, result, scenarioBIncome, showCompare, taxYear]);
 
   return (
-    <main className="mx-auto max-w-6xl px-4 py-10">
-      <header className="flex flex-col gap-4 rounded-3xl bg-gradient-to-r from-brand-600 to-brand-500 p-8 text-white">
-        <h1 className="text-4xl font-bold">MyIrishTax</h1>
-        <p className="max-w-2xl text-lg">The most advanced PAYE/USC/PRSI calculator. Update any field and see live results instantly.</p>
-      </header>
+    <main className="mx-auto max-w-5xl px-4 py-12 sm:px-6 sm:py-16">
+      <PageHeader title="Irish take-home pay">
+        <p>Estimate PAYE, USC and PRSI from published 2025 and 2026 bands. Free to use — no account needed.</p>
+      </PageHeader>
 
-      <section className="mt-6 grid gap-6 md:grid-cols-3">
-        <div className="md:col-span-2 space-y-4">
-          <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
-            <div className="grid gap-4 md:grid-cols-2">
-              <CalculatorInput label="Income" value={income} onChange={setIncome} prefix="€" />
-              <SelectField
-                label="Period"
-                value={period}
-                onChange={(v) => setPeriod(v as any)}
-                options={[
-                  { label: 'Annual', value: 'annual' },
-                  { label: 'Monthly', value: 'monthly' },
-                  { label: 'Weekly', value: 'weekly' },
-                ]}
-              />
-              <SelectField
-                label="Marital status"
-                value={maritalStatus}
-                onChange={(v) => setMaritalStatus(v as any)}
-                options={[
-                  { label: 'Single', value: 'single' },
-                  { label: 'Married', value: 'married' },
-                ]}
-              />
-              <SelectField
-                label="Tax year"
-                value={taxYear}
-                onChange={(v) => setTaxYear(Number(v))}
-                options={availableYears.map((y) => ({ label: y.toString(), value: y }))}
-              />
-              <CalculatorInput label="Pension contributions" value={pension} onChange={setPension} prefix="€" />
-              <CalculatorInput label="Additional credits" value={credits} onChange={setCredits} prefix="€" />
-            </div>
+      {result && (
+        <div className="mb-6 flex items-baseline justify-between gap-4 rounded-2xl border border-line bg-white px-5 py-4 lg:hidden">
+          <span className="text-sm text-ink-muted">Take-home</span>
+          <span className="font-serif text-2xl text-brand-700">{formatEuro(result.netAnnual)}</span>
+        </div>
+      )}
+
+      <section className="grid gap-8 lg:grid-cols-12">
+        <div className="card lg:col-span-7">
+          <h2 className="text-lg font-semibold">Your figures</h2>
+          <div className="mt-5 grid gap-5 sm:grid-cols-2">
+            <CalculatorInput label="Income" value={income} onChange={setIncome} prefix="€" />
+            <SelectField
+              label="Period"
+              value={period}
+              onChange={(v) => setPeriod(v as 'annual' | 'monthly' | 'weekly')}
+              options={[
+                { label: 'Annual', value: 'annual' },
+                { label: 'Monthly', value: 'monthly' },
+                { label: 'Weekly', value: 'weekly' },
+              ]}
+            />
+            <SelectField
+              label="Marital status"
+              value={maritalStatus}
+              onChange={(v) => setMaritalStatus(v as 'single' | 'married')}
+              options={[
+                { label: 'Single', value: 'single' },
+                { label: 'Married (one income)', value: 'married' },
+              ]}
+            />
+            <SelectField
+              label="Tax year"
+              value={taxYear}
+              onChange={(v) => setTaxYear(Number(v))}
+              options={years.map((y) => ({ label: y.toString(), value: y }))}
+            />
+            <CalculatorInput label="Pension contributions" value={pension} onChange={setPension} prefix="€" />
+            <CalculatorInput
+              label="Extra credits"
+              value={credits}
+              onChange={setCredits}
+              prefix="€"
+            />
           </div>
+          <p className="mt-4 text-xs text-ink-muted">
+            Extra credits sit on top of the standard personal and PAYE credits for your status.
+            Changing a figure sends it to our server to compute the result.{' '}
+            <Link href="/privacy" className="underline decoration-line underline-offset-2 hover:text-ink">
+              Privacy
+            </Link>
+          </p>
+        </div>
 
+        <div className="space-y-6 lg:col-span-5">
+          {result && <TaxSummaryCard data={result} />}
           {result && (
-            <div className="grid gap-4 md:grid-cols-3">
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-1">
               <BreakdownTable title="PAYE" rows={result.paye} />
               <BreakdownTable title="USC" rows={result.usc} />
-              <TaxSummaryCard data={result} />
             </div>
           )}
-
-          {comparison && <ComparisonView comparison={comparison} />}
-        </div>
-
-        <div className="space-y-4">
-          <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
-            <h3 className="text-sm font-semibold text-gray-800">Scenario B income</h3>
-            <CalculatorInput label="Compare" value={scenarioBIncome} onChange={setScenarioBIncome} prefix="€" />
-            <p className="mt-2 text-xs text-gray-500">Scenario B shares all other settings with Scenario A.</p>
-          </div>
-          <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
-            <h3 className="text-sm font-semibold text-gray-800 mb-3">Actions</h3>
-            <div className="space-y-2">
-              {session?.user && (
-                <>
-                  <button
-                    onClick={handleSaveCalculation}
-                    disabled={isSaving || !result}
-                    className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700 disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
-                  >
-                    <Save className="h-4 w-4" />
-                    {isSaving ? 'Saving...' : 'Save Calculation'}
-                  </button>
-
-                  <button
-                    onClick={handleExportPDF}
-                    disabled={isExporting || !result}
-                    className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
-                  >
-                    <Download className="h-4 w-4" />
-                    {isExporting ? 'Exporting...' : 'Export PDF'}
-                  </button>
-                </>
-              )}
-              {!session?.user && (
-                <p className="text-xs text-gray-500 text-center">
-                  <Link href="/auth/login" className="text-brand-600 hover:underline font-medium">Sign in</Link> to save calculations and export PDFs.
-                </p>
-              )}
-            </div>
-          </div>
         </div>
       </section>
 
-      {/* Cross-links to other calculators */}
-      <section className="mt-12 rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">More Irish Tax Calculators</h2>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          <Link
-            href="/contractor-calculator"
-            className="flex flex-col gap-1 rounded-lg border border-gray-100 bg-gray-50 p-4 hover:border-brand-200 hover:bg-brand-50 transition-colors"
-          >
-            <span className="text-sm font-semibold text-gray-900">Contractor Tax Calculator</span>
-            <span className="text-xs text-gray-500">Calculate self-employed income tax, USC, and Class S PRSI</span>
-          </Link>
-          <Link
-            href="/rental-calculator"
-            className="flex flex-col gap-1 rounded-lg border border-gray-100 bg-gray-50 p-4 hover:border-brand-200 hover:bg-brand-50 transition-colors"
-          >
-            <span className="text-sm font-semibold text-gray-900">Rental Income Calculator</span>
-            <span className="text-xs text-gray-500">Work out tax on rental income and allowable expenses</span>
-          </Link>
-          <Link
-            href="/auto-enrolment-calculator"
-            className="flex flex-col gap-1 rounded-lg border border-gray-100 bg-gray-50 p-4 hover:border-brand-200 hover:bg-brand-50 transition-colors"
-          >
-            <span className="text-sm font-semibold text-gray-900">Auto-Enrolment Calculator</span>
-            <span className="text-xs text-gray-500">See your My Future Fund pension projections for 2026</span>
-          </Link>
-          <Link
-            href="/rent-tax-credit"
-            className="flex flex-col gap-1 rounded-lg border border-gray-100 bg-gray-50 p-4 hover:border-brand-200 hover:bg-brand-50 transition-colors"
-          >
-            <span className="text-sm font-semibold text-gray-900">Rent Tax Credit Calculator</span>
-            <span className="text-xs text-gray-500">Check how much rent credit you can claim (up to €1,000)</span>
-          </Link>
-          <Link
-            href="/redundancy-calculator"
-            className="flex flex-col gap-1 rounded-lg border border-gray-100 bg-gray-50 p-4 hover:border-brand-200 hover:bg-brand-50 transition-colors"
-          >
-            <span className="text-sm font-semibold text-gray-900">Redundancy Calculator</span>
-            <span className="text-xs text-gray-500">Calculate your statutory redundancy entitlements</span>
-          </Link>
+      <details className="mt-8" open={showCompare} onToggle={(e) => setShowCompare((e.target as HTMLDetailsElement).open)}>
+        <summary className="cursor-pointer text-sm text-ink-muted hover:text-ink">Compare another income</summary>
+        <div className="mt-4 max-w-sm">
+          <CalculatorInput label="Other income" value={scenarioBIncome} onChange={setScenarioBIncome} prefix="€" />
         </div>
-      </section>
+        {comparison && (
+          <div className="mt-4">
+            <ComparisonView comparison={comparison} />
+          </div>
+        )}
+      </details>
 
-      {/* SEO text section */}
-      <section className="mt-8 rounded-xl border border-gray-100 bg-white p-6 shadow-sm">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Understanding Your Irish Tax: PAYE, USC, and PRSI</h2>
-        <div className="grid gap-6 md:grid-cols-3 text-sm text-gray-600 leading-relaxed">
+      {session?.user && (
+        <p className="mt-6 text-sm text-ink-muted">
+          Signed in as {session.user.email}. Saving and PDF export stay optional.
+        </p>
+      )}
+
+      <section className="mt-16 border-t border-line pt-10">
+        <h2 className="text-xl font-semibold">How the estimate is built</h2>
+        <div className="mt-6 grid gap-8 text-sm leading-relaxed text-ink-muted md:grid-cols-3">
           <div>
-            <h3 className="font-semibold text-gray-800 mb-2">PAYE – Pay As You Earn</h3>
+            <h3 className="mb-2 text-base font-semibold text-ink">PAYE</h3>
             <p>
-              PAYE is Ireland's income tax system for employees. Tax is deducted at source by your employer before you receive your pay. In 2026, the standard rate is 20% on income up to the standard rate cut-off point (€44,000 for a single person), with the higher rate of 40% applying to income above that threshold. Tax credits reduce the amount of tax you owe — the personal credit and PAYE credit together are worth €3,700 for 2026.
+              20% up to €44,000 if you are single, or €53,000 if married with one income (2025 and
+              2026). Income above that is 40%. Credits reduce income tax only.
             </p>
           </div>
           <div>
-            <h3 className="font-semibold text-gray-800 mb-2">USC – Universal Social Charge</h3>
+            <h3 className="mb-2 text-base font-semibold text-ink">USC</h3>
             <p>
-              The Universal Social Charge (USC) is a tax on gross income that applies to all earners over €13,000 per year. It is charged in addition to income tax and operates on a banded system: 0.5% on the first €12,012, 2% on the next €13,748, and 4% on income above €25,760 (with a higher 8% rate applying to non-PAYE income over €100,000). USC was introduced in 2011 to help consolidate Ireland's public finances.
+              2025: 0.5% to €12,012, 2% to €27,382, 3% to €70,044, then 8%. 2026 raises the 2%
+              ceiling to €28,700. Credits do not reduce USC.
             </p>
           </div>
           <div>
-            <h3 className="font-semibold text-gray-800 mb-2">PRSI – Pay Related Social Insurance</h3>
+            <h3 className="mb-2 text-base font-semibold text-ink">PRSI</h3>
             <p>
-              PRSI funds Ireland's social welfare entitlements including the State Pension, Jobseeker's Benefit, and illness payments. Most employees pay Class A PRSI at 4% on gross earnings over €352 per week (no upper limit). Your employer also contributes — typically at 11.05%. Self-employed individuals pay Class S PRSI at 4% on all income over €5,000, but do not have access to the same benefits as employed workers.
+              Class A employee rate in the year book: 4% in 2025 and 4.2% in 2026. Credits do not
+              reduce PRSI.
             </p>
           </div>
         </div>
       </section>
 
-      <FloatingAIChat />
+      <p className="mt-12 text-sm text-ink-muted">
+        Other tools:{' '}
+        <Link href="/contractor-calculator" className="text-ink underline decoration-line underline-offset-2 hover:text-brand-700">
+          contractor
+        </Link>
+        ,{' '}
+        <Link href="/rent-tax-credit" className="text-ink underline decoration-line underline-offset-2 hover:text-brand-700">
+          rent tax credit
+        </Link>
+        ,{' '}
+        <Link href="/redundancy-calculator" className="text-ink underline decoration-line underline-offset-2 hover:text-brand-700">
+          redundancy
+        </Link>
+        ,{' '}
+        <Link href="/auto-enrolment-calculator" className="text-ink underline decoration-line underline-offset-2 hover:text-brand-700">
+          auto-enrolment
+        </Link>
+        .
+      </p>
     </main>
   );
 }

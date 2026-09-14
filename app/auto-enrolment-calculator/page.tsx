@@ -4,7 +4,6 @@ import { useState, useMemo } from "react";
 import { CalculatorInput } from "@/components/CalculatorInput";
 import { SelectField } from "@/components/SelectField";
 import {
-  Shield,
   TrendingUp,
   Info,
   CheckCircle,
@@ -14,6 +13,8 @@ import {
   ChevronDown,
   ChevronUp,
 } from "lucide-react";
+import { PageHeader } from "@/components/PageHeader";
+import { TaxDisclaimer } from "@/components/TaxDisclaimer";
 import {
   calculateAutoEnrolment,
   AutoEnrolmentBreakdown,
@@ -80,26 +81,14 @@ export default function AutoEnrolmentCalculatorPage() {
   const yearsToRetirement = Math.max(0, retirementAge - age);
 
   return (
-    <main className="mx-auto max-w-7xl px-4 py-10">
-      {/* ── Header ── */}
-      <header className="flex flex-col gap-4 rounded-3xl bg-gradient-to-r from-green-600 to-emerald-600 p-8 text-white mb-8">
-        <div className="flex items-center gap-3">
-          <Shield className="h-10 w-10 flex-shrink-0" />
-          <div>
-            <h1 className="text-4xl font-bold">Auto-Enrolment Pension Calculator</h1>
-            <p className="text-lg mt-2">
-              My Future Fund — Ireland's new workplace pension scheme, launched January 2026
-            </p>
-          </div>
-        </div>
-        <div className="flex items-center gap-2 bg-white/10 rounded-lg px-4 py-2 text-sm">
-          <Info className="h-4 w-4 flex-shrink-0" />
-          <span>
-            Free to use · For every €3 you save, your employer adds €3 and the State adds €1 — €7
-            total for every €3 of your own money
-          </span>
-        </div>
-      </header>
+    <main className="mx-auto max-w-5xl px-4 py-12 sm:px-6 sm:py-16">
+      <PageHeader title="Auto-enrolment pension">
+        <p>
+          My Future Fund from January 2026. For every €3 you save, your employer adds €3 and the
+          State adds €1.
+        </p>
+        <TaxDisclaimer />
+      </PageHeader>
 
       <div className="grid gap-6 lg:grid-cols-3">
         {/* ── Left Column — Inputs ── */}
@@ -183,7 +172,7 @@ export default function AutoEnrolmentCalculatorPage() {
           </div>
 
           {/* The 3-for-7 card */}
-          <div className="rounded-xl border-2 border-emerald-200 bg-gradient-to-br from-emerald-50 to-green-50 p-6 shadow-sm">
+          <div className="card">
             <div className="flex items-center gap-2 mb-3">
               <PiggyBank className="h-5 w-5 text-emerald-600" />
               <h3 className="font-bold text-gray-900">For every €3 you save, you get €7</h3>
@@ -224,7 +213,7 @@ export default function AutoEnrolmentCalculatorPage() {
         {/* ── Right Column — Results ── */}
         <div className="lg:col-span-2 space-y-6">
           {/* Hero: projected monthly pension */}
-          <div className="rounded-xl border-2 border-emerald-300 bg-gradient-to-br from-green-50 to-emerald-100 p-6 shadow-sm">
+          <div className="card">
             <h3 className="text-sm font-semibold text-gray-600 mb-1 uppercase tracking-wide">
               Projected Monthly Pension at Retirement (Age {retirementAge})
             </h3>
@@ -599,9 +588,7 @@ export default function AutoEnrolmentCalculatorPage() {
             </div>
           </div>
           <p className="text-xs text-gray-400 mt-4">
-            This calculator is for illustrative purposes only. Projections are not guaranteed.
-            Consult a qualified financial advisor for personalised pension advice.
-            Information based on legislation effective January 2026.
+            Based on published Irish tax bands; not advice. Projections are not guaranteed.
           </p>
         </div>
       </section>

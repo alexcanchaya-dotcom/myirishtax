@@ -37,8 +37,12 @@ export default function RedundancyCalculatorPage() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6 space-y-8">
-      <h1 className="text-3xl font-bold">Irish Redundancy Calculator (2025)</h1>
+    <div className="mx-auto max-w-4xl space-y-8 px-4 py-12 sm:px-6 sm:py-16">
+      <header className="max-w-2xl">
+        <h1 className="font-serif text-4xl font-semibold">Redundancy</h1>
+        <p className="mt-3 text-ink-muted">Statutory redundancy estimate for 2025.</p>
+        <p className="mt-2 text-sm text-ink-muted">Based on published Irish tax bands; not advice.</p>
+      </header>
 
       {/* Error banner */}
       {error && (
@@ -177,8 +181,8 @@ export default function RedundancyCalculatorPage() {
             <p><strong>Tax-Free Enhanced:</strong> €{results.enhancedAfterLifetimeCap.toLocaleString()}</p>
             <p><strong>Taxable Enhanced:</strong> €{results.enhancedTaxable.toLocaleString()}</p>
             <p><strong>PILON Tax:</strong> €{results.pilonTaxDeductedApprox.toLocaleString()}</p>
-            <p><strong>Holiday Pay Tax:</strong> €{results.pilonTaxDeduholidayTaxDeductedApproxctedApprox.toLocaleString()}</p>
-            div>
+            <p><strong>Holiday Pay Tax:</strong> €{results.holidayTaxDeductedApprox.toLocaleString()}</p>
+          </div>
 
           <div className="bg-white p-6 rounded-2xl shadow space-y-3">
             <h3 className="text-xl font-semibold">Details</h3>

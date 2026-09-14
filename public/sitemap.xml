@@ -1,17 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://myirishtax.com/</loc></url>
-  <url><loc>https://myirishtax.com/about.html</loc></url>
-  <url><loc>https://myirishtax.com/methodology.html</loc></url>
-  <url><loc>https://myirishtax.com/data-sources.html</loc></url>
-  <url><loc>https://myirishtax.com/privacy.html</loc></url>
-  <url><loc>https://myirishtax.com/terms.html</loc></url>
-  <url><loc>https://myirishtax.com/cookies.html</loc></url>
-  <url><loc>https://myirishtax.com/disclaimer.html</loc></url>
-  <url><loc>https://myirishtax.com/refunds.html</loc></url>
-  <url><loc>https://myirishtax.com/guides/usc.html</loc></url>
-  <url><loc>https://myirishtax.com/guides/prsi.html</loc></url>
-  <url><loc>https://myirishtax.com/guides/pension-tax-relief.html</loc></url>
-  <url><loc>https://myirishtax.com/guides/bik.html</loc></url>
-  <url><loc>https://myirishtax.com/guides/rental-expenses.html</loc></url>
+  <url><loc>https://myirishtax.com/about</loc></url>
+  <url><loc>https://myirishtax.com/privacy</loc></url>
+  <url><loc>https://myirishtax.com/terms</loc></url>
+  <url><loc>https://myirishtax.com/cookies</loc></url>
+  <url><loc>https://myirishtax.com/disclaimer</loc></url>
+  <url><loc>https://myirishtax.com/contractor-calculator</loc></url>
+  <url><loc>https://myirishtax.com/redundancy-calculator</loc></url>
+  <url><loc>https://myirishtax.com/auto-enrolment-calculator</loc></url>
+  <url><loc>https://myirishtax.com/rent-tax-credit</loc></url>
+  <url><loc>https://myirishtax.com/rental-calculator</loc></url>
 </urlset>
