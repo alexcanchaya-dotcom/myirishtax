@@ -13,6 +13,7 @@ const navLinks = [
   { href: '/redundancy-calculator', label: 'Redundancy' },
   { href: '/auto-enrolment-calculator', label: 'Auto-Enrolment' },
   { href: '/rent-tax-credit', label: 'Rent Credit' },
+  { href: '/ledger', label: 'Books' },
   { href: '/about', label: 'About' },
 ];
 

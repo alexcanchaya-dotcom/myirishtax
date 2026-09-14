@@ -13,6 +13,13 @@ npm run dev
 
 Visit `http://localhost:3000`
 
+Paper Ledger (small-business books, Kumon/tuition flagship) lives at **`/ledger`**. Data stays in the browser (`localStorage`). It is a client page inside this Next.js app — not a separate repo.
+
+```bash
+# after npm run dev
+open http://localhost:3000/ledger
+```
+
 ## Project structure
 ```
 /public
