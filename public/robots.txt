@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /dashboard
+Disallow: /auth/
+Disallow: /portfolio
+
+Sitemap: https://myirishtax.com/sitemap.xml
