@@ -247,6 +247,13 @@ export default function HomePage() {
             <span className="text-sm font-semibold text-gray-900">Redundancy Calculator</span>
             <span className="text-xs text-gray-500">Calculate your statutory redundancy entitlements</span>
           </Link>
+          <a
+            href="https://ledger.myirishtax.com"
+            className="flex flex-col gap-1 rounded-lg border border-gray-100 bg-gray-50 p-4 hover:border-brand-200 hover:bg-brand-50 transition-colors"
+          >
+            <span className="text-sm font-semibold text-gray-900">Paper Ledger</span>
+            <span className="text-xs text-gray-500">Keep the books for a small business — register, P&L, desk, Excel</span>
+          </a>
         </div>
       </section>
 
