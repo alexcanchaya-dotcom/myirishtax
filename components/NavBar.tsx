@@ -9,7 +9,6 @@ import { UserNav } from '@/components/auth/UserNav';
 const navLinks = [
   { href: '/', label: 'PAYE' },
   { href: '/contractor-calculator', label: 'Contractor' },
-  { href: '/rental-calculator', label: 'Rental' },
   { href: '/redundancy-calculator', label: 'Redundancy' },
   { href: '/auto-enrolment-calculator', label: 'Auto-Enrolment' },
   { href: '/rent-tax-credit', label: 'Rent Credit' },

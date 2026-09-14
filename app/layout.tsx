@@ -5,8 +5,10 @@ import { NavBar } from '@/components/NavBar';
 import Link from 'next/link';
 
 export const metadata = {
-  title: 'MyIrishTax - Free Irish Tax Calculators | PAYE, USC, PRSI, Contractor, Rental',
-  description: 'Free Irish tax calculators built by an ACCA qualified accountant. Calculate PAYE, USC, PRSI, contractor tax, rental income tax, rent tax credit, and auto-enrolment pension contributions for 2026.',
+  metadataBase: new URL('https://myirishtax.com'),
+  title: 'MyIrishTax - Free Irish Tax Calculators | PAYE, USC, PRSI, Contractor',
+  description:
+    'Free Irish PAYE, USC and PRSI calculator for 2025 and 2026. Based on published Irish tax bands; not advice. Also contractor, rent credit, redundancy and auto-enrolment tools.',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -26,7 +28,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                     MyIrishTax
                   </Link>
                   <p className="mt-2 text-sm text-gray-500">
-                    Free Irish tax calculators built by an ACCA qualified accountant with 13+ years of experience.
+                    Irish tax calculators based on published bands. Not advice.
+                  </p>
+                  <p className="mt-3 text-sm text-gray-500">
+                    <a href="mailto:support@myirishtax.com" className="hover:text-gray-900">
+                      support@myirishtax.com
+                    </a>
                   </p>
                 </div>
                 <div>
@@ -34,27 +41,48 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   <ul className="space-y-2 text-sm text-gray-600">
                     <li><Link href="/" className="hover:text-gray-900">PAYE Tax Calculator</Link></li>
                     <li><Link href="/contractor-calculator" className="hover:text-gray-900">Contractor Tax Calculator</Link></li>
-                    <li><Link href="/rental-calculator" className="hover:text-gray-900">Rental Income Calculator</Link></li>
                     <li><Link href="/redundancy-calculator" className="hover:text-gray-900">Redundancy Calculator</Link></li>
                     <li><Link href="/auto-enrolment-calculator" className="hover:text-gray-900">Auto-Enrolment Calculator</Link></li>
                     <li><Link href="/rent-tax-credit" className="hover:text-gray-900">Rent Tax Credit Calculator</Link></li>
+                    <li><Link href="/rental-calculator" className="hover:text-gray-900">Rental Income (coming soon)</Link></li>
                   </ul>
                 </div>
                 <div>
                   <h3 className="text-sm font-semibold text-gray-900 mb-3">Company</h3>
                   <ul className="space-y-2 text-sm text-gray-600">
                     <li><Link href="/about" className="hover:text-gray-900">About</Link></li>
+                    <li><Link href="/privacy" className="hover:text-gray-900">Privacy</Link></li>
+                    <li><Link href="/terms" className="hover:text-gray-900">Terms</Link></li>
+                    <li><Link href="/cookies" className="hover:text-gray-900">Cookies</Link></li>
+                    <li><Link href="/disclaimer" className="hover:text-gray-900">Disclaimer</Link></li>
                   </ul>
                 </div>
                 <div>
-                  <h3 className="text-sm font-semibold text-gray-900 mb-3">Disclaimer</h3>
-                  <p className="text-xs text-gray-500 leading-relaxed">
-                    The calculators on MyIrishTax are provided for informational purposes only and do not constitute professional tax or financial advice. Always consult a qualified tax advisor for your specific circumstances.
+                  <h3 className="text-sm font-semibold text-gray-900 mb-3">Sister sites</h3>
+                  <ul className="space-y-2 text-sm text-gray-600">
+                    <li>
+                      <a href="https://wealthmodeler.com" className="hover:text-gray-900" rel="noopener noreferrer">
+                        Wealth Modeler
+                      </a>
+                    </li>
+                    <li>
+                      <a href="https://longevitymodeler.com" className="hover:text-gray-900" rel="noopener noreferrer">
+                        Longevity Modeler
+                      </a>
+                    </li>
+                  </ul>
+                  <p className="mt-4 text-xs text-gray-500 leading-relaxed">
+                    Based on published Irish tax bands; not advice. Always check Revenue.ie or a
+                    qualified advisor for your own position.
                   </p>
                 </div>
               </div>
               <div className="mt-8 border-t border-gray-200 pt-6 text-center text-xs text-gray-500">
-                © {new Date().getFullYear()} MyIrishTax. All rights reserved.
+                © {new Date().getFullYear()} MyIrishTax. Contact:{' '}
+                <a href="mailto:support@myirishtax.com" className="hover:text-gray-900">
+                  support@myirishtax.com
+                </a>
+                . Registered company details on request.
               </div>
             </div>
           </footer>

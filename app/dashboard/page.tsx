@@ -67,12 +67,9 @@ export default function DashboardPage() {
                   {session.user.subscriptionTier}
                 </span>
                 {session.user.subscriptionTier === "FREE" && (
-                  <Link
-                    href="/dashboard/subscription"
-                    className="text-sm text-brand-600 hover:text-brand-700 font-medium"
-                  >
-                    Upgrade to unlock more features →
-                  </Link>
+                  <span className="text-sm text-gray-500">
+                    Core calculators stay free. Paid plans are not on sale yet.
+                  </span>
                 )}
               </div>
             </div>
@@ -82,22 +79,14 @@ export default function DashboardPage() {
           </div>
 
           {session.user.subscriptionTier === "FREE" && (
-            <div className="mt-6 p-4 bg-blue-50 rounded-lg">
+            <div className="mt-6 p-4 bg-gray-50 rounded-lg">
               <h3 className="font-medium text-gray-900 mb-2">
-                Unlock Premium Features
+                Paid plans
               </h3>
-              <ul className="space-y-1 text-sm text-gray-700 mb-4">
-                <li>✓ All tax years (2023-2026)</li>
-                <li>✓ PDF exports</li>
-                <li>✓ Redundancy & rental calculators</li>
-                <li>✓ Save calculations</li>
-              </ul>
-              <Link
-                href="/dashboard/subscription"
-                className="inline-flex items-center px-4 py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700 font-medium"
-              >
-                View Plans
-              </Link>
+              <p className="text-sm text-gray-700">
+                Card checkout is not switched on. PAYE, contractor, rent credit, redundancy, and
+                auto-enrolment calculators stay usable without a paid plan.
+              </p>
             </div>
           )}
         </div>
@@ -153,14 +142,8 @@ export default function DashboardPage() {
             <div className="text-center py-8">
               <FileText className="h-12 w-12 text-gray-400 mx-auto mb-3" />
               <p className="text-gray-600 mb-4">
-                Upgrade to Premium to save your calculations
+                Saving calculations needs a paid plan. Paid checkout is not available yet.
               </p>
-              <Link
-                href="/dashboard/subscription"
-                className="inline-flex items-center px-4 py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700 font-medium"
-              >
-                Upgrade Now
-              </Link>
             </div>
           ) : (
             <div className="text-center py-8 text-gray-600">

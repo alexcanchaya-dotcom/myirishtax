@@ -3,7 +3,6 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { CalculatorInput } from '../components/CalculatorInput';
 import { SelectField } from '../components/SelectField';
-import { ToggleSwitch } from '../components/ToggleSwitch';
 import { BreakdownTable } from '../components/BreakdownTable';
 import { TaxSummaryCard } from '../components/TaxSummaryCard';
 import { ComparisonView } from '../components/ComparisonView';
@@ -12,6 +11,7 @@ import { TaxBreakdown, compareScenarios } from '../lib/taxEngine';
 import { listSupportedYears } from '../lib/config/taxYearConfig';
 import { Download, Save } from 'lucide-react';
 import Link from 'next/link';
+import { TaxDisclaimer } from '../components/TaxDisclaimer';
 
 const years = listSupportedYears();
 
@@ -119,7 +119,10 @@ export default function HomePage() {
     <main className="mx-auto max-w-6xl px-4 py-10">
       <header className="flex flex-col gap-4 rounded-3xl bg-gradient-to-r from-brand-600 to-brand-500 p-8 text-white">
         <h1 className="text-4xl font-bold">MyIrishTax</h1>
-        <p className="max-w-2xl text-lg">The most advanced PAYE/USC/PRSI calculator. Update any field and see live results instantly.</p>
+        <p className="max-w-2xl text-lg">
+          Free Irish PAYE, USC and PRSI calculator. Change a field to see an updated estimate.
+        </p>
+        <TaxDisclaimer className="text-white/80" />
       </header>
 
       <section className="mt-6 grid gap-6 md:grid-cols-3">
@@ -143,7 +146,7 @@ export default function HomePage() {
                 onChange={(v) => setMaritalStatus(v as any)}
                 options={[
                   { label: 'Single', value: 'single' },
-                  { label: 'Married', value: 'married' },
+                  { label: 'Married (one income)', value: 'married' },
                 ]}
               />
               <SelectField
@@ -153,7 +156,7 @@ export default function HomePage() {
                 options={availableYears.map((y) => ({ label: y.toString(), value: y }))}
               />
               <CalculatorInput label="Pension contributions" value={pension} onChange={setPension} prefix="€" />
-              <CalculatorInput label="Additional credits" value={credits} onChange={setCredits} prefix="€" />
+              <CalculatorInput label="Extra credits (on top of standard personal and PAYE credits)" value={credits} onChange={setCredits} prefix="€" />
             </div>
           </div>
 
@@ -224,7 +227,7 @@ export default function HomePage() {
             className="flex flex-col gap-1 rounded-lg border border-gray-100 bg-gray-50 p-4 hover:border-brand-200 hover:bg-brand-50 transition-colors"
           >
             <span className="text-sm font-semibold text-gray-900">Rental Income Calculator</span>
-            <span className="text-xs text-gray-500">Work out tax on rental income and allowable expenses</span>
+            <span className="text-xs text-gray-500">Coming soon — older 75% interest rule is out of date</span>
           </Link>
           <Link
             href="/auto-enrolment-calculator"
@@ -257,23 +260,32 @@ export default function HomePage() {
           <div>
             <h3 className="font-semibold text-gray-800 mb-2">PAYE – Pay As You Earn</h3>
             <p>
-              PAYE is Ireland's income tax system for employees. Tax is deducted at source by your employer before you receive your pay. In 2026, the standard rate is 20% on income up to the standard rate cut-off point (€44,000 for a single person), with the higher rate of 40% applying to income above that threshold. Tax credits reduce the amount of tax you owe — the personal credit and PAYE credit together are worth €3,700 for 2026.
+              PAYE is Ireland&apos;s income tax for employees. In 2025 and 2026 the standard rate is 20% up to €44,000 if you are single, or €53,000 if you are married with one income. Income above that is taxed at 40%. Tax credits reduce income tax only — not USC or PRSI. For 2025/2026 the personal credit and PAYE credit are €2,000 each (€4,000 together) if you are single. If you are married (one income, jointly assessed) the personal credit is €4,000 plus one PAYE credit of €2,000.
             </p>
           </div>
           <div>
             <h3 className="font-semibold text-gray-800 mb-2">USC – Universal Social Charge</h3>
             <p>
-              The Universal Social Charge (USC) is a tax on gross income that applies to all earners over €13,000 per year. It is charged in addition to income tax and operates on a banded system: 0.5% on the first €12,012, 2% on the next €13,748, and 4% on income above €25,760 (with a higher 8% rate applying to non-PAYE income over €100,000). USC was introduced in 2011 to help consolidate Ireland's public finances.
+              USC is charged in bands on top of income tax. For 2025: 0.5% on the first €12,012, 2% up to €27,382, 3% up to €70,044, then 8%. For 2026 the 2% ceiling rises to €28,700; the 3% and 8% bands stay the same. Credits do not reduce USC.
             </p>
           </div>
           <div>
             <h3 className="font-semibold text-gray-800 mb-2">PRSI – Pay Related Social Insurance</h3>
             <p>
-              PRSI funds Ireland's social welfare entitlements including the State Pension, Jobseeker's Benefit, and illness payments. Most employees pay Class A PRSI at 4% on gross earnings over €352 per week (no upper limit). Your employer also contributes — typically at 11.05%. Self-employed individuals pay Class S PRSI at 4% on all income over €5,000, but do not have access to the same benefits as employed workers.
+              This calculator uses the employee Class A rate in the year book: 4% in 2025 and 4.2% in 2026. Credits do not reduce PRSI. Self-employed Class S is used on the contractor calculator.
             </p>
           </div>
         </div>
       </section>
+
+      <p className="mt-6 text-xs text-gray-500">
+        When you change a figure, it is sent to our server to compute the result. We do not sell
+        those figures. See the{' '}
+        <Link href="/privacy" className="text-brand-600 hover:underline">
+          Privacy Policy
+        </Link>
+        .
+      </p>
 
       <FloatingAIChat />
     </main>

@@ -4,6 +4,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Check, Crown, Sparkles, Loader2 } from "lucide-react";
+import { isStripeCheckoutEnabled } from "@/lib/config/payments";
 
 export default function SubscriptionPage() {
   const { data: session, status } = useSession();
@@ -56,6 +57,7 @@ export default function SubscriptionPage() {
   }
 
   const currentTier = session.user.subscriptionTier;
+  const paymentsOn = isStripeCheckoutEnabled();
 
   return (
     <div className="min-h-screen bg-gray-50 py-12">
@@ -178,10 +180,12 @@ export default function SubscriptionPage() {
             ) : (
               <button
                 onClick={() => handleUpgrade("premium")}
-                disabled={isLoading === "premium"}
-                className="w-full py-3 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium disabled:opacity-50 flex items-center justify-center gap-2"
+                disabled={!paymentsOn || isLoading === "premium"}
+                className="w-full py-3 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
-                {isLoading === "premium" ? (
+                {!paymentsOn ? (
+                  "Payments not available yet"
+                ) : isLoading === "premium" ? (
                   <>
                     <Loader2 className="h-4 w-4 animate-spin" />
                     Loading...
@@ -254,10 +258,12 @@ export default function SubscriptionPage() {
             ) : (
               <button
                 onClick={() => handleUpgrade("professional")}
-                disabled={isLoading === "professional"}
-                className="w-full py-3 px-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 font-medium disabled:opacity-50 flex items-center justify-center gap-2"
+                disabled={!paymentsOn || isLoading === "professional"}
+                className="w-full py-3 px-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
-                {isLoading === "professional" ? (
+                {!paymentsOn ? (
+                  "Payments not available yet"
+                ) : isLoading === "professional" ? (
                   <>
                     <Loader2 className="h-4 w-4 animate-spin" />
                     Loading...

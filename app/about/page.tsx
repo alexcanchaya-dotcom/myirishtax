@@ -74,18 +74,18 @@ export default function AboutPage() {
             <li className="flex items-start gap-3">
               <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
               <div>
-                <span className="font-semibold text-gray-900">Based on current Revenue rules.</span>
+                <span className="font-semibold text-gray-900">Based on published Irish tax bands.</span>
                 <span className="text-gray-600">
-                  {' '}Calculations follow actual Revenue.ie rules — not generic estimates. PAYE, USC, PRSI, CGT, and rental income are all computed to the current rules.
+                  {' '}PAYE, USC, and PRSI use the 2025/2026 figures in our rate book. Results are estimates, not a Revenue assessment.
                 </span>
               </div>
             </li>
             <li className="flex items-start gap-3">
               <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
               <div>
-                <span className="font-semibold text-gray-900">Privacy-first.</span>
+                <span className="font-semibold text-gray-900">We do not sell your data.</span>
                 <span className="text-gray-600">
-                  {' '}No tracking pixels, no selling your data. Your income figures stay on your device.
+                  {' '}Calculator figures are sent to our server so we can return a result. We do not sell them. See the Privacy Policy for details.
                 </span>
               </div>
             </li>
@@ -144,11 +144,9 @@ export default function AboutPage() {
             <h2 className="text-2xl font-semibold text-gray-900">Disclaimer</h2>
           </div>
           <p className="text-gray-600 leading-relaxed">
-            The calculators on MyIrishTax are provided for informational purposes only and should
-            not be considered professional tax advice. While we strive for accuracy, tax laws change
-            frequently. For personalised advice on your specific tax situation, consult a qualified
-            tax advisor or accountant. MyIrishTax is not responsible for any decisions made based
-            on calculations from this site.
+            Based on published Irish tax bands; not advice. Tax laws change. For your own
+            situation, check Revenue.ie or a qualified advisor. MyIrishTax is not responsible for
+            decisions made from these estimates.
           </p>
         </section>
       </div>

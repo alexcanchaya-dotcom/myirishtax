@@ -391,10 +391,8 @@ export default function RentTaxCreditPage() {
 
         {/* Disclaimer */}
         <div className="rounded-lg border border-gray-200 bg-gray-50 p-4 text-xs text-gray-500">
-          <strong>Disclaimer:</strong> This calculator is for general information purposes only and does
-          not constitute tax advice. The Rent Tax Credit is non-refundable and can only reduce your
-          income tax liability to zero. Figures are based on published Revenue guidance. Always verify
-          your entitlement with Revenue.ie or consult a qualified tax advisor.
+          Based on published Irish tax bands; not advice. The Rent Tax Credit is non-refundable and
+          can only reduce income tax to zero. Check your entitlement on Revenue.ie.
         </div>
       </section>
     </main>

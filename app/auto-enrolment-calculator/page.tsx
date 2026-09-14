@@ -599,9 +599,7 @@ export default function AutoEnrolmentCalculatorPage() {
             </div>
           </div>
           <p className="text-xs text-gray-400 mt-4">
-            This calculator is for illustrative purposes only. Projections are not guaranteed.
-            Consult a qualified financial advisor for personalised pension advice.
-            Information based on legislation effective January 2026.
+            Based on published Irish tax bands; not advice. Projections are not guaranteed.
           </p>
         </div>
       </section>

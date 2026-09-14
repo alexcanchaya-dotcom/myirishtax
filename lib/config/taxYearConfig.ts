@@ -1,3 +1,13 @@
+/**
+ * Single rate book used by the Next.js calculators.
+ *
+ * 2025/2026 figures follow Budget notes already recorded in this file
+ * (see commit history: "Correct all tax year rates against Revenue.ie Budget data").
+ * Married personal credit is twice the single personal credit (joint assessment,
+ * one income — same assumption as the married standard-rate band).
+ *
+ * config/tax_years/*.yml is an older draft and is not used by these calculators.
+ */
 export type TaxBand = {
   upTo: number | null;
   rate: number;
@@ -17,6 +27,7 @@ export type TaxYearConfig = {
   uscBands: TaxBand[];
   prsiRate: number;
   credits: TaxCredits;
+  creditsMarried: TaxCredits;
 };
 
 const baseConfigs: Record<number, TaxYearConfig> = {
@@ -38,6 +49,7 @@ const baseConfigs: Record<number, TaxYearConfig> = {
     ],
     prsiRate: 0.04,
     credits: { personal: 1775, paye: 1775 },
+    creditsMarried: { personal: 3550, paye: 1775 },
   },
   2024: {
     year: 2024,
@@ -57,6 +69,7 @@ const baseConfigs: Record<number, TaxYearConfig> = {
     ],
     prsiRate: 0.04,
     credits: { personal: 1875, paye: 1875 },
+    creditsMarried: { personal: 3750, paye: 1875 },
   },
   2025: {
     year: 2025,
@@ -76,6 +89,7 @@ const baseConfigs: Record<number, TaxYearConfig> = {
     ],
     prsiRate: 0.04,
     credits: { personal: 2000, paye: 2000 },
+    creditsMarried: { personal: 4000, paye: 2000 },
   },
   2026: {
     year: 2026,
@@ -101,6 +115,7 @@ const baseConfigs: Record<number, TaxYearConfig> = {
     prsiRate: 0.042,
     // Budget 2026: No change to credits (same as 2025)
     credits: { personal: 2000, paye: 2000 },
+    creditsMarried: { personal: 4000, paye: 2000 },
   },
 };
 

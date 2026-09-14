@@ -1,84 +1,62 @@
-# MyIrishTax.com - Professional Irish Tax Calculator Platform
+# MyIrishTax
 
-Complete Irish tax calculation platform with PAYE, contractor, rental income, and redundancy calculators. Built with Next.js 14, TypeScript, Prisma, and Stripe for subscriptions.
+Next.js Irish tax calculators (PAYE, contractor, rent credit, redundancy, auto-enrolment). Built to replace the live Hostinger static page on **myirishtax.com**.
 
-## 🚀 Quick Start
+## Domains
+
+- **Production target:** [myirishtax.com](https://myirishtax.com) (currently a different Hostinger static site — deploy this app in its place).
+- **myirishtax.ie** currently does not resolve (NXDOMAIN). Point DNS only after the name is registered and this app is live.
+
+Sister sites: [wealthmodeler.com](https://wealthmodeler.com), [longevitymodeler.com](https://longevitymodeler.com).
+
+## Quick start
 
 ```bash
 npm install
-npx prisma generate
-npx prisma db push
 npm run dev
 ```
 
-Visit `http://localhost:3000`
+Visit `http://localhost:3000`. Core calculators work without login.
 
-## Project structure
-```
-/public
-  index.html            # Main landing page with hero, calculator, services, pricing, FAQ, automation overview
-  privacy.html          # Privacy Policy
-  terms.html            # Terms & Conditions
-  cookies.html          # Cookie Policy
-  refunds.html          # Refund Policy
-  about.html            # About page with placeholder credentials
-  /assets
-    /css/main.min.css   # Minified CSS generated from src/styles/main.css
-    /js/main.min.js     # Minified JS generated from src/assets/main.js
-    /images/og-graphic.svg     # Lightweight SVG placeholder
-/src
-  /styles/main.css      # Source styles (edit here, then run build)
-  /assets/main.js       # Source JS (cookie banner, nav scroll, FAQ toggle, calculator)
-  /backend/server.js    # Express server exposing API routes and static hosting
-  /automations/workflows.js # Automation stubs (onboarding, uploads, reminders, upsell)
-  /email/emailClient.js # Nodemailer client with environment-driven credentials
-/scripts/build.js       # Simple minifier to emit /public assets
+Optional (accounts, saved calculations):
+
+```bash
+npx prisma generate
+npx prisma db push
 ```
 
-## Running locally
-1. Install Node.js 18+.
-2. Install dependencies: `npm install` (requires internet access to npm registry).
-3. Build minified assets: `node scripts/build.js`.
-4. Start server: `npm start` then open `http://localhost:3000`.
+Copy `.env.example` to `.env` if you need NextAuth or Stripe. Card checkout stays off until `NEXT_PUBLIC_STRIPE_ENABLED=true` and real Stripe price IDs are set.
 
-> Note: In offline or restricted environments, `npm install` may fail. When available, allow outbound access to `registry.npmjs.org`.
+## What the app does
 
-### Environment variables
-- `PORT` (default `3000`)
-- `SUPPORT_EMAIL` – destination inbox for contact form
-- `FROM_EMAIL` – sender email
-- `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS` – SMTP credentials for Nodemailer
-- `ENABLE_SSL` – set to `true` to indicate SSL health in `/health`
+- **PAYE calculator** (`/`) — income tax, USC, PRSI from the single rate book in `lib/config/taxYearConfig.ts`. Credits reduce income tax only.
+- **Contractor calculator** (`/contractor-calculator`) — same rate book; personal credit only (no PAYE credit).
+- **Rent tax credit, redundancy, auto-enrolment** — free tools.
+- **Rental income** (`/rental-calculator`) — coming soon. The old 75% interest rule is out of date, so that calculator is not shown in the main nav.
+- **Legal:** `/privacy`, `/terms`, `/cookies`, `/disclaimer`.
 
-## API routes
-- `POST /api/contact` – sends enquiry email (expects `name`, `email`, `message`, `consent`)
-- `POST /api/onboarding` – creates onboarding record and schedules reminder
-- `POST /api/upload` – accepts single file upload (ready for S3 wiring)
-- `POST /api/reminders` – schedules reminder emails
-- `POST /api/upsell` – creates upsell intent scaffolding
-- `GET /health` – basic status + SSL flag
+Calculators that POST to `/api/calc` send the figures you type to the server to compute a result. That is described on the Privacy page. Results are estimates: “Based on published Irish tax bands; not advice.”
 
-## Automation stubs
-`src/automations/workflows.js` stores records in-memory but is structured for:
-- User onboarding flow (email + filing type)
-- Secure document upload (replace with S3/Blob storage API)
-- Reminder scheduling (hook to cron/queue provider)
-- Upsell intents (e.g., tax residency assessment, PAYE refund estimator, income categorizer)
+## Rate book
 
-## Compliance and trust
-- Google Ads–ready legal pages: Privacy, Terms, Cookies, Refunds, About
-- Cookie consent banner with accept/reject paths
-- Business identity surfaced in the footer (CRO, address, contact details)
-- SEO metadata and Schema.org (LocalBusiness, FAQ)
+`lib/config/taxYearConfig.ts` is the only rate book used by the Next.js calculators. 2025/2026 figures follow Budget notes in that file. `config/tax_years/*.yml` is an older draft and is not used here.
 
-## Deployment
-- Serve `/public` as static assets behind HTTPS.
-- Run `node src/backend/server.js` (or containerize) to handle forms/uploads; configure reverse proxy (Nginx/Cloudflare) with SSL.
-- Point Google Tag Manager/Analytics, Stripe, and CRM/Airtable credentials via environment variables when integrating.
+## Still to do before this replaces live
 
-## Optional enhancements
-- Wire `/api/upload` to S3 with server-side encryption and signed URLs.
-- Replace in-memory automation store with a database or Airtable/CRM connector.
-- Add GA4 + GTM with consent mode in `public/index.html`.
-- Activate Stripe Checkout/Payment Links for paid services.
-- Add PDF generation for summaries and onboarding confirmation.
+1. Deploy this Next.js app (not the Hostinger static `public/index.html` page).
+2. Point **myirishtax.com** DNS at that host.
+3. Register and point **myirishtax.ie** when you want that name (it is NXDOMAIN today).
+4. Supply real company details (CRO, address) if you want them on the legal pages — the app uses contact email only until then.
+5. Turn on Stripe only when price IDs and keys are real (`NEXT_PUBLIC_STRIPE_ENABLED=true`).
+
+## Tests
+
+```bash
+npm test
+```
+
+## Scripts
+
+- `npm run dev` — Next.js development server
+- `npm run build` / `npm start` — production
+- `npm test` — Jest unit tests

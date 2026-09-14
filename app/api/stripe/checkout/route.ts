@@ -14,6 +14,13 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_placeholder'
 
 export async function POST(request: Request) {
   try {
+    if (process.env.NEXT_PUBLIC_STRIPE_ENABLED !== 'true') {
+      return NextResponse.json(
+        { error: 'Card payments are not available yet' },
+        { status: 503 }
+      );
+    }
+
     // Require authentication
     const session = await getServerSession(authOptions);
     if (!session?.user?.email) {

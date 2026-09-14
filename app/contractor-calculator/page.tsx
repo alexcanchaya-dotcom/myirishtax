@@ -18,6 +18,7 @@ import {
   Save,
 } from "lucide-react";
 import Link from "next/link";
+import { TaxDisclaimer } from "@/components/TaxDisclaimer";
 
 const years = listSupportedYears();
 
@@ -117,8 +118,9 @@ export default function ContractorCalculatorPage() {
           <div>
             <h1 className="text-4xl font-bold">Contractor Tax Calculator</h1>
             <p className="text-lg mt-2">
-              Calculate your self-employed income tax, USC, and Class S PRSI
+              Estimate self-employed income tax, USC, and Class S PRSI
             </p>
+            <TaxDisclaimer className="text-white/80" />
           </div>
         </div>
         <div className="flex items-center gap-2 bg-white/10 rounded-lg px-4 py-2 text-sm">
@@ -157,7 +159,7 @@ export default function ContractorCalculatorPage() {
                 onChange={(v) => setMaritalStatus(v as any)}
                 options={[
                   { label: "Single", value: "single" },
-                  { label: "Married", value: "married" },
+                  { label: "Married (one income)", value: "married" },
                 ]}
               />
               <SelectField
@@ -330,9 +332,9 @@ export default function ContractorCalculatorPage() {
 
                   <div className="border-t pt-3 mt-3 space-y-2">
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Income Tax</span>
+                      <span className="text-gray-600">Income tax after credits</span>
                       <span className="font-semibold text-red-600">
-                        €{result.incomeTax.total.toLocaleString()}
+                        €{result.incomeTax.afterCredits.toLocaleString()}
                       </span>
                     </div>
                     <div className="flex justify-between">
@@ -427,8 +429,8 @@ export default function ContractorCalculatorPage() {
           <div>
             <h4 className="font-semibold mb-1">Class S PRSI</h4>
             <p>
-              Self-employed PRSI at 4% on income over €5,000. Does not provide
-              unemployment benefits.
+              Class S PRSI on income over €5,000 at the year-book rate (4% in
+              2025, 4.2% in 2026). Does not provide unemployment benefits.
             </p>
           </div>
           <div>
@@ -464,7 +466,7 @@ export default function ContractorCalculatorPage() {
             className="flex flex-col gap-1 rounded-lg border border-gray-100 bg-gray-50 p-4 hover:border-brand-200 hover:bg-brand-50 transition-colors"
           >
             <span className="text-sm font-semibold text-gray-900">Rental Income Calculator</span>
-            <span className="text-xs text-gray-500">Work out tax on rental income and allowable expenses</span>
+            <span className="text-xs text-gray-500">Coming soon</span>
           </Link>
           <Link
             href="/auto-enrolment-calculator"
@@ -482,6 +484,13 @@ export default function ContractorCalculatorPage() {
           </Link>
         </div>
       </section>
+
+      <div className="mt-6 space-y-1">
+        <p className="text-xs text-gray-500">
+          Figures you enter are sent to our server to compute the result. We do not sell them.
+        </p>
+        <TaxDisclaimer />
+      </div>
     </main>
   );
 }

@@ -15,12 +15,19 @@ export type TaxBreakdown = {
   usc: BandBreakdown[];
   prsi: number;
   credits: number;
+  payeBeforeCredits: number;
+  payeAfterCredits: number;
+  uscTotal: number;
   totalTax: number;
   netAnnual: number;
   netMonthly: number;
   netWeekly: number;
   netDaily: number;
 };
+
+export function sumBands(bands: BandBreakdown[]): number {
+  return bands.reduce((sum, band) => sum + band.amount, 0);
+}
 
 function convertToAnnual(income: number, period: CalculationInput['period']): number {
   if (period === 'monthly') return income * 12;
@@ -58,8 +65,16 @@ export function calculatePRSI(income: number, config: TaxYearConfig): number {
   return income * config.prsiRate;
 }
 
-export function calculateCredits(config: TaxYearConfig, additionalCredits = 0): number {
-  return config.credits.personal + config.credits.paye + (config.credits.homeCarer ?? 0) + (config.credits.additional ?? 0) + additionalCredits;
+export function calculateCredits(
+  config: TaxYearConfig,
+  additionalCredits = 0,
+  maritalStatus: CalculationInput['maritalStatus'] = 'single',
+  options: { includePayeCredit?: boolean } = {},
+): number {
+  const includePayeCredit = options.includePayeCredit !== false;
+  const base = maritalStatus === 'married' ? config.creditsMarried : config.credits;
+  const payeCredit = includePayeCredit ? base.paye : 0;
+  return base.personal + payeCredit + (base.additional ?? 0) + additionalCredits;
 }
 
 export function calculateNetIncome(input: CalculationInput): TaxBreakdown {
@@ -72,11 +87,13 @@ export function calculateNetIncome(input: CalculationInput): TaxBreakdown {
   const uscBreakdown = calculateUSC(taxableIncome, config);
   const prsi = calculatePRSI(taxableIncome, config);
 
-  const totalPaye = payeBreakdown.reduce((sum, band) => sum + band.amount, 0);
-  const totalUsc = uscBreakdown.reduce((sum, band) => sum + band.amount, 0);
-  const totalCredits = calculateCredits(config, input.additionalCredits);
+  const payeBeforeCredits = sumBands(payeBreakdown);
+  const uscTotal = sumBands(uscBreakdown);
+  const totalCredits = calculateCredits(config, input.additionalCredits, input.maritalStatus);
 
-  const totalTax = Math.max(0, totalPaye + totalUsc + prsi - totalCredits);
+  // Tax credits reduce income tax (PAYE) only. They cannot reduce USC or PRSI.
+  const payeAfterCredits = Math.max(0, payeBeforeCredits - totalCredits);
+  const totalTax = payeAfterCredits + uscTotal + prsi;
   const netAnnual = taxableIncome - totalTax;
 
   return {
@@ -84,6 +101,9 @@ export function calculateNetIncome(input: CalculationInput): TaxBreakdown {
     usc: uscBreakdown,
     prsi,
     credits: totalCredits,
+    payeBeforeCredits,
+    payeAfterCredits,
+    uscTotal,
     totalTax,
     netAnnual,
     netMonthly: netAnnual / 12,

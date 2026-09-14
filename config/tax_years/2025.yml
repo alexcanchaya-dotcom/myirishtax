@@ -4,7 +4,7 @@ metadata:
   sources:
     - "Budget 2025 announcements"
     - "Revenue PAYE, USC, PRSI updates"
-  notes: "Draft until Revenue publishes final thresholds; gate with TAX_YEARS_ENABLED when unsure."
+  notes: "Draft YAML — not used by the Next.js calculators. Live rate book is lib/config/taxYearConfig.ts."
 
 income_tax:
   standard_rate: 0.2
