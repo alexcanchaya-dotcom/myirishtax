@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { useSubscription } from "@/lib/hooks/useSubscription";
 
 interface FeatureGateProps {
@@ -13,8 +14,8 @@ interface FeatureGateProps {
     | "contractor"
     | "fullReturn"
     | "allYears";
-  children: React.ReactNode;
-  fallback?: React.ReactNode;
+  children: ReactNode;
+  fallback?: ReactNode;
 }
 
 export function FeatureGate({ feature, children, fallback }: FeatureGateProps) {
