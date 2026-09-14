@@ -37,9 +37,12 @@ export default function RedundancyCalculatorPage() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6 space-y-8">
-      <h1 className="text-3xl font-bold">Irish Redundancy Calculator (2025)</h1>
-      <p className="text-xs text-gray-500">Based on published Irish tax bands; not advice.</p>
+    <div className="mx-auto max-w-4xl space-y-8 px-4 py-12 sm:px-6 sm:py-16">
+      <header className="max-w-2xl">
+        <h1 className="font-serif text-4xl font-semibold">Redundancy</h1>
+        <p className="mt-3 text-ink-muted">Statutory redundancy estimate for 2025.</p>
+        <p className="mt-2 text-sm text-ink-muted">Based on published Irish tax bands; not advice.</p>
+      </header>
 
       {/* Error banner */}
       {error && (

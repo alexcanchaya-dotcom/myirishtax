@@ -1,6 +1,6 @@
 export function TaxDisclaimer({ className = '' }: { className?: string }) {
   return (
-    <p className={`text-xs text-gray-500 ${className}`}>
+    <p className={`text-sm text-ink-muted ${className}`}>
       Based on published Irish tax bands; not advice.
     </p>
   );

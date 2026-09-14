@@ -4,6 +4,8 @@ import { useState, useMemo } from 'react';
 import { CalculatorInput } from '@/components/CalculatorInput';
 import { SelectField } from '@/components/SelectField';
 import { Home, Info, CheckCircle, AlertCircle, Calendar, ArrowRight } from 'lucide-react';
+import { PageHeader } from '@/components/PageHeader';
+import { TaxDisclaimer } from '@/components/TaxDisclaimer';
 
 // ─── Rent Tax Credit rates ────────────────────────────────────────────────
 type FilingStatus = 'single' | 'jointly';
@@ -73,32 +75,18 @@ export default function RentTaxCreditPage() {
     `€${Math.round(n).toLocaleString('en-IE')}`;
 
   return (
-    <main className="mx-auto max-w-6xl px-4 py-10">
-      {/* ── Header ── */}
-      <header className="flex flex-col gap-4 rounded-3xl bg-gradient-to-r from-orange-500 to-amber-500 p-8 text-white mb-8">
-        <div className="flex items-center gap-3">
-          <Home className="h-10 w-10" />
-          <div>
-            <h1 className="text-4xl font-bold">Rent Tax Credit Calculator</h1>
-            <p className="text-lg mt-2">
-              Calculate how much Rent Tax Credit you can claim for 2022–2026
-            </p>
-          </div>
-        </div>
-        <div className="flex items-center gap-2 bg-white/10 rounded-lg px-4 py-2 text-sm">
-          <Info className="h-4 w-4 flex-shrink-0" />
-          <span>
-            Introduced in Budget 2023 and extended to 2028 in Budget 2026. Free to use — no sign-up required.
-          </span>
-        </div>
-      </header>
+    <main className="mx-auto max-w-5xl px-4 py-12 sm:px-6 sm:py-16">
+      <PageHeader title="Rent tax credit">
+        <p>See how much rent credit you can claim for 2022–2026. Free to use — no account needed.</p>
+        <TaxDisclaimer />
+      </PageHeader>
 
       <div className="grid gap-6 lg:grid-cols-3">
         {/* ── Left column: Inputs ── */}
         <div className="lg:col-span-2 space-y-6">
           <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
             <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-              <Home className="h-5 w-5 text-orange-500" />
+              <Home className="h-5 w-5 text-brand-600" />
               Your Rental Details
             </h2>
             <div className="grid gap-4 md:grid-cols-2">
@@ -187,7 +175,7 @@ export default function RentTaxCreditPage() {
           </div>
 
           {/* ── All years unclaimed ── */}
-          <div className="rounded-xl border border-orange-200 bg-gradient-to-br from-orange-50 to-amber-50 p-6 shadow-sm">
+          <div className="card">
             <h2 className="text-lg font-semibold text-gray-900 mb-1 flex items-center gap-2">
               <Calendar className="h-5 w-5 text-orange-500" />
               Unclaimed credits across all years
@@ -226,7 +214,7 @@ export default function RentTaxCreditPage() {
         {/* ── Right column: Hero result + notes ── */}
         <div className="space-y-6">
           {/* Hero card */}
-          <div className="rounded-xl border-2 border-orange-300 bg-gradient-to-br from-orange-50 to-amber-50 p-6 shadow-sm">
+          <div className="card">
             <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">
               Your {taxYear} Credit
             </h3>

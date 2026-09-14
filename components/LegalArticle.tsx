@@ -10,12 +10,10 @@ export function LegalArticle({
   children: React.ReactNode;
 }) {
   return (
-    <main className="mx-auto max-w-3xl px-4 py-10">
-      <article className="rounded-xl border border-gray-200 bg-white p-8 shadow-sm">
-        <p className="text-xs font-semibold uppercase tracking-wide text-brand-600">{badge}</p>
-        <h1 className="mt-2 text-3xl font-bold text-gray-900">{title}</h1>
-        <div className="mt-6 space-y-4 text-sm leading-relaxed text-gray-700">{children}</div>
-      </article>
+    <main className="mx-auto max-w-2xl px-4 py-12 sm:px-6 sm:py-16">
+      <p className="text-xs font-semibold uppercase tracking-wider text-ink-muted">{badge}</p>
+      <h1 className="mt-2 font-serif text-4xl font-semibold">{title}</h1>
+      <div className="mt-8 space-y-4 text-base leading-relaxed text-ink-muted">{children}</div>
     </main>
   );
 }

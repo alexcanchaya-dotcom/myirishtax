@@ -8,19 +8,19 @@ type Props = {
 
 export function BreakdownTable({ title, rows }: Props) {
   return (
-    <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
-      <h3 className="text-sm font-semibold text-gray-800">{title}</h3>
+    <div className="card">
+      <h3 className="text-sm font-semibold text-ink">{title}</h3>
       <table className="mt-3 w-full text-sm">
         <thead>
-          <tr className="text-left text-gray-500">
-            <th>Band</th>
-            <th>Rate</th>
-            <th>Tax</th>
+          <tr className="text-left text-ink-muted">
+            <th className="pb-2 font-medium">Band</th>
+            <th className="pb-2 font-medium">Rate</th>
+            <th className="pb-2 font-medium">Tax</th>
           </tr>
         </thead>
         <tbody>
           {rows.map((row) => (
-            <tr key={row.band} className="border-t border-gray-100">
+            <tr key={row.band} className="border-t border-line">
               <td className="py-2">{row.band}</td>
               <td>{(row.rate * 100).toFixed(1)}%</td>
               <td>€{row.amount.toFixed(2)}</td>
