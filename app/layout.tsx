@@ -18,11 +18,38 @@ const serif = Source_Serif_4({
   display: 'swap',
 });
 
+const title = 'Irish take-home pay | MyIrishTax';
+const description =
+  'Free Irish PAYE, USC and PRSI calculator for 2025 and 2026. Based on published Irish tax bands; not advice.';
+
 export const metadata = {
   metadataBase: new URL('https://myirishtax.com'),
-  title: 'Irish take-home pay | MyIrishTax',
-  description:
-    'Free Irish PAYE, USC and PRSI calculator for 2025 and 2026. Based on published Irish tax bands; not advice.',
+  title,
+  description,
+  alternates: {
+    canonical: 'https://myirishtax.com',
+  },
+  openGraph: {
+    title,
+    description,
+    url: 'https://myirishtax.com',
+    siteName: 'MyIrishTax',
+    type: 'website',
+    images: [
+      {
+        url: '/og-image.png',
+        width: 1200,
+        height: 630,
+        alt: 'MyIrishTax — Irish take-home pay calculator',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title,
+    description,
+    images: ['/og-image.png'],
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
