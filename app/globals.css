@@ -16,6 +16,7 @@
 
   html {
     scroll-behavior: smooth;
+    scroll-padding-bottom: var(--site-footer-offset);
   }
 
   body {

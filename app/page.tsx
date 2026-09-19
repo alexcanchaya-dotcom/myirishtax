@@ -133,15 +133,17 @@ export default function HomePage() {
               prefix="€"
             />
           </div>
-          <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
-            <button type="submit" className="btn-primary">
-              Calculate take-home
-            </button>
-            <p className="text-xs text-ink-muted" aria-live="polite">
-              {isCurrent
-                ? 'Take-home matches the figures above.'
-                : 'Figures changed — click Calculate to update.'}
-            </p>
+          <div className="sticky bottom-[calc(var(--site-footer-offset)+0.5rem)] z-10 mt-6 -mx-6 border-t border-line bg-white/95 px-6 py-3 backdrop-blur lg:static lg:mx-0 lg:border-0 lg:bg-transparent lg:px-0 lg:py-0 lg:backdrop-blur-none">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+              <button type="submit" className="btn-primary">
+                Calculate take-home
+              </button>
+              <p className="text-xs text-ink-muted" aria-live="polite">
+                {isCurrent
+                  ? 'Take-home matches the figures above.'
+                  : 'Figures changed — click Calculate to update.'}
+              </p>
+            </div>
           </div>
           <p className="mt-4 text-xs text-ink-muted">
             Extra credits sit on top of the standard personal and PAYE credits for your status.
