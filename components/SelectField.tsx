@@ -8,9 +8,10 @@ type Props = {
   value: string | number;
   options: Option[];
   onChange: (value: string) => void;
+  hint?: string;
 };
 
-export function SelectField({ label, value, options, onChange }: Props) {
+export function SelectField({ label, value, options, onChange, hint }: Props) {
   return (
     <label className="flex flex-col gap-1.5 text-sm font-medium text-ink">
       {label}
@@ -25,6 +26,7 @@ export function SelectField({ label, value, options, onChange }: Props) {
           </option>
         ))}
       </select>
+      {hint ? <span className="text-xs font-normal leading-relaxed text-ink-muted">{hint}</span> : null}
     </label>
   );
 }

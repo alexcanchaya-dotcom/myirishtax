@@ -3,12 +3,24 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    /* Space so fold content and CTAs clear the fixed disclaimer bar. */
+    --site-footer-offset: 3.5rem;
+  }
+
+  @media (max-width: 640px) {
+    :root {
+      --site-footer-offset: 4.5rem;
+    }
+  }
+
   html {
     scroll-behavior: smooth;
   }
 
   body {
     @apply bg-paper text-ink antialiased;
+    padding-bottom: var(--site-footer-offset);
   }
 
   h1,

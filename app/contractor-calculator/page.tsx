@@ -144,8 +144,9 @@ export default function ContractorCalculatorPage() {
                 onChange={(v) => setMaritalStatus(v as any)}
                 options={[
                   { label: "Single", value: "single" },
-                  { label: "Married (one income)", value: "married" },
+                  { label: "Married — one income only", value: "married" },
                 ]}
+                hint="Married uses the one-income standard-rate band and married personal credit on this person’s income only. Enter one salary — not a combined couple figure."
               />
               <SelectField
                 label="Tax Year"

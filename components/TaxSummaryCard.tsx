@@ -5,10 +5,21 @@ function money(n: number): string {
   return `€${Math.round(n).toLocaleString('en-IE')}`;
 }
 
-export function TaxSummaryCard({ data }: { data: TaxBreakdown }) {
+export function TaxSummaryCard({
+  data,
+  isCurrent = true,
+}: {
+  data: TaxBreakdown;
+  isCurrent?: boolean;
+}) {
   return (
-    <div className="card">
-      <p className="text-xs font-semibold uppercase tracking-wider text-ink-muted">Take-home pay</p>
+    <div className={`card ${isCurrent ? '' : 'opacity-60'}`}>
+      <div className="flex items-start justify-between gap-3">
+        <p className="text-xs font-semibold uppercase tracking-wider text-ink-muted">Take-home pay</p>
+        <p className={`text-xs font-medium ${isCurrent ? 'text-brand-700' : 'text-ink-muted'}`}>
+          {isCurrent ? 'Current estimate' : 'Out of date — click Calculate'}
+        </p>
+      </div>
       <p className="mt-2 font-serif text-4xl text-brand-700">{money(data.netAnnual)}</p>
       <p className="mt-1 text-sm text-ink-muted">
         {money(data.netMonthly)} a month · {money(data.netWeekly)} a week

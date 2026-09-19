@@ -1,12 +1,12 @@
 'use client';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { CalculatorInput } from '../components/CalculatorInput';
 import { SelectField } from '../components/SelectField';
 import { BreakdownTable } from '../components/BreakdownTable';
 import { TaxSummaryCard } from '../components/TaxSummaryCard';
 import { ComparisonView } from '../components/ComparisonView';
-import { TaxBreakdown, compareScenarios } from '../lib/taxEngine';
+import { TaxBreakdown, calculateNetIncome, compareScenarios } from '../lib/taxEngine';
 import { listSupportedYears } from '../lib/config/taxYearConfig';
 import Link from 'next/link';
 import { PageHeader } from '../components/PageHeader';
@@ -17,6 +17,9 @@ function formatEuro(n: number): string {
   return `€${Math.round(n).toLocaleString('en-IE')}`;
 }
 
+const MARRIED_HINT =
+  'Married uses the one-income standard-rate band and married personal credit on this person’s pay only. Enter one salary — not a combined couple figure. We do not add a second income.';
+
 export default function HomePage() {
   const { data: session } = useSession();
   const [income, setIncome] = useState(60000);
@@ -26,43 +29,47 @@ export default function HomePage() {
   const [credits, setCredits] = useState(0);
   const [taxYear, setTaxYear] = useState<number>(years[years.length - 1]);
   const [result, setResult] = useState<TaxBreakdown | null>(null);
+  const [resultKey, setResultKey] = useState<string | null>(null);
   const [scenarioBIncome, setScenarioBIncome] = useState(65000);
   const [showCompare, setShowCompare] = useState(false);
 
+  const input = useMemo(
+    () => ({
+      income,
+      period,
+      maritalStatus,
+      pensionContribution: pension,
+      additionalCredits: credits,
+      taxYear,
+    }),
+    [credits, income, maritalStatus, pension, period, taxYear],
+  );
+  const inputKey = JSON.stringify(input);
+  const isCurrent = result !== null && resultKey === inputKey;
+
+  const calculate = useCallback(() => {
+    setResult(calculateNetIncome(input));
+    setResultKey(JSON.stringify(input));
+  }, [input]);
+
+  // Recalc as soon as figures change (not on blur). Calculate still commits the same maths.
   useEffect(() => {
-    const run = async () => {
-      const response = await fetch('/api/calc', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          income,
-          period,
-          maritalStatus,
-          pensionContribution: pension,
-          additionalCredits: credits,
-          taxYear,
-        }),
-      });
-      const data = await response.json();
-      setResult(data.breakdown);
-    };
-    run();
-  }, [income, period, maritalStatus, pension, credits, taxYear]);
+    calculate();
+  }, [calculate]);
 
   const comparison = useMemo(() => {
     if (!result || !showCompare) return null;
-    return compareScenarios(
-      { income, period, maritalStatus, pensionContribution: pension, additionalCredits: credits, taxYear },
-      {
-        income: scenarioBIncome,
-        period,
-        maritalStatus,
-        pensionContribution: pension,
-        additionalCredits: credits,
-        taxYear,
-      }
-    );
-  }, [credits, income, maritalStatus, pension, period, result, scenarioBIncome, showCompare, taxYear]);
+    return compareScenarios(input, {
+      ...input,
+      income: scenarioBIncome,
+    });
+  }, [input, result, scenarioBIncome, showCompare]);
+
+  const handleSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
+    calculate();
+    document.getElementById('take-home-result')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  };
 
   return (
     <main className="mx-auto max-w-5xl px-4 py-12 sm:px-6 sm:py-16">
@@ -72,13 +79,23 @@ export default function HomePage() {
 
       {result && (
         <div className="mb-6 flex items-baseline justify-between gap-4 rounded-2xl border border-line bg-white px-5 py-4 lg:hidden">
-          <span className="text-sm text-ink-muted">Take-home</span>
-          <span className="font-serif text-2xl text-brand-700">{formatEuro(result.netAnnual)}</span>
+          <span className="text-sm text-ink-muted">
+            Take-home
+            <span className="mt-0.5 block text-xs font-medium text-ink-muted">
+              {isCurrent ? 'Current estimate' : 'Out of date — click Calculate'}
+            </span>
+          </span>
+          <span
+            className={`font-serif text-2xl text-brand-700 ${isCurrent ? '' : 'opacity-50'}`}
+            aria-live="polite"
+          >
+            {formatEuro(result.netAnnual)}
+          </span>
         </div>
       )}
 
       <section className="grid gap-8 lg:grid-cols-12">
-        <div className="card lg:col-span-7">
+        <form className="card lg:col-span-7" onSubmit={handleSubmit}>
           <h2 className="text-lg font-semibold">Your figures</h2>
           <div className="mt-5 grid gap-5 sm:grid-cols-2">
             <CalculatorInput label="Income" value={income} onChange={setIncome} prefix="€" />
@@ -98,8 +115,9 @@ export default function HomePage() {
               onChange={(v) => setMaritalStatus(v as 'single' | 'married')}
               options={[
                 { label: 'Single', value: 'single' },
-                { label: 'Married (one income)', value: 'married' },
+                { label: 'Married — one income only', value: 'married' },
               ]}
+              hint={MARRIED_HINT}
             />
             <SelectField
               label="Tax year"
@@ -115,17 +133,28 @@ export default function HomePage() {
               prefix="€"
             />
           </div>
+          <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
+            <button type="submit" className="btn-primary">
+              Calculate take-home
+            </button>
+            <p className="text-xs text-ink-muted" aria-live="polite">
+              {isCurrent
+                ? 'Take-home matches the figures above.'
+                : 'Figures changed — click Calculate to update.'}
+            </p>
+          </div>
           <p className="mt-4 text-xs text-ink-muted">
             Extra credits sit on top of the standard personal and PAYE credits for your status.
-            Changing a figure sends it to our server to compute the result.{' '}
+            The estimate is worked out in your browser as you change a figure, or when you click
+            Calculate.{' '}
             <Link href="/privacy" className="underline decoration-line underline-offset-2 hover:text-ink">
               Privacy
             </Link>
           </p>
-        </div>
+        </form>
 
-        <div className="space-y-6 lg:col-span-5">
-          {result && <TaxSummaryCard data={result} />}
+        <div id="take-home-result" className="space-y-6 lg:col-span-5">
+          {result && <TaxSummaryCard data={result} isCurrent={isCurrent} />}
           {result && (
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-1">
               <BreakdownTable title="PAYE" rows={result.paye} />
@@ -160,7 +189,8 @@ export default function HomePage() {
             <h3 className="mb-2 text-base font-semibold text-ink">PAYE</h3>
             <p>
               20% up to €44,000 if you are single, or €53,000 if married with one income (2025 and
-              2026). Income above that is 40%. Credits reduce income tax only.
+              2026). Income above that is 40%. Credits reduce income tax only. Married here is one
+              salary, not a two-income couple.
             </p>
           </div>
           <div>
