@@ -18,10 +18,10 @@ export default function PrivacyPage() {
 
       <h2 className="text-lg font-semibold text-gray-900">Calculator figures</h2>
       <p>
-        The PAYE, contractor, and other server-backed calculators send the numbers you type
-        (income, credits, tax year, and similar fields) to our website so we can return a result.
-        Those figures leave your device. We use them to compute the estimate. We do not use
-        calculator figures to identify you, and we do not sell them.
+        The free PAYE take-home estimate is worked out in your browser. Contractor and some other
+        tools send the numbers you type (income, credits, tax year, and similar fields) to our
+        website so we can return a result. Those figures leave your device. We use them to compute
+        the estimate. We do not use calculator figures to identify you, and we do not sell them.
       </p>
       <p>
         If you sign in and save a calculation, that saved record is stored on your account so you

@@ -28,11 +28,11 @@ export default function AboutPage() {
         <section>
           <h2 className="text-xl font-semibold text-ink">How the numbers are treated</h2>
           <ul className="mt-3 list-disc space-y-2 pl-5">
-            <li>PAYE, USC and PRSI use the 2025/2026 figures in our rate book.</li>
+            <li>PAYE, USC and PRSI use the 2026 tax year figures in our rate book (2025 is still available).</li>
             <li>Results are estimates, not a Revenue assessment.</li>
             <li>
-              Calculator figures are sent to our server to compute a result. We do not sell them.
-              See the{' '}
+              The free PAYE estimate is worked out in your browser. Some other tools send the
+              figures you type to our server to compute a result. We do not sell them. See the{' '}
               <Link href="/privacy" className="text-ink underline decoration-line underline-offset-2">
                 Privacy Policy
               </Link>

@@ -39,7 +39,7 @@ Calculators that POST to `/api/calc` send the figures you type to the server to 
 
 ## Rate book
 
-`lib/config/taxYearConfig.ts` is the only rate book used by the Next.js calculators. 2025/2026 figures follow Budget notes in that file. `config/tax_years/*.yml` is an older draft and is not used here.
+`lib/config/taxYearConfig.ts` is the only rate book used by the Next.js calculators. The default is the **2026 tax year**; 2025 stays available. Figures follow Budget notes in that file. `config/tax_years/*.yml` is an older draft and is not used here.
 
 ## Still to do before this replaces live
 

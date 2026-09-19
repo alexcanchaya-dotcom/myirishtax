@@ -7,9 +7,10 @@ import { BreakdownTable } from '../components/BreakdownTable';
 import { TaxSummaryCard } from '../components/TaxSummaryCard';
 import { ComparisonView } from '../components/ComparisonView';
 import { TaxBreakdown, calculateNetIncome, compareScenarios } from '../lib/taxEngine';
-import { listSupportedYears } from '../lib/config/taxYearConfig';
+import { formatTaxYearLabel, getDefaultTaxYear, listSupportedYears } from '../lib/config/taxYearConfig';
 import Link from 'next/link';
 import { PageHeader } from '../components/PageHeader';
+import { FireHandoff } from '../components/FireHandoff';
 
 const years = listSupportedYears();
 
@@ -27,7 +28,7 @@ export default function HomePage() {
   const [maritalStatus, setMaritalStatus] = useState<'single' | 'married'>('single');
   const [pension, setPension] = useState(0);
   const [credits, setCredits] = useState(0);
-  const [taxYear, setTaxYear] = useState<number>(years[years.length - 1]);
+  const [taxYear, setTaxYear] = useState<number>(getDefaultTaxYear());
   const [result, setResult] = useState<TaxBreakdown | null>(null);
   const [resultKey, setResultKey] = useState<string | null>(null);
   const [scenarioBIncome, setScenarioBIncome] = useState(65000);
@@ -74,7 +75,11 @@ export default function HomePage() {
   return (
     <main className="mx-auto max-w-5xl px-4 py-12 sm:px-6 sm:py-16">
       <PageHeader title="Irish take-home pay">
-        <p>Estimate PAYE, USC and PRSI from published 2025 and 2026 bands. Free to use — no account needed.</p>
+        <p className="font-medium text-brand-700">{formatTaxYearLabel(taxYear)}</p>
+        <p>
+          Estimate PAYE, USC and PRSI from published bands. The {formatTaxYearLabel(getDefaultTaxYear())}{' '}
+          is the default; 2025 is still available. Free to use — no account needed.
+        </p>
       </PageHeader>
 
       {result && (
@@ -82,7 +87,8 @@ export default function HomePage() {
           <span className="text-sm text-ink-muted">
             Take-home
             <span className="mt-0.5 block text-xs font-medium text-ink-muted">
-              {isCurrent ? 'Current estimate' : 'Out of date — click Calculate'}
+              {formatTaxYearLabel(taxYear)}
+              {isCurrent ? ' · current estimate' : ' · out of date — click Calculate'}
             </span>
           </span>
           <span
@@ -123,7 +129,7 @@ export default function HomePage() {
               label="Tax year"
               value={taxYear}
               onChange={(v) => setTaxYear(Number(v))}
-              options={years.map((y) => ({ label: y.toString(), value: y }))}
+              options={years.map((y) => ({ label: formatTaxYearLabel(y), value: y }))}
             />
             <CalculatorInput label="Pension contributions" value={pension} onChange={setPension} prefix="€" />
             <CalculatorInput
@@ -156,13 +162,14 @@ export default function HomePage() {
         </form>
 
         <div id="take-home-result" className="space-y-6 lg:col-span-5">
-          {result && <TaxSummaryCard data={result} isCurrent={isCurrent} />}
+          {result && <TaxSummaryCard data={result} isCurrent={isCurrent} taxYear={taxYear} />}
           {result && (
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-1">
               <BreakdownTable title="PAYE" rows={result.paye} />
               <BreakdownTable title="USC" rows={result.usc} />
             </div>
           )}
+          {result && <FireHandoff />}
         </div>
       </section>
 
@@ -205,8 +212,9 @@ export default function HomePage() {
           <div>
             <h3 className="mb-2 text-base font-semibold text-ink">PRSI</h3>
             <p>
-              Class A employee rate in the year book: 4% in 2025 and 4.2% in 2026. Credits do not
-              reduce PRSI.
+              Class A employee rate in the year book: 4% in 2025 and 4.2% in 2026. The Class A
+              rate rises to 4.35% from 1 October 2026; this estimate uses 4.2% for the year.
+              Credits do not reduce PRSI.
             </p>
           </div>
         </div>

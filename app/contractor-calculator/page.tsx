@@ -5,7 +5,7 @@ import { useSession } from "next-auth/react";
 import { CalculatorInput } from "@/components/CalculatorInput";
 import { SelectField } from "@/components/SelectField";
 import { ContractorBreakdown, COMMON_EXPENSE_CATEGORIES } from "@/lib/taxEngine/contractorCalculator";
-import { listSupportedYears } from "@/lib/config/taxYearConfig";
+import { formatTaxYearLabel, getDefaultTaxYear, listSupportedYears } from "@/lib/config/taxYearConfig";
 import {
   TrendingUp,
   Wallet,
@@ -37,7 +37,7 @@ export default function ContractorCalculatorPage() {
   ]);
   const [pensionContribution, setPensionContribution] = useState(0);
   const [maritalStatus, setMaritalStatus] = useState<"single" | "married">("single");
-  const [taxYear, setTaxYear] = useState<number>(years[years.length - 1]);
+  const [taxYear, setTaxYear] = useState<number>(getDefaultTaxYear());
   const [previousYearTax, setPreviousYearTax] = useState<number>(0);
   const [includePreliminaryTax, setIncludePreliminaryTax] = useState(false);
   const [result, setResult] = useState<ContractorBreakdown | null>(null);
@@ -112,7 +112,10 @@ export default function ContractorCalculatorPage() {
   return (
     <main className="mx-auto max-w-5xl px-4 py-12 sm:px-6 sm:py-16">
       <PageHeader title="Contractor tax">
-        <p>Estimate self-employed income tax, USC, and Class S PRSI. Free to use — no account needed.</p>
+        <p>
+          Estimate self-employed income tax, USC, and Class S PRSI for the {formatTaxYearLabel(taxYear)}.
+          Free to use — no account needed.
+        </p>
         <TaxDisclaimer />
       </PageHeader>
 
@@ -149,10 +152,10 @@ export default function ContractorCalculatorPage() {
                 hint="Married uses the one-income standard-rate band and married personal credit on this person’s income only. Enter one salary — not a combined couple figure."
               />
               <SelectField
-                label="Tax Year"
+                label="Tax year"
                 value={taxYear}
                 onChange={(v) => setTaxYear(Number(v))}
-                options={years.map((y) => ({ label: y.toString(), value: y }))}
+                options={years.map((y) => ({ label: formatTaxYearLabel(y), value: y }))}
               />
             </div>
           </div>
@@ -243,7 +246,7 @@ export default function ContractorCalculatorPage() {
                 />
                 <p className="text-xs text-gray-500 mt-2">
                   Preliminary tax is due by October 31. You must pay 90% of current
-                  year's tax OR 100% of previous year's tax (whichever is lower).
+                  year tax OR 100% of previous year tax (whichever is lower).
                 </p>
               </div>
             )}
