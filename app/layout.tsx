@@ -18,9 +18,9 @@ const serif = Source_Serif_4({
   display: 'swap',
 });
 
-const title = 'Irish take-home pay | MyIrishTax';
+const title = 'Irish take-home pay | 2026 tax year | MyIrishTax';
 const description =
-  'Free Irish PAYE, USC and PRSI calculator for 2025 and 2026. Based on published Irish tax bands; not advice.';
+  'Free Irish PAYE, USC and PRSI calculator for the 2026 tax year (2025 still available). Based on published Irish tax bands; not advice.';
 
 export const metadata = {
   metadataBase: new URL('https://myirishtax.com'),

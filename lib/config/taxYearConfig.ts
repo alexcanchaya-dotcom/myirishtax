@@ -5,9 +5,21 @@
  * (see commit history: "Correct all tax year rates against Revenue.ie Budget data").
  * Married personal credit is twice the single personal credit (joint assessment,
  * one income — same assumption as the married standard-rate band).
+ * Married two-income bands are not modelled.
  *
  * config/tax_years/*.yml is an older draft and is not used by these calculators.
  */
+
+export const CURRENT_TAX_YEAR = 2026;
+
+export function formatTaxYearLabel(year: number): string {
+  return `${year} tax year`;
+}
+
+export function getDefaultTaxYear(): number {
+  return CURRENT_TAX_YEAR;
+}
+
 export type TaxBand = {
   upTo: number | null;
   rate: number;

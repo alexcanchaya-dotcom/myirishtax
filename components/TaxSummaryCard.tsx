@@ -8,14 +8,19 @@ function money(n: number): string {
 export function TaxSummaryCard({
   data,
   isCurrent = true,
+  taxYear,
 }: {
   data: TaxBreakdown;
   isCurrent?: boolean;
+  taxYear?: number;
 }) {
   return (
     <div className={`card ${isCurrent ? '' : 'opacity-60'}`}>
       <div className="flex items-start justify-between gap-3">
-        <p className="text-xs font-semibold uppercase tracking-wider text-ink-muted">Take-home pay</p>
+        <p className="text-xs font-semibold uppercase tracking-wider text-ink-muted">
+          Take-home pay
+          {taxYear ? <span className="mt-0.5 block font-medium normal-case tracking-normal">{taxYear} tax year</span> : null}
+        </p>
         <p className={`text-xs font-medium ${isCurrent ? 'text-brand-700' : 'text-ink-muted'}`}>
           {isCurrent ? 'Current estimate' : 'Out of date — click Calculate'}
         </p>
