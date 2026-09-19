@@ -6,6 +6,7 @@ export function FireHandoff() {
       <a
         href={WEALTH_MODELER_FIRE_URL}
         className="underline decoration-line underline-offset-2 hover:text-ink"
+        target="_blank"
         rel="noopener noreferrer"
       >
         See when you could reach FIRE
