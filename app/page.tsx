@@ -115,22 +115,30 @@ export default function HomePage() {
                 { label: 'Weekly', value: 'weekly' },
               ]}
             />
-            <SelectField
-              label="Marital status"
-              value={maritalStatus}
-              onChange={(v) => setMaritalStatus(v as 'single' | 'married')}
-              options={[
-                { label: 'Single', value: 'single' },
-                { label: 'Married — one income only', value: 'married' },
-              ]}
-              hint={MARRIED_HINT}
-            />
-            <SelectField
-              label="Tax year"
-              value={taxYear}
-              onChange={(v) => setTaxYear(Number(v))}
-              options={years.map((y) => ({ label: formatTaxYearLabel(y), value: y }))}
-            />
+            <div className="grid gap-5 sm:col-span-2 sm:grid-cols-2">
+              <SelectField
+                label="Marital status"
+                value={maritalStatus}
+                onChange={(v) => setMaritalStatus(v as 'single' | 'married')}
+                options={[
+                  { label: 'Single', value: 'single' },
+                  { label: 'Married — one income only', value: 'married' },
+                ]}
+                describedBy="married-one-income-hint"
+              />
+              <p
+                id="married-one-income-hint"
+                className="scroll-mb-[calc(var(--site-footer-offset)+5.75rem)] text-xs font-normal leading-snug text-ink-muted sm:order-last sm:col-span-2"
+              >
+                {MARRIED_HINT}
+              </p>
+              <SelectField
+                label="Tax year"
+                value={taxYear}
+                onChange={(v) => setTaxYear(Number(v))}
+                options={years.map((y) => ({ label: formatTaxYearLabel(y), value: y }))}
+              />
+            </div>
             <CalculatorInput label="Pension contributions" value={pension} onChange={setPension} prefix="€" />
             <CalculatorInput
               label="Extra credits"
@@ -139,12 +147,12 @@ export default function HomePage() {
               prefix="€"
             />
           </div>
-          <div className="sticky bottom-[calc(var(--site-footer-offset)+0.5rem)] z-10 mt-6 -mx-6 border-t border-line bg-white/95 px-6 py-3 backdrop-blur lg:static lg:mx-0 lg:border-0 lg:bg-transparent lg:px-0 lg:py-0 lg:backdrop-blur-none">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-              <button type="submit" className="btn-primary">
+          <div className="sticky bottom-[calc(var(--site-footer-offset)+0.5rem)] z-10 mt-6 -mx-6 border-t border-line bg-white/95 px-6 py-2.5 backdrop-blur lg:static lg:mx-0 lg:border-0 lg:bg-transparent lg:px-0 lg:py-0 lg:backdrop-blur-none">
+            <div className="flex items-center gap-3">
+              <button type="submit" className="btn-primary shrink-0">
                 Calculate take-home
               </button>
-              <p className="text-xs text-ink-muted" aria-live="polite">
+              <p className="min-w-0 text-xs leading-snug text-ink-muted" aria-live="polite">
                 {isCurrent
                   ? 'Take-home matches the figures above.'
                   : 'Figures changed — click Calculate to update.'}
