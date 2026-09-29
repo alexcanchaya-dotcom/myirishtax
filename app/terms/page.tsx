@@ -4,6 +4,7 @@ import Link from 'next/link';
 export const metadata = {
   title: 'Terms of Use | MyIrishTax',
   description: 'Terms for using the MyIrishTax calculators and website.',
+  alternates: { canonical: '/terms' },
 };
 
 export default function TermsPage() {

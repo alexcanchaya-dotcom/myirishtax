@@ -6,6 +6,7 @@ export const metadata = {
   title: 'Rental Income Calculator | Coming soon | MyIrishTax',
   description:
     'Irish rental income calculator is coming soon. The previous version used an expired 75% mortgage-interest rule.',
+  alternates: { canonical: '/rental-calculator' },
 };
 
 export default function RentalCalculatorComingSoonPage() {

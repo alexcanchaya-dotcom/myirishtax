@@ -4,6 +4,7 @@ import Link from 'next/link';
 export const metadata = {
   title: 'Cookie Policy | MyIrishTax',
   description: 'Cookies used by MyIrishTax and how to manage them.',
+  alternates: { canonical: '/cookies' },
 };
 
 export default function CookiesPage() {

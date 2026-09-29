@@ -3,6 +3,7 @@ import { LegalArticle } from '@/components/LegalArticle';
 export const metadata = {
   title: 'Disclaimer | MyIrishTax',
   description: 'MyIrishTax calculators are based on published Irish tax bands and are not advice.',
+  alternates: { canonical: '/disclaimer' },
 };
 
 export default function DisclaimerPage() {
