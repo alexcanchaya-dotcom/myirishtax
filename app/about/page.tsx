@@ -5,6 +5,7 @@ export const metadata = {
   title: 'About MyIrishTax',
   description:
     'MyIrishTax is built by Aleksander Canchaya, an ACCA qualified accountant. Irish take-home pay estimates from published tax bands; not advice.',
+  alternates: { canonical: '/about' },
 };
 
 export default function AboutPage() {

@@ -7,7 +7,7 @@ Next.js Irish tax calculators (PAYE, contractor, rent credit, redundancy, auto-e
 - **Production target:** [myirishtax.com](https://myirishtax.com) (currently a different Hostinger static site — deploy this app in its place).
 - **myirishtax.ie** currently does not resolve (NXDOMAIN). Point DNS only after the name is registered and this app is live.
 
-Sister sites: [wealthmodeler.com](https://wealthmodeler.com), [longevitymodeler.com](https://longevitymodeler.com).
+Sister sites: [thewealthmodeler.com](https://www.thewealthmodeler.com), [longevitymodeler.com](https://longevitymodeler.com).
 
 ## Quick start
 

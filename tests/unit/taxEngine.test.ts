@@ -91,7 +91,7 @@ describe('tax engine', () => {
     expect(CURRENT_TAX_YEAR).toBe(2026);
     expect(formatTaxYearLabel(2026)).toBe('2026 tax year');
     expect(WEALTH_MODELER_FIRE_URL).toBe(
-      'https://wealthmodeler.com/fire-calculator?utm_source=myirishtax',
+      'https://www.thewealthmodeler.com/calculators/fire?utm_source=myirishtax',
     );
 
     const result = calculateNetIncome({

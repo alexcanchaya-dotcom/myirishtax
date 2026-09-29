@@ -5,6 +5,7 @@ export const metadata = {
   title: 'Privacy Policy | MyIrishTax',
   description:
     'How MyIrishTax handles calculator figures, accounts, and contact email. We do not sell your data.',
+  alternates: { canonical: '/privacy' },
 };
 
 export default function PrivacyPage() {

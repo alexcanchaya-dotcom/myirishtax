@@ -26,9 +26,6 @@ export const metadata = {
   metadataBase: new URL('https://myirishtax.com'),
   title,
   description,
-  alternates: {
-    canonical: 'https://myirishtax.com',
-  },
   openGraph: {
     title,
     description,
@@ -98,7 +95,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   <h3 className="mt-6 text-xs font-semibold uppercase tracking-wider text-ink-muted">Sister sites</h3>
                   <ul className="mt-3 space-y-2 text-sm text-ink">
                     <li>
-                      <a href="https://wealthmodeler.com" className="hover:text-brand-700" rel="noopener noreferrer">
+                      <a href="https://www.thewealthmodeler.com" className="hover:text-brand-700" rel="noopener noreferrer">
                         Wealth Modeler
                       </a>
                     </li>
