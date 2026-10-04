@@ -222,7 +222,8 @@ export default function HomePage() {
             <h3 className="mb-2 text-base font-semibold text-ink">PRSI</h3>
             <p>
               Class A employee rate in the year book: 4% in 2025 and 4.2% in 2026. The Class A
-              rate rises to 4.35% from 1 October 2026; this estimate uses 4.2% for the year.
+              rate rises to 4.35% from 1 October 2026; this estimate uses 4.2% for January to
+              September and 4.35% from October.
               Credits do not reduce PRSI.
             </p>
           </div>

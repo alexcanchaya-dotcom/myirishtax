@@ -61,8 +61,18 @@ export function calculateUSC(income: number, config: TaxYearConfig): BandBreakdo
   return calculateBands(income, config.uscBands);
 }
 
+// PRSI weighted by month when the rate changes partway through the year.
+// Assumes even monthly pay, so this is an estimate. With no changes listed it is income × prsiRate.
 export function calculatePRSI(income: number, config: TaxYearConfig): number {
-  return income * config.prsiRate;
+  const changes = config.prsiRateChanges ?? [];
+  if (changes.length === 0) return income * config.prsiRate;
+  let total = 0;
+  for (let month = 1; month <= 12; month++) {
+    const applicable = changes.filter((c) => c.fromMonth <= month);
+    const rate = applicable.length > 0 ? applicable[applicable.length - 1].rate : config.prsiRate;
+    total += (income / 12) * rate;
+  }
+  return total;
 }
 
 export function calculateCredits(

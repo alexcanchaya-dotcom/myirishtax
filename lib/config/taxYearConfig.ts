@@ -38,6 +38,8 @@ export type TaxYearConfig = {
   incomeTaxBandsMarried: TaxBand[];
   uscBands: TaxBand[];
   prsiRate: number;
+  /** Rate changes partway through the year, sorted; fromMonth is 1–12 (the change starts on the 1st of that month). */
+  prsiRateChanges?: { fromMonth: number; rate: number }[];
   credits: TaxCredits;
   creditsMarried: TaxCredits;
 };
@@ -122,9 +124,10 @@ const baseConfigs: Record<number, TaxYearConfig> = {
       { upTo: 70044, rate: 0.03 },
       { upTo: null, rate: 0.08 },
     ],
-    // PRSI: 4.2% from Jan 2026, increasing to 4.35% from Oct 2026
-    // Using 4.2% as the standard rate for the year
+    // PRSI (Class A employee): 4.2% Jan–Sep 2026, 4.35% from 1 Oct 2026 (DSP Class A rates page).
+    // Weighted by month in calculatePRSI: 9 months at 4.2% + 3 months at 4.35%.
     prsiRate: 0.042,
+    prsiRateChanges: [{ fromMonth: 10, rate: 0.0435 }],
     // Budget 2026: No change to credits (same as 2025)
     credits: { personal: 2000, paye: 2000 },
     creditsMarried: { personal: 4000, paye: 2000 },
