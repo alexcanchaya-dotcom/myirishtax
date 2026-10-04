@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { calculateRedundancy, RedundancyInputs, RedundancyResults } from "@/lib/redundancy2025";
+import { TaxFreeSection } from "@/components/redundancy/TaxFreeSection";
 import { RelatedCalculators } from "@/components/RelatedCalculators";
 
 export default function RedundancyCalculatorPage() {
@@ -40,8 +41,8 @@ export default function RedundancyCalculatorPage() {
   return (
     <div className="mx-auto max-w-4xl space-y-8 px-4 py-12 sm:px-6 sm:py-16">
       <header className="max-w-2xl">
-        <h1 className="font-serif text-4xl font-semibold">Redundancy</h1>
-        <p className="mt-3 text-ink-muted">Statutory redundancy estimate for 2025.</p>
+        <h1 className="font-serif text-4xl font-semibold">Redundancy calculator: how much is tax-free?</h1>
+        <p className="mt-3 text-ink-muted">Estimate your statutory redundancy and the tax-free part of any extra payment.</p>
         <p className="mt-2 text-sm text-ink-muted">Based on published Irish tax bands; not advice.</p>
       </header>
 
@@ -202,6 +203,8 @@ export default function RedundancyCalculatorPage() {
           )}
         </div>
       )}
+
+      <TaxFreeSection />
 
       <RelatedCalculators current="redundancy" />
     </div>

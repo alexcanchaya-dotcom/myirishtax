@@ -1,9 +1,9 @@
 import RedundancyCalculatorClient from './RedundancyCalculatorClient';
 
 export const metadata = {
-  title: 'Irish redundancy calculator | MyIrishTax',
+  title: 'Redundancy calculator Ireland: how much is tax-free? | MyIrishTax',
   description:
-    'Estimate statutory redundancy pay and the tax on an Irish redundancy package, including pay in lieu of notice and holiday pay. Based on published Irish rules; not advice.',
+    'Estimate your statutory redundancy and the tax-free part of an Irish redundancy package: basic exemption, increased exemption and SCSB. Based on published Irish tax bands; not advice.',
   alternates: { canonical: '/redundancy-calculator' },
 };
 
