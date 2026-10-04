@@ -11,6 +11,7 @@ import { formatTaxYearLabel, getDefaultTaxYear, listSupportedYears } from '../li
 import Link from 'next/link';
 import { PageHeader } from '../components/PageHeader';
 import { FireHandoff } from '../components/FireHandoff';
+import { RelatedCalculators } from '../components/RelatedCalculators';
 
 const years = listSupportedYears();
 
@@ -227,6 +228,8 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      <RelatedCalculators current="take-home" />
 
       <p className="mt-12 text-sm text-ink-muted">
         Other tools:{' '}

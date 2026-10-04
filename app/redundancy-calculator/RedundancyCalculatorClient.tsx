@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { calculateRedundancy, RedundancyInputs, RedundancyResults } from "@/lib/redundancy2025";
+import { RelatedCalculators } from "@/components/RelatedCalculators";
 
 export default function RedundancyCalculatorPage() {
   const [inputs, setInputs] = useState<RedundancyInputs>({
@@ -201,6 +202,8 @@ export default function RedundancyCalculatorPage() {
           )}
         </div>
       )}
+
+      <RelatedCalculators current="redundancy" />
     </div>
   );
 }

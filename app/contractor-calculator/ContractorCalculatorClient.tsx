@@ -18,6 +18,7 @@ import {
 import Link from "next/link";
 import { TaxDisclaimer } from "@/components/TaxDisclaimer";
 import { PageHeader } from "@/components/PageHeader";
+import { RelatedCalculators } from "@/components/RelatedCalculators";
 
 const years = listSupportedYears();
 
@@ -428,6 +429,8 @@ export default function ContractorCalculatorPage() {
           </div>
         </div>
       </div>
+
+      <RelatedCalculators current="contractor" />
 
       <p className="mt-12 text-sm text-ink-muted">
         Also:{' '}

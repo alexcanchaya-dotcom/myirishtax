@@ -7,6 +7,7 @@ import { Home, Info, CheckCircle, Calendar, ArrowRight } from 'lucide-react';
 import { PageHeader } from '@/components/PageHeader';
 import { TaxDisclaimer } from '@/components/TaxDisclaimer';
 import { HowToClaimSection } from '@/components/rent/HowToClaimSection';
+import { RelatedCalculators } from '@/components/RelatedCalculators';
 
 // ─── Rent Tax Credit rates ────────────────────────────────────────────────
 type FilingStatus = 'single' | 'jointly';
@@ -348,6 +349,8 @@ export default function RentTaxCreditPage() {
           can only reduce income tax to zero. Check your entitlement on Revenue.ie.
         </div>
       </section>
+
+      <RelatedCalculators current="rent-credit" />
     </main>
   );
 }

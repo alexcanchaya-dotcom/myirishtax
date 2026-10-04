@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 import { TaxDisclaimer } from "@/components/TaxDisclaimer";
+import { RelatedCalculators } from "@/components/RelatedCalculators";
 import {
   calculateAutoEnrolment,
   AutoEnrolmentBreakdown,
@@ -592,6 +593,8 @@ export default function AutoEnrolmentCalculatorPage() {
           </p>
         </div>
       </section>
+
+      <RelatedCalculators current="auto-enrolment" />
     </main>
   );
 }
