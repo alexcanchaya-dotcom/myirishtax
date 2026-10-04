@@ -71,7 +71,7 @@ describe('tax engine', () => {
     });
     expect(single2026.payeBeforeCredits).toBeCloseTo(11200, 2);
     expect(single2026.credits).toBe(4000);
-    expect(single2026.prsi).toBeCloseTo(2100, 2); // 4.2%
+    expect(single2026.prsi).toBeCloseTo(2118.75, 2); // 9 months at 4.2% + 3 months at 4.35%
   });
 
   it('matches published 2026 PAYE, USC and PRSI bands for a single employee', () => {
@@ -106,7 +106,8 @@ describe('tax engine', () => {
     expect(result.payeAfterCredits).toBeCloseTo(7200, 2);
     // USC 2026: 0.5% to €12,012, 2% to €28,700, 3% on the rest
     expect(result.uscTotal).toBeCloseTo(60.06 + 333.76 + 639, 2);
-    expect(result.prsi).toBeCloseTo(2100, 2);
+    // PRSI 2026: 4.2% Jan–Sep, 4.35% from 1 Oct (month-weighted = 4.2375%)
+    expect(result.prsi).toBeCloseTo(2118.75, 2);
     expect(result.totalTax).toBeCloseTo(result.payeAfterCredits + result.uscTotal + result.prsi, 2);
     expect(result.netAnnual).toBeCloseTo(50000 - result.totalTax, 2);
   });
@@ -126,9 +127,9 @@ describe('tax engine', () => {
     expect(y2025.uscTotal).toBeCloseTo(60.06 + 307.4 + 18.54, 2);
     expect(y2026.uscTotal).toBeCloseTo(60.06 + 319.76, 2);
     expect(y2026.uscTotal).toBeLessThan(y2025.uscTotal);
-    // PRSI is 4.2% in 2026 vs 4% in 2025
+    // PRSI is 4% in 2025; 2026 is 4.2% Jan–Sep and 4.35% from October
     expect(y2025.prsi).toBeCloseTo(1120, 2);
-    expect(y2026.prsi).toBeCloseTo(1176, 2);
+    expect(y2026.prsi).toBeCloseTo(28000 * 0.042375, 2);
   });
 
   it('applies married bands and married credits', () => {
@@ -180,7 +181,7 @@ describe('tax engine', () => {
     // One salary of €60,000: 20% of €53,000 + 40% of €7,000 = €13,400 before credits
     expect(married.payeBeforeCredits).toBeCloseTo(13400, 2);
     expect(married.netAnnual).toBeLessThan(60000);
-    expect(married.prsi).toBeCloseTo(60000 * 0.042, 2);
+    expect(married.prsi).toBeCloseTo(60000 * 0.042375, 2);
   });
 });
 
