@@ -98,17 +98,6 @@ export default function ContractorCalculatorPage() {
     );
   };
 
-  if (status === "loading") {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading...</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <main className="mx-auto max-w-5xl px-4 py-12 sm:px-6 sm:py-16">
       <PageHeader title="Contractor tax">
@@ -380,7 +369,8 @@ export default function ContractorCalculatorPage() {
 
               {/* Actions */}
               <div className="card space-y-2">
-                {session?.user ? (
+                {/* The calculator renders straight away; only the account actions wait for the session. */}
+                {status === "loading" ? null : session?.user ? (
                   <>
                     <button className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700 text-sm font-medium">
                       <Save className="h-4 w-4" />
