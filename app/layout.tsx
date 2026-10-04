@@ -5,6 +5,7 @@ import { SessionProvider } from '@/components/auth/SessionProvider';
 import { NavBar } from '@/components/NavBar';
 import { StickyDisclaimer } from '@/components/StickyDisclaimer';
 import Link from 'next/link';
+import { Analytics } from '@vercel/analytics/next';
 
 const sans = Source_Sans_3({
   subsets: ['latin'],
@@ -114,6 +115,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           </footer>
           <StickyDisclaimer />
         </SessionProvider>
+        <Analytics />
       </body>
     </html>
   );
