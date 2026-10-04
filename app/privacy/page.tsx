@@ -11,7 +11,7 @@ export const metadata = {
 export default function PrivacyPage() {
   return (
     <LegalArticle badge="Privacy" title="Privacy Policy">
-      <p>Last updated: September 2026</p>
+      <p>Last updated: October 2026</p>
       <p>
         MyIrishTax provides free Irish tax calculators. This page explains what happens to
         information you enter. Company registration details are available on request.
@@ -33,6 +33,13 @@ export default function PrivacyPage() {
       <p>
         If you create an account we store the email and name you provide so you can sign in. If
         you email us, we keep the message long enough to reply.
+      </p>
+
+      <h2 className="text-lg font-semibold text-gray-900">Analytics</h2>
+      <p>
+        We use Vercel Web Analytics to count page views. It is cookieless and anonymous: it does
+        not set cookies, does not identify you, and only gives us aggregated numbers such as page
+        views, referring sites, country, and device type. We do not run advertising trackers.
       </p>
 
       <h2 className="text-lg font-semibold text-gray-900">Cookies</h2>
