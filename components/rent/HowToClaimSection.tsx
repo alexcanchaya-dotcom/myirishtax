@@ -220,6 +220,11 @@ export function HowToClaimSection() {
             Redundancy calculator
           </Link>
         </li>
+        <li>
+          <Link href="/second-income-form-12" className={link}>
+            Second income / Form 12: do I need to file?
+          </Link>
+        </li>
       </ul>
 
       <TaxDisclaimer className="mt-8" />

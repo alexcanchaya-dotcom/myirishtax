@@ -86,6 +86,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   <h3 className="mt-6 text-xs font-semibold uppercase tracking-wider text-ink-muted">Guides</h3>
                   <ul className="mt-3 space-y-2 text-sm text-ink">
                     <li><Link href="/small-benefit-exemption" className="hover:text-brand-700">Small benefit exemption</Link></li>
+                    <li><Link href="/second-income-form-12" className="hover:text-brand-700">Second income / Form 12</Link></li>
                   </ul>
                 </div>
                 <div>
