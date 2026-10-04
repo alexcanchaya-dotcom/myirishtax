@@ -83,6 +83,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                     <li><Link href="/auto-enrolment-calculator" className="hover:text-brand-700">Auto-enrolment</Link></li>
                     <li><Link href="/rental-calculator" className="text-ink-muted hover:text-brand-700">Rental (coming soon)</Link></li>
                   </ul>
+                  <h3 className="mt-6 text-xs font-semibold uppercase tracking-wider text-ink-muted">Guides</h3>
+                  <ul className="mt-3 space-y-2 text-sm text-ink">
+                    <li><Link href="/small-benefit-exemption" className="hover:text-brand-700">Small benefit exemption</Link></li>
+                  </ul>
                 </div>
                 <div>
                   <h3 className="text-xs font-semibold uppercase tracking-wider text-ink-muted">Site</h3>
