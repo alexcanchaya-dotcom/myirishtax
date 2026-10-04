@@ -220,6 +220,11 @@ export default function SmallBenefitExemptionPage() {
               – see how a taxed bonus changes your pay (estimate)
             </li>
             <li>
+              <Link href="/second-income-form-12" className={link}>
+                Second income / Form 12: do I need to file?
+              </Link>
+            </li>
+            <li>
               <Link href="/rent-tax-credit" className={link}>
                 Rent tax credit
               </Link>
