@@ -10,6 +10,8 @@
  * config/tax_years/*.yml is an older draft and is not used by these calculators.
  */
 
+import { BUDGET_2027, type Budget2027 } from './taxYear2027';
+
 export const CURRENT_TAX_YEAR = 2026;
 
 export function formatTaxYearLabel(year: number): string {
@@ -133,6 +135,68 @@ const baseConfigs: Record<number, TaxYearConfig> = {
     creditsMarried: { personal: 4000, paye: 2000 },
   },
 };
+
+/**
+ * Maps the Budget 2027 config to a TaxYearConfig.
+ * Throws if any field the engine needs is still blank, so a half-filled config fails the build.
+ */
+export function toTaxYearConfig(b: Budget2027): TaxYearConfig {
+  const missing: string[] = [];
+  const need = (value: number | null, blank: string): number => {
+    if (value === null || value === undefined || Number.isNaN(value)) {
+      missing.push(blank);
+      return 0;
+    }
+    return value;
+  };
+  const standardRate = need(b.incomeTax.standardRate, '2027_STANDARD_RATE');
+  const higherRate = need(b.incomeTax.higherRate, '2027_HIGHER_RATE');
+  const bandSingle = need(b.incomeTax.bandSingle, '2027_STANDARD_RATE_BAND_SINGLE');
+  const bandMarried = need(b.incomeTax.bandMarriedOneEarner, '2027_STANDARD_RATE_BAND_MARRIED_ONE_EARNER');
+  const personalSingle = need(b.credits.personalSingle, '2027_PERSONAL_CREDIT_SINGLE');
+  const personalMarried = need(b.credits.personalMarried, '2027_PERSONAL_CREDIT_MARRIED');
+  const employeePaye = need(b.credits.employeePaye, '2027_EMPLOYEE_PAYE_CREDIT');
+  const uscBands: TaxBand[] = b.usc.bands.map((band, i) => ({
+    upTo: band.upTo === 'balance' ? null : need(band.upTo, `2027_USC_BAND_${i + 1}_TOP`),
+    rate: need(band.rate, `2027_USC_RATE_${i + 1}`),
+  }));
+  const prsiRate = need(b.prsi.rateFrom1Jan, '2027_PRSI_RATE_FROM_1_JAN');
+  let prsiRateChanges: TaxYearConfig['prsiRateChanges'];
+  if (b.prsi.changeMonth !== null || b.prsi.rateAfterChange !== null) {
+    const fromMonth = need(b.prsi.changeMonth, '2027_PRSI_CHANGE_DATE');
+    const rate = need(b.prsi.rateAfterChange, '2027_PRSI_RATE_AFTER_CHANGE');
+    if (fromMonth < 1 || fromMonth > 12) missing.push('2027_PRSI_CHANGE_DATE (month must be 1–12)');
+    prsiRateChanges = [{ fromMonth, rate }];
+  }
+  if (missing.length > 0) {
+    throw new Error(`Budget 2027 config is marked confirmed but these blanks are empty: ${missing.join(', ')}`);
+  }
+  return {
+    year: 2027,
+    incomeTaxBandsSingle: [
+      { upTo: bandSingle, rate: standardRate },
+      { upTo: null, rate: higherRate },
+    ],
+    incomeTaxBandsMarried: [
+      { upTo: bandMarried, rate: standardRate },
+      { upTo: null, rate: higherRate },
+    ],
+    uscBands,
+    prsiRate,
+    ...(prsiRateChanges ? { prsiRateChanges } : {}),
+    credits: { personal: personalSingle, paye: employeePaye },
+    creditsMarried: { personal: personalMarried, paye: employeePaye },
+  };
+}
+
+// 2027 only exists once the official figures are filled in and marked confirmed.
+if (BUDGET_2027.status === 'confirmed') {
+  baseConfigs[2027] = toTaxYearConfig(BUDGET_2027);
+}
+
+export function isTaxYearAvailable(year: number): boolean {
+  return year in baseConfigs;
+}
 
 export function getTaxYearConfig(year: number): TaxYearConfig {
   return baseConfigs[year] ?? baseConfigs[2026];

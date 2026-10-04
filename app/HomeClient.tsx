@@ -7,7 +7,8 @@ import { BreakdownTable } from '../components/BreakdownTable';
 import { TaxSummaryCard } from '../components/TaxSummaryCard';
 import { ComparisonView } from '../components/ComparisonView';
 import { TaxBreakdown, calculateNetIncome, compareScenarios } from '../lib/taxEngine';
-import { formatTaxYearLabel, getDefaultTaxYear, listSupportedYears } from '../lib/config/taxYearConfig';
+import { formatTaxYearLabel, getDefaultTaxYear, isTaxYearAvailable, listSupportedYears } from '../lib/config/taxYearConfig';
+import { BUDGET_2027 } from '../lib/config/taxYear2027';
 import Link from 'next/link';
 import { PageHeader } from '../components/PageHeader';
 import { FireHandoff } from '../components/FireHandoff';
@@ -46,6 +47,12 @@ export default function HomePage() {
     }),
     [credits, income, maritalStatus, pension, period, taxYear],
   );
+  // ?year=2027 (from /budget-2027) picks the year on load, only if that year is available.
+  useEffect(() => {
+    const year = Number(new URLSearchParams(window.location.search).get('year'));
+    if (year && isTaxYearAvailable(year)) setTaxYear(year);
+  }, []);
+
   const inputKey = JSON.stringify(input);
   const isCurrent = result !== null && resultKey === inputKey;
 
@@ -79,7 +86,11 @@ export default function HomePage() {
         <p className="font-medium text-brand-700">{formatTaxYearLabel(taxYear)}</p>
         <p>
           Estimate PAYE, USC and PRSI from published bands. The {formatTaxYearLabel(getDefaultTaxYear())}{' '}
-          is the default; 2025 is still available. Free to use — no account needed.
+          is the default; 2025 is still available
+          {isTaxYearAvailable(2027)
+            ? `, and 2027 uses the Budget 2027 figures, checked ${BUDGET_2027.figuresCheckedOn ?? ''}`
+            : ''}
+          . Free to use — no account needed.
         </p>
       </PageHeader>
 
@@ -224,6 +235,13 @@ export default function HomePage() {
               Class A employee rate in the year book: 4% in 2025 and 4.2% in 2026. The Class A
               rate rises to 4.35% from 1 October 2026; this estimate uses 4.2% for January to
               September and 4.35% from October.
+              {BUDGET_2027.status === 'confirmed' && BUDGET_2027.prsi.rateFrom1Jan !== null
+                ? ` 2027: ${Number((BUDGET_2027.prsi.rateFrom1Jan * 100).toFixed(3))}% from January${
+                    BUDGET_2027.prsi.rateAfterChange !== null && BUDGET_2027.prsi.changeMonth !== null
+                      ? `, ${Number((BUDGET_2027.prsi.rateAfterChange * 100).toFixed(3))}% from 1 ${new Date(2027, BUDGET_2027.prsi.changeMonth - 1, 1).toLocaleString('en-IE', { month: 'long' })}`
+                      : ''
+                  } (Budget 2027).`
+                : ''}{' '}
               Credits do not reduce PRSI.
             </p>
           </div>

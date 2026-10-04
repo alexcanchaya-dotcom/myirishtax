@@ -20,7 +20,8 @@ import { TaxDisclaimer } from "@/components/TaxDisclaimer";
 import { PageHeader } from "@/components/PageHeader";
 import { RelatedCalculators } from "@/components/RelatedCalculators";
 
-const years = listSupportedYears();
+// Class S logic isn't part of the Budget 2027 work, so the contractor tool stays on 2026 and earlier.
+const years = listSupportedYears().filter((y) => y <= 2026);
 
 interface Expense {
   id: string;
