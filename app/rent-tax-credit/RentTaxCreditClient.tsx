@@ -3,9 +3,10 @@
 import { useState, useMemo } from 'react';
 import { CalculatorInput } from '@/components/CalculatorInput';
 import { SelectField } from '@/components/SelectField';
-import { Home, Info, CheckCircle, AlertCircle, Calendar, ArrowRight } from 'lucide-react';
+import { Home, Info, CheckCircle, Calendar, ArrowRight } from 'lucide-react';
 import { PageHeader } from '@/components/PageHeader';
 import { TaxDisclaimer } from '@/components/TaxDisclaimer';
+import { HowToClaimSection } from '@/components/rent/HowToClaimSection';
 
 // ─── Rent Tax Credit rates ────────────────────────────────────────────────
 type FilingStatus = 'single' | 'jointly';
@@ -30,7 +31,6 @@ function calcRentCredit(
   annualRent: number,
   taxYear: number,
   filingStatus: FilingStatus,
-  numTenants: number,
 ): {
   twentyPercent: number;
   maxCredit: number;
@@ -38,7 +38,7 @@ function calcRentCredit(
 } {
   const rates = RENT_CREDIT_RATES[taxYear] ?? RENT_CREDIT_RATES[2026];
   const maxCredit = filingStatus === 'jointly' ? rates.jointly : rates.single;
-  // Each tenant claims based on total rent paid (they are not required to divide)
+  // Based on the rent this person pays. In a house share each tenant (or couple) claims only on their own share.
   const twentyPercent = Math.round(annualRent * 0.2);
   const creditClaimed = Math.min(twentyPercent, maxCredit);
   return { twentyPercent, maxCredit, creditClaimed };
@@ -49,7 +49,7 @@ function calcAllYearsTotal(
   filingStatus: FilingStatus,
 ): number {
   return TAX_YEARS.reduce((sum, year) => {
-    const { creditClaimed } = calcRentCredit(annualRent, year, filingStatus, 1);
+    const { creditClaimed } = calcRentCredit(annualRent, year, filingStatus);
     return sum + creditClaimed;
   }, 0);
 }
@@ -59,11 +59,10 @@ export default function RentTaxCreditPage() {
   const [annualRent, setAnnualRent] = useState<number>(18000);
   const [taxYear, setTaxYear] = useState<number>(2025);
   const [filingStatus, setFilingStatus] = useState<FilingStatus>('single');
-  const [numTenants, setNumTenants] = useState<number>(1);
 
   const result = useMemo(
-    () => calcRentCredit(annualRent, taxYear, filingStatus, numTenants),
-    [annualRent, taxYear, filingStatus, numTenants],
+    () => calcRentCredit(annualRent, taxYear, filingStatus),
+    [annualRent, taxYear, filingStatus],
   );
 
   const allYearsTotal = useMemo(
@@ -76,7 +75,7 @@ export default function RentTaxCreditPage() {
 
   return (
     <main className="mx-auto max-w-5xl px-4 py-12 sm:px-6 sm:py-16">
-      <PageHeader title="Rent tax credit">
+      <PageHeader title="Rent tax credit: how much, and how to claim">
         <p>See how much rent credit you can claim for 2022–2026. Free to use — no account needed.</p>
         <TaxDisclaimer />
       </PageHeader>
@@ -91,7 +90,7 @@ export default function RentTaxCreditPage() {
             </h2>
             <div className="grid gap-4 md:grid-cols-2">
               <CalculatorInput
-                label="Annual Rent Paid (€)"
+                label="Rent you paid in the year (€)"
                 value={annualRent}
                 onChange={setAnnualRent}
                 prefix="€"
@@ -111,21 +110,14 @@ export default function RentTaxCreditPage() {
                   { label: 'Jointly Assessed Couple', value: 'jointly' },
                 ]}
               />
-              <CalculatorInput
-                label="Number of tenants claiming"
-                value={numTenants}
-                onChange={(v) => setNumTenants(Math.max(1, Math.round(v)))}
-                prefix=""
-              />
             </div>
-            {numTenants > 1 && (
-              <div className="mt-4 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800 flex items-start gap-2">
-                <Info className="h-4 w-4 flex-shrink-0 mt-0.5" />
-                <span>
-                  Each tenant in shared accommodation claims the credit independently based on the <strong>total rent</strong> — you do not divide the rent between tenants for the purpose of this credit.
-                </span>
-              </div>
-            )}
+            <div className="mt-4 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800 flex items-start gap-2">
+              <Info className="h-4 w-4 flex-shrink-0 mt-0.5" />
+              <span>
+                Sharing a home? Each tenant, or each couple, claims only on the rent they pay. Enter only your own
+                share of the rent.
+              </span>
+            </div>
           </div>
 
           {/* ── Calculation breakdown ── */}
@@ -185,7 +177,7 @@ export default function RentTaxCreditPage() {
             </p>
             <div className="grid grid-cols-5 gap-2 mb-4">
               {TAX_YEARS.map((year) => {
-                const { creditClaimed } = calcRentCredit(annualRent, year, filingStatus, numTenants);
+                const { creditClaimed } = calcRentCredit(annualRent, year, filingStatus);
                 return (
                   <div
                     key={year}
@@ -206,7 +198,7 @@ export default function RentTaxCreditPage() {
               <span className="text-2xl font-bold">{fmt(allYearsTotal)}</span>
             </div>
             <p className="text-xs text-gray-500 mt-2">
-              Amounts shown per tenant. You have 4 years from the end of each tax year to make a claim.
+              Amounts are for the rent you entered. You have 4 years from the end of each tax year to make a claim.
             </p>
           </div>
         </div>
@@ -257,27 +249,10 @@ export default function RentTaxCreditPage() {
               Credit = 20% of rent, capped at the limit above. Non-refundable — cannot reduce tax below zero.
             </p>
           </div>
-
-          {/* How to claim */}
-          <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
-            <h3 className="font-semibold text-gray-900 text-sm mb-3">How to claim</h3>
-            <div className="space-y-2 text-xs text-gray-700">
-              <div className="flex gap-2">
-                <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0 mt-0.5" />
-                <span><strong>PAYE workers:</strong> Claim via MyAccount on Revenue.ie under "Manage your tax 20XX"</span>
-              </div>
-              <div className="flex gap-2">
-                <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0 mt-0.5" />
-                <span><strong>Self-assessed:</strong> Claim on your annual Form 11 via ROS</span>
-              </div>
-              <div className="flex gap-2">
-                <AlertCircle className="h-4 w-4 text-amber-500 flex-shrink-0 mt-0.5" />
-                <span><strong>Deadline:</strong> 4 years from the end of the tax year (e.g., 2022 claims expire 31 Dec 2026)</span>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
+
+      <HowToClaimSection />
 
       {/* ── SEO / Info Section ── */}
       <section className="mt-10 space-y-6">
@@ -304,6 +279,7 @@ export default function RentTaxCreditPage() {
                   'Your tenancy is registered with the Residential Tenancies Board (RTB)',
                   'You are not receiving the Housing Assistance Payment (HAP), Rental Accommodation Scheme (RAS), or similar state housing support',
                   'The landlord is not a local authority or approved housing body',
+                  'The landlord is not your parent or your child',
                   'You are an Irish income tax payer',
                 ].map((item) => (
                   <li key={item} className="flex items-start gap-2">
@@ -340,17 +316,6 @@ export default function RentTaxCreditPage() {
               <div className="rounded-lg bg-amber-100 border border-amber-300 px-3 py-2 text-amber-900 text-xs font-medium">
                 Credit extended to 2028 — plan your claims accordingly
               </div>
-            </div>
-
-            <div>
-              <h3 className="font-semibold text-gray-900 mb-2">How to claim (step by step)</h3>
-              <ol className="space-y-1 list-decimal list-inside text-sm">
-                <li>Log in to <strong>myAccount</strong> on Revenue.ie (PAYE) or <strong>ROS</strong> (self-assessed)</li>
-                <li>Select "Manage your tax" for the relevant year</li>
-                <li>Add the Rent Tax Credit under "Credits &amp; Reliefs"</li>
-                <li>Enter the total annual rent paid and landlord details</li>
-                <li>Revenue will issue a refund or reduce your tax liability</li>
-              </ol>
             </div>
 
             <div>
