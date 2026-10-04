@@ -8,7 +8,7 @@ interface AffiliateCTAProps {
 const ctaData = {
   pension: {
     title: 'Need help with your pension?',
-    description: 'Talk to a qualified financial advisor about your retirement planning options, including My Future Fund auto-enrolment.',
+    description: 'Talk to a qualified financial advisor about your retirement planning options, including MyFutureFund auto-enrolment.',
     linkText: 'Find a pension advisor',
     href: '/about', // placeholder - will link to affiliate partner once signed up
     bgColor: 'bg-emerald-50',

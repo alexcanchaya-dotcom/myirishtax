@@ -8,7 +8,7 @@ const CALCULATORS: { key: CalculatorKey; href: string; label: string; blurb: str
     key: 'auto-enrolment',
     href: '/auto-enrolment-calculator',
     label: 'Auto-enrolment',
-    blurb: 'My Future Fund pension contributions.',
+    blurb: 'MyFutureFund pension contributions.',
   },
   { key: 'rent-credit', href: '/rent-tax-credit', label: 'Rent tax credit', blurb: 'What you can claim back on rent.' },
   {

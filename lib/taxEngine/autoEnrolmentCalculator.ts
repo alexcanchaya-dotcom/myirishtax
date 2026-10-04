@@ -1,5 +1,5 @@
 /**
- * Auto-Enrolment (My Future Fund) Pension Calculator for Ireland
+ * Auto-Enrolment (MyFutureFund) Pension Calculator for Ireland
  *
  * Calculates projected pension pot and contributions under the Irish
  * Auto-Enrolment scheme launched 1 January 2026. Covers:
