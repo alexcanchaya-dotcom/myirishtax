@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 import { TaxDisclaimer } from "@/components/TaxDisclaimer";
+import { OptOutSection } from "@/components/auto-enrolment/OptOutSection";
 import { RelatedCalculators } from "@/components/RelatedCalculators";
 import {
   calculateAutoEnrolment,
@@ -83,9 +84,9 @@ export default function AutoEnrolmentCalculatorPage() {
 
   return (
     <main className="mx-auto max-w-5xl px-4 py-12 sm:px-6 sm:py-16">
-      <PageHeader title="Auto-enrolment pension">
+      <PageHeader title="Auto-enrolment (MyFutureFund) calculator and opt-out guide">
         <p>
-          My Future Fund from January 2026. For every €3 you save, your employer adds €3 and the
+          MyFutureFund from January 2026. For every €3 you save, your employer adds €3 and the
           State adds €1.
         </p>
         <TaxDisclaimer />
@@ -246,7 +247,7 @@ export default function AutoEnrolmentCalculatorPage() {
             </div>
             <p className="text-xs text-gray-500 mt-3">
               Based on the 4% safe withdrawal rate. Projection assumes salary, contribution rates,
-              and investment returns remain constant. This is an estimate, not a guarantee.
+              and investment returns remain constant. This is an estimate only.
             </p>
           </div>
 
@@ -423,10 +424,10 @@ export default function AutoEnrolmentCalculatorPage() {
       <section className="mt-10 space-y-6">
         <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-6">
           <h2 className="text-xl font-bold text-emerald-900 mb-2">
-            What is My Future Fund? Ireland's Auto-Enrolment Explained
+            What is MyFutureFund? Ireland's Auto-Enrolment Explained
           </h2>
           <p className="text-emerald-800 text-sm leading-relaxed">
-            My Future Fund is Ireland's mandatory workplace pension scheme that launched on{" "}
+            MyFutureFund is Ireland's mandatory workplace pension scheme that launched on{" "}
             <strong>1 January 2026</strong>. It automatically enrols eligible employees who don't
             already have a workplace pension, covering an estimated{" "}
             <strong>760,000–800,000 workers</strong>. For the first time, private-sector employees
@@ -489,13 +490,20 @@ export default function AutoEnrolmentCalculatorPage() {
                 </span>
               </li>
             </ul>
+            <p className="mt-3 text-sm">
+              <a href="#opt-out" className="text-ink underline decoration-line underline-offset-2 hover:text-brand-700">
+                Read more: should I opt out?
+              </a>
+            </p>
           </div>
         </div>
+
+        <OptOutSection />
 
         {/* Contribution rates table */}
         <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
           <h3 className="font-semibold text-gray-900 mb-1">
-            Phased Contribution Rates (2026–2035+)
+            Phased Contribution Rates (by scheme year)
           </h3>
           <p className="text-sm text-gray-500 mb-4">
             Contributions are calculated on earnings up to €80,000. Rates increase gradually to
@@ -505,7 +513,7 @@ export default function AutoEnrolmentCalculatorPage() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b-2 border-gray-200">
-                  <th className="text-left py-2 pr-4 text-gray-700 font-semibold">Period</th>
+                  <th className="text-left py-2 pr-4 text-gray-700 font-semibold">Scheme year</th>
                   <th className="text-center py-2 px-4 text-gray-700 font-semibold">Employee</th>
                   <th className="text-center py-2 px-4 text-gray-700 font-semibold">Employer</th>
                   <th className="text-center py-2 px-4 text-gray-700 font-semibold">State</th>
@@ -514,10 +522,10 @@ export default function AutoEnrolmentCalculatorPage() {
               </thead>
               <tbody>
                 {[
-                  { period: "2026–2028 (Years 1–3)", emp: "1.5%", emplr: "1.5%", state: "0.5%", total: "3.5%" },
-                  { period: "2029–2031 (Years 4–6)", emp: "3%", emplr: "3%", state: "1%", total: "7%" },
-                  { period: "2032–2034 (Years 7–9)", emp: "4.5%", emplr: "4.5%", state: "1.5%", total: "10.5%" },
-                  { period: "2035+ (Year 10+)", emp: "6%", emplr: "6%", state: "2%", total: "14%" },
+                  { period: "Years 1–3", emp: "1.5%", emplr: "1.5%", state: "0.5%", total: "3.5%" },
+                  { period: "Years 4–6", emp: "3%", emplr: "3%", state: "1%", total: "7%" },
+                  { period: "Years 7–9", emp: "4.5%", emplr: "4.5%", state: "1.5%", total: "10.5%" },
+                  { period: "Year 10 on", emp: "6%", emplr: "6%", state: "2%", total: "14%" },
                 ].map((row) => (
                   <tr key={row.period} className="border-b border-gray-100 hover:bg-gray-50">
                     <td className="py-3 pr-4 text-gray-700">{row.period}</td>
@@ -538,7 +546,7 @@ export default function AutoEnrolmentCalculatorPage() {
 
         {/* Key facts */}
         <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-          <h3 className="font-semibold text-gray-900 mb-4">Key Facts About My Future Fund</h3>
+          <h3 className="font-semibold text-gray-900 mb-4">Key Facts About MyFutureFund</h3>
           <div className="grid md:grid-cols-2 gap-4 text-sm text-gray-700">
             <div>
               <h4 className="font-semibold text-gray-900 mb-1">Earnings Cap</h4>
@@ -548,18 +556,10 @@ export default function AutoEnrolmentCalculatorPage() {
               </p>
             </div>
             <div>
-              <h4 className="font-semibold text-gray-900 mb-1">Fund Managers</h4>
-              <p>
-                Your fund will be managed by one of three approved providers:{" "}
-                <strong>Irish Life, Amundi,</strong> or <strong>BlackRock</strong>. You will be
-                assigned a default manager but may switch.
-              </p>
-            </div>
-            <div>
               <h4 className="font-semibold text-gray-900 mb-1">Admin Fee</h4>
               <p>
-                A 55 cent per week (€28.60 per year) administration fee is deducted from your
-                fund. This covers the cost of running the central processing authority.
+                55 cent a week (capped at €28.60 a year) plus 0.03833% of your savings a year. No
+                admin fee while you have opted out or paused.
               </p>
             </div>
             <div>
@@ -582,14 +582,13 @@ export default function AutoEnrolmentCalculatorPage() {
             <div>
               <h4 className="font-semibold text-gray-900 mb-1">At Retirement</h4>
               <p>
-                Your pot can be drawn down from retirement age. Benefits are subject to standard
-                income tax rules at drawdown. You can take part of the fund as a tax-free lump sum
-                under certain conditions.
+                You cannot take the money out before State Pension age, which is currently 66.
+                Ill-health retirement is the exception.
               </p>
             </div>
           </div>
           <p className="text-xs text-gray-400 mt-4">
-            Based on published Irish tax bands; not advice. Projections are not guaranteed.
+            Based on published Irish tax bands; not advice. Projections are estimates and can go up or down.
           </p>
         </div>
       </section>
