@@ -2,7 +2,7 @@ import { calculateContractorTax } from '../../lib/taxEngine/contractorCalculator
 import { getTaxYearConfig } from '../../lib/config/taxYearConfig';
 
 // Class S 2026: same DSP rate change as Class A — 4.2% to 30 Sep, 4.35% from 1 Oct.
-// Full-year blend 4.2375% of reckonable income (gross minus the existing €5,000 floor).
+// Full-year blend 4.2375% of reckonable income (gross minus the €5,000 floor), or €650 minimum, whichever is greater.
 // Source: gov.ie PRSI Class S rates (updated 20 Jan 2026).
 
 describe('contractor Class S PRSI 2026 split year', () => {
@@ -44,6 +44,50 @@ describe('contractor Class S PRSI 2026 split year', () => {
     });
     expect(result.prsi.amount).toBeCloseTo(45000 * 0.04, 2);
     expect(result.prsi.rate).toBe('4.0% (Class S)');
+  });
+
+  it('just above the €5,000 floor: blend under €650 clamps to the €650 minimum', () => {
+    // prsiable €1,000 × 4.2375% = €42.375 → minimum €650
+    const result = calculateContractorTax({
+      grossIncome: 6000,
+      expenses: 0,
+      taxYear: 2026,
+      maritalStatus: 'single',
+    });
+    expect(result.prsi.amount).toBe(650);
+  });
+
+  it('at the €5,000.01 edge still applies the €650 minimum', () => {
+    const result = calculateContractorTax({
+      grossIncome: 5000.01,
+      expenses: 0,
+      taxYear: 2026,
+      maritalStatus: 'single',
+    });
+    expect(result.prsi.amount).toBe(650);
+  });
+
+  it('higher incomes keep the 4.2375% blend when it exceeds €650', () => {
+    // Break-even ≈ €15,340 prsiable (€20,340 gross). €50k is well above.
+    const result = calculateContractorTax({
+      grossIncome: 50000,
+      expenses: 0,
+      taxYear: 2026,
+      maritalStatus: 'single',
+    });
+    expect(result.prsi.amount).toBeCloseTo(45000 * 0.042375, 2);
+    expect(result.prsi.amount).toBeGreaterThan(650);
+  });
+
+  it('2025 also uses the €650 minimum when 4% of reckonable income is lower', () => {
+    // prsiable €1,000 × 4% = €40 → €650
+    const result = calculateContractorTax({
+      grossIncome: 6000,
+      expenses: 0,
+      taxYear: 2025,
+      maritalStatus: 'single',
+    });
+    expect(result.prsi.amount).toBe(650);
   });
 
   it('income at or under the €5,000 floor has no Class S PRSI', () => {

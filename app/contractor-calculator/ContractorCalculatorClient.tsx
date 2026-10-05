@@ -411,7 +411,8 @@ export default function ContractorCalculatorPage() {
             <p>
               Class S PRSI on income over €5,000. In 2025 the rate is 4%. In 2026
               it is 4.2% for January to September and 4.35% from 1 October (about
-              4.2375% over a full year). Does not provide unemployment benefits.
+              4.2375% over a full year), or a minimum of €650, whichever is greater.
+              Does not provide unemployment benefits.
             </p>
           </div>
           <div>
