@@ -7,7 +7,7 @@
  */
 
 import { getTaxYearConfig } from '../config/taxYearConfig';
-import { calculateCredits, calculatePAYE, calculateUSC, sumBands } from './index';
+import { calculateCredits, calculatePAYE, calculatePRSI, calculateUSC, sumBands } from './index';
 
 export interface ContractorInput {
   grossIncome: number;
@@ -62,6 +62,17 @@ export interface ContractorBreakdown {
 /** Class S PRSI applies above this income floor (existing note in this calculator). */
 const CLASS_S_PRSI_THRESHOLD = 5000;
 
+function formatClassSRate(config: ReturnType<typeof getTaxYearConfig>): string {
+  if (!config.prsiRateChanges?.length) {
+    return `${(config.prsiRate * 100).toFixed(1)}%`;
+  }
+  // Effective full-year blend when rates change partway through the year (2026: 4.2375%).
+  const blend = calculatePRSI(1, config);
+  const pct = blend * 100;
+  const rounded = Math.abs(pct * 10000 - Math.round(pct * 10000)) < 1e-6 ? (Math.round(pct * 10000) / 10000) : pct;
+  return `${rounded}%`;
+}
+
 export function calculateContractorTax(input: ContractorInput): ContractorBreakdown {
   const config = getTaxYearConfig(input.taxYear);
   const { grossIncome, expenses, pensionContribution = 0, maritalStatus } = input;
@@ -75,7 +86,8 @@ export function calculateContractorTax(input: ContractorInput): ContractorBreakd
   const totalUsc = sumBands(uscBreakdown);
 
   const prsiableIncome = Math.max(0, grossIncome - CLASS_S_PRSI_THRESHOLD);
-  const totalPrsi = prsiableIncome * config.prsiRate;
+  // Same month-weighted Class A/S rate book as the take-home calculator (2026: 4.2% Jan–Sep, 4.35% from 1 Oct).
+  const totalPrsi = calculatePRSI(prsiableIncome, config);
 
   const personalCredit = calculateCredits(config, 0, maritalStatus, { includePayeCredit: false });
   const incomeTaxAfterCredits = Math.max(0, totalIncomeTax - personalCredit);
@@ -118,7 +130,7 @@ export function calculateContractorTax(input: ContractorInput): ContractorBreakd
       total: totalUsc,
     },
     prsi: {
-      rate: `${(config.prsiRate * 100).toFixed(1)}% (Class S)`,
+      rate: `${formatClassSRate(config)} (Class S)`,
       amount: totalPrsi,
     },
     credits: {
