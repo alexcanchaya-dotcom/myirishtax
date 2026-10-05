@@ -28,6 +28,10 @@ const SOURCES = [
       'Citizens Information – Auto-enrolment pension – MyFutureFund (opt-out via portal or paper form, 48-hour cancel, July/August example, 12-month wait after suspending, opt-in age 18 to 66, tax relief comparison)',
     href: 'https://www.citizensinformation.ie/en/money-and-tax/personal-finance/pensions/auto-enrolment/',
   },
+  {
+    label: 'MyFutureFund – Participant guide (scheme-year contribution examples; tax treatment legislated like a PRSA, including up to 25% tax-free lump sum)',
+    href: 'https://myfuturefund.ie/participant-guide',
+  },
 ];
 
 export function OptOutSection() {
@@ -79,6 +83,15 @@ export function OptOutSection() {
         Contributions are a % of your gross pay. They are not charged on pay above €80,000 in a calendar year. You
         cannot pay more or less than the set rate.
       </p>
+      <p className="mt-3">Scheme years map to calendar years like this:</p>
+      <ul className={list}>
+        <li>
+          Years 1–3: 2026, 2027 and 2028 — you and your employer each pay 1.5%, the State adds 0.5%.
+        </li>
+        <li>Years 4–6: 2029, 2030 and 2031 — 3% each, State 1%.</li>
+        <li>Years 7–9: 2032–2034 — 4.5% each, State 1.5%.</li>
+        <li>Year 10 onwards: from 2035 — 6% each, State 2%.</li>
+      </ul>
 
       <h3 className={h3}>When you can opt out</h3>
       <ul className={list}>
@@ -149,6 +162,12 @@ export function OptOutSection() {
         <li>
           <strong>Locked until 66.</strong> You cannot take the money out before State Pension age, which is currently
           66. Ill-health retirement is the exception.
+        </li>
+        <li>
+          <strong>Tax at retirement.</strong> At retirement (State Pension age, currently 66), MyFutureFund drawdowns
+          are set up like a PRSA: up to 25% of the fund as a tax-free lump sum, with the rest taxed as income. Small
+          funds may get Revenue&apos;s &apos;trivial pensions&apos; treatment. The exact tax rules that apply when you
+          retire will be the ones in force then.
         </li>
         <li>
           <strong>Value can fall.</strong> The State does not promise the value of your pot. It is invested, so it can

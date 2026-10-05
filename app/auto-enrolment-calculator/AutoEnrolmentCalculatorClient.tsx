@@ -507,7 +507,7 @@ export default function AutoEnrolmentCalculatorPage() {
           </h3>
           <p className="text-sm text-gray-500 mb-4">
             Contributions are calculated on earnings up to €80,000. Rates increase gradually to
-            give workers time to adjust.
+            give workers time to adjust. Scheme year 1 is calendar year 2026.
           </p>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
@@ -522,10 +522,10 @@ export default function AutoEnrolmentCalculatorPage() {
               </thead>
               <tbody>
                 {[
-                  { period: "Years 1–3", emp: "1.5%", emplr: "1.5%", state: "0.5%", total: "3.5%" },
-                  { period: "Years 4–6", emp: "3%", emplr: "3%", state: "1%", total: "7%" },
-                  { period: "Years 7–9", emp: "4.5%", emplr: "4.5%", state: "1.5%", total: "10.5%" },
-                  { period: "Year 10 on", emp: "6%", emplr: "6%", state: "2%", total: "14%" },
+                  { period: "Years 1–3 (2026–2028)", emp: "1.5%", emplr: "1.5%", state: "0.5%", total: "3.5%" },
+                  { period: "Years 4–6 (2029–2031)", emp: "3%", emplr: "3%", state: "1%", total: "7%" },
+                  { period: "Years 7–9 (2032–2034)", emp: "4.5%", emplr: "4.5%", state: "1.5%", total: "10.5%" },
+                  { period: "Year 10 on (from 2035)", emp: "6%", emplr: "6%", state: "2%", total: "14%" },
                 ].map((row) => (
                   <tr key={row.period} className="border-b border-gray-100 hover:bg-gray-50">
                     <td className="py-3 pr-4 text-gray-700">{row.period}</td>
@@ -583,7 +583,10 @@ export default function AutoEnrolmentCalculatorPage() {
               <h4 className="font-semibold text-gray-900 mb-1">At Retirement</h4>
               <p>
                 You cannot take the money out before State Pension age, which is currently 66.
-                Ill-health retirement is the exception.
+                Ill-health retirement is the exception. At retirement, MyFutureFund drawdowns are
+                set up like a PRSA: up to 25% of the fund as a tax-free lump sum, with the rest taxed
+                as income. Small funds may get Revenue&apos;s &apos;trivial pensions&apos; treatment.
+                The exact tax rules that apply when you retire will be the ones in force then.
               </p>
             </div>
           </div>
