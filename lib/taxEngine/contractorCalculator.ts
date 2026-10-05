@@ -61,6 +61,8 @@ export interface ContractorBreakdown {
 
 /** Class S PRSI applies above this income floor (existing note in this calculator). */
 const CLASS_S_PRSI_THRESHOLD = 5000;
+/** DSP Class S minimum annual contribution when Class S applies (self-assessed). */
+const CLASS_S_PRSI_MINIMUM = 650;
 
 function formatClassSRate(config: ReturnType<typeof getTaxYearConfig>): string {
   if (!config.prsiRateChanges?.length) {
@@ -86,8 +88,11 @@ export function calculateContractorTax(input: ContractorInput): ContractorBreakd
   const totalUsc = sumBands(uscBreakdown);
 
   const prsiableIncome = Math.max(0, grossIncome - CLASS_S_PRSI_THRESHOLD);
-  // Same month-weighted Class A/S rate book as the take-home calculator (2026: 4.2% Jan–Sep, 4.35% from 1 Oct).
-  const totalPrsi = calculatePRSI(prsiableIncome, config);
+  // Same month-weighted rate book as the take-home calculator (2026: 4.2% Jan–Sep, 4.35% from 1 Oct → 4.2375%).
+  // Above the €5,000 floor: percentage or €650 minimum, whichever is greater (DSP Class S).
+  // At or under the floor: no Class S PRSI.
+  const totalPrsi =
+    prsiableIncome > 0 ? Math.max(calculatePRSI(prsiableIncome, config), CLASS_S_PRSI_MINIMUM) : 0;
 
   const personalCredit = calculateCredits(config, 0, maritalStatus, { includePayeCredit: false });
   const incomeTaxAfterCredits = Math.max(0, totalIncomeTax - personalCredit);
