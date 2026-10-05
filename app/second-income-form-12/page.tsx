@@ -86,8 +86,10 @@ export default function SecondIncomeForm12Page() {
       <div className="space-y-10 text-base leading-relaxed text-ink-muted">
         <section>
           <p className="text-ink">
-            If you are a PAYE worker with any extra income, you must tell Revenue. If that extra income is under
-            €5,000 net (and under €30,000 gross), you usually declare it on a Form 12 in myAccount.
+            If you are a PAYE worker with any extra income, you must tell Revenue. You are a chargeable person and
+            must file a Form 11 if your net assessable non-PAYE income is €5,000 or more, or if your total gross
+            non-PAYE income is €30,000 or more. If your non-PAYE income is under those limits, you can usually
+            declare it on a Form 12 through myAccount.
           </p>
         </section>
 
@@ -121,6 +123,10 @@ export default function SecondIncomeForm12Page() {
           <p className="mt-3">
             &quot;Coded in&quot; means Revenue reduces your tax credits and rate band so the tax on your extra income
             comes out of your salary.
+          </p>
+          <p className="mt-3">
+            You are a chargeable person and must file a Form 11 if your net assessable non-PAYE income is €5,000 or
+            more, or if your total gross non-PAYE income is €30,000 or more.
           </p>
           <p className="mt-3">
             You also file a Form 11 if you are a proprietary director (you control the company), or if you get income
@@ -271,7 +277,7 @@ export default function SecondIncomeForm12Page() {
             </li>
             <li>
               <Link href="/small-benefit-exemption" className={link}>
-                Small benefit exemption 2026/2027
+                Small benefit exemption (2025–2029)
               </Link>
             </li>
           </ul>

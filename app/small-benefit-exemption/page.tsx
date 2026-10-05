@@ -3,7 +3,7 @@ import { PageHeader } from '@/components/PageHeader';
 import { TaxDisclaimer } from '@/components/TaxDisclaimer';
 
 export const metadata = {
-  title: 'Small benefit exemption 2026/2027: €1,500 and 5 vouchers explained | MyIrishTax',
+  title: 'Small benefit exemption (2025–2029): €1,500 and 5 vouchers explained | MyIrishTax',
   description:
     'How the Irish small benefit exemption works in 2026: up to 5 non-cash gifts or vouchers a year, worth up to €1,500 in total, tax-free. What counts and what happens if you go over. Not advice.',
   alternates: { canonical: '/small-benefit-exemption' },
@@ -38,7 +38,7 @@ const SOURCES = [
 export default function SmallBenefitExemptionPage() {
   return (
     <main className="mx-auto max-w-2xl px-4 py-12 sm:px-6 sm:py-16">
-      <PageHeader title="Small benefit exemption 2026/2027">
+      <PageHeader title="Small benefit exemption (2025–2029)">
         <TaxDisclaimer />
       </PageHeader>
 
@@ -64,36 +64,26 @@ export default function SmallBenefitExemptionPage() {
         </section>
 
         <section>
-          <h2 className={h2}>The limits for 2026 and 2027</h2>
+          <h2 className={h2}>The limits</h2>
           <div className="mt-3 overflow-x-auto">
             <table className="w-full text-left text-sm">
               <thead>
                 <tr className="border-b border-line text-ink">
-                  <th className="py-2 pr-4 font-semibold">Tax year</th>
-                  <th className="py-2 pr-4 font-semibold">Max number of benefits</th>
-                  <th className="py-2 font-semibold">Max total value</th>
+                  <th className="py-2 pr-4 font-semibold">Years</th>
+                  <th className="py-2 pr-4 font-semibold">Max benefits a year</th>
+                  <th className="py-2 font-semibold">Total value limit</th>
                 </tr>
               </thead>
               <tbody>
-                <tr className="border-b border-line">
-                  <td className="py-2 pr-4">2022 to 2024</td>
-                  <td className="py-2 pr-4">2</td>
-                  <td className="py-2">€1,000</td>
-                </tr>
-                <tr className="border-b border-line">
-                  <td className="py-2 pr-4">2025</td>
-                  <td className="py-2 pr-4">5</td>
-                  <td className="py-2">€1,500</td>
-                </tr>
                 <tr>
-                  <td className="py-2 pr-4">2026</td>
+                  <td className="py-2 pr-4">1 Jan 2025 to 31 Dec 2029</td>
                   <td className="py-2 pr-4">5</td>
                   <td className="py-2">€1,500</td>
                 </tr>
               </tbody>
             </table>
           </div>
-          <p className="mt-3">Under current law, the exemption runs to the end of 2029.</p>
+          <p className="mt-3">Budget 2027 could change this. We&apos;ll update the page if it does.</p>
           <p className="mt-3">
             The limit is per tax year (January to December). Any unused amount does not carry over to next year.
           </p>
