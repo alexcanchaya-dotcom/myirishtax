@@ -6,6 +6,8 @@ import { BUDGET_2027 } from '@/lib/config/taxYear2027';
 import { buildBudgetTable, type BudgetTableRow } from '@/lib/budget/budgetTable';
 
 // DRAFT: not in the sitemap or nav. Do not merge until the official Budget 2027 figures are filled in and signed off.
+// Some 2027 figures are filled and some are still null. Nothing from BUDGET_2027 is shown until status is 'confirmed'
+// (PendingPage reads no figures), so partial figures can never reach the page.
 const confirmed = BUDGET_2027.status === 'confirmed';
 
 const TITLE = 'Budget 2027 calculator: how much better off? | MyIrishTax';
@@ -164,8 +166,8 @@ function PendingPage() {
     <main className="mx-auto max-w-3xl px-4 py-12 sm:px-6 sm:py-16">
       <PageHeader title="Budget 2027: how much better off will I be?">
         <p>
-          Budget 2027 is announced on Tuesday 6 October 2026. We&apos;ll add the figures here once the official
-          documents are out.
+          Budget 2027 was announced on Tuesday 6 October 2026. The figures are coming: we&apos;ll add them here once
+          we&apos;ve checked them against the official documents.
         </p>
       </PageHeader>
       <p className="text-base text-ink-muted">
@@ -208,10 +210,12 @@ export default function Budget2027Page() {
             {b.sources.taxPolicyChanges ? (
               <a href={b.sources.taxPolicyChanges} className={link} rel="noopener noreferrer">gov.ie</a>
             ) : 'gov.ie'}{' '}
-            /{' '}
             {b.sources.revenueSummary ? (
-              <a href={b.sources.revenueSummary} className={link} rel="noopener noreferrer">Revenue</a>
-            ) : 'Revenue'}.{b.sources.speech || b.sources.prsi ? ' Also: ' : ''}
+              <>
+                /{' '}
+                <a href={b.sources.revenueSummary} className={link} rel="noopener noreferrer">Revenue</a>
+              </>
+            ) : null}.{b.sources.speech || b.sources.prsi ? ' Also: ' : ''}
             {b.sources.speech ? (
               <a href={b.sources.speech} className={link} rel="noopener noreferrer">Budget speech</a>
             ) : null}
