@@ -4,7 +4,7 @@ import Link from 'next/link';
 export const metadata = {
   title: 'About MyIrishTax',
   description:
-    'MyIrishTax is built by Aleksander Canchaya, an ACCA qualified accountant. Irish take-home pay estimates from published tax bands; not advice.',
+    'MyIrishTax is a free Irish take-home pay calculator built by Aleksander Canchaya. Estimates from published Revenue and gov.ie rates; not financial or tax advice.',
   alternates: { canonical: '/about' },
 };
 
@@ -12,17 +12,16 @@ export default function AboutPage() {
   return (
     <main className="mx-auto max-w-2xl px-4 py-12 sm:px-6 sm:py-16">
       <PageHeader title="About MyIrishTax">
-        <p>Irish take-home estimates, built by a qualified accountant.</p>
+        <p>Free Irish take-home estimates from published Revenue and gov.ie rates.</p>
       </PageHeader>
 
       <div className="space-y-10 text-base leading-relaxed text-ink-muted">
         <section>
           <h2 className="text-xl font-semibold text-ink">Aleksander Canchaya</h2>
           <p className="mt-3">
-            Aleksander is an ACCA qualified accountant with over 13 years of professional
-            accounting and tax experience. He currently leads record-to-report work across many
-            entities in Europe. He built MyIrishTax so people in Ireland can see a clear take-home
-            estimate without signing up.
+            Aleksander built MyIrishTax so people in Ireland can see a clear take-home estimate
+            without signing up. The figures come from published Revenue and gov.ie rates and are
+            estimates only. They are not financial or tax advice.
           </p>
         </section>
 
@@ -45,8 +44,8 @@ export default function AboutPage() {
         <section>
           <h2 className="text-xl font-semibold text-ink">Disclaimer</h2>
           <p className="mt-3">
-            Based on published Irish tax bands; not advice. For your own situation, check
-            Revenue.ie or a qualified advisor.
+            Estimate only, not financial or tax advice. For your own situation, check Revenue.ie
+            or get advice.
           </p>
         </section>
       </div>

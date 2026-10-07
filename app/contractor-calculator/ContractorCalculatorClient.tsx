@@ -20,6 +20,8 @@ import Link from "next/link";
 import { TaxDisclaimer } from "@/components/TaxDisclaimer";
 import { PageHeader } from "@/components/PageHeader";
 import { RelatedCalculators } from "@/components/RelatedCalculators";
+import { TrustStrip } from '@/components/TrustStrip';
+import { GOV_PRSI_CLASS_S, REVENUE_RATES } from '@/lib/config/siteRates';
 
 const years = listSupportedYears();
 
@@ -109,6 +111,7 @@ export default function ContractorCalculatorPage() {
           Estimate self-employed income tax, USC, and Class S PRSI for the {formatTaxYearLabel(taxYear)}.
           Free to use — no account needed.
         </p>
+        <TrustStrip sources={[REVENUE_RATES, GOV_PRSI_CLASS_S]} />
         <TaxDisclaimer />
       </PageHeader>
 

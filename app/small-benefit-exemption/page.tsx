@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { PageHeader } from '@/components/PageHeader';
 import { TaxDisclaimer } from '@/components/TaxDisclaimer';
+import { TrustStrip } from '@/components/TrustStrip';
 
 export const metadata = {
   title: 'Small benefit exemption (2025–2029): €1,500 and 5 vouchers explained | MyIrishTax',
@@ -39,6 +40,10 @@ export default function SmallBenefitExemptionPage() {
   return (
     <main className="mx-auto max-w-2xl px-4 py-12 sm:px-6 sm:py-16">
       <PageHeader title="Small benefit exemption (2025–2029)">
+        <TrustStrip
+          kind="guide"
+          sources={[{ label: 'Revenue', href: 'https://www.revenue.ie/en/employing-people/benefit-in-kind-for-employers/valuation-of-benefits/small-benefit-exemption.aspx' }]}
+        />
         <TaxDisclaimer />
       </PageHeader>
 
