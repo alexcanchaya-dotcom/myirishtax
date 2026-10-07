@@ -4,6 +4,9 @@ import { PageHeader } from '@/components/PageHeader';
 import { TaxDisclaimer } from '@/components/TaxDisclaimer';
 import { BUDGET_2027 } from '@/lib/config/taxYear2027';
 import { buildBudgetTable, type BudgetTableRow } from '@/lib/budget/budgetTable';
+import { headlineWeekly } from '@/lib/budget/compareYears';
+import { Budget2027Compare } from '@/components/budget/Budget2027Compare';
+import { TrustStrip } from '@/components/TrustStrip';
 
 // DRAFT: not in the sitemap or nav. Do not merge until the official Budget 2027 figures are filled in and signed off.
 // Some 2027 figures are filled and some are still null. Nothing from BUDGET_2027 is shown until status is 'confirmed'
@@ -40,6 +43,10 @@ const pct = (r: number) => `${Number((r * 100).toFixed(3))}%`;
 function signedEuro(n: number): string {
   if (Math.abs(n) < 1) return '€0';
   return `${n > 0 ? '+' : '−'}€${Math.round(Math.abs(n)).toLocaleString('en-IE')}`;
+}
+function signedEuro2(n: number): string {
+  if (Math.abs(n) < 0.005) return '€0';
+  return `${n > 0 ? '+' : '−'}€${Math.abs(n).toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
 const MONTHS = [
   'January', 'February', 'March', 'April', 'May', 'June',
@@ -141,18 +148,20 @@ function Table({ rows }: { rows: BudgetTableRow[] }) {
             <th className="py-2 pr-4 font-semibold">Gross pay a year</th>
             <th className="py-2 pr-4 font-semibold">Take-home 2026</th>
             <th className="py-2 pr-4 font-semibold">Take-home 2027</th>
-            <th className="py-2 pr-4 font-semibold">Difference a year</th>
-            <th className="py-2 font-semibold">Difference a month</th>
+            <th className="py-2 pr-4 font-semibold">Difference a week</th>
+            <th className="py-2 pr-4 font-semibold">a month</th>
+            <th className="py-2 font-semibold">a year</th>
           </tr>
         </thead>
         <tbody>
           {rows.map((r) => (
             <tr key={r.income} className="border-b border-line last:border-0">
-              <td className="py-2 pr-4">{euro(r.income)}</td>
+              <td className="py-2 pr-4">{r.spouseIncome ? `${euro(r.income)} + ${euro(r.spouseIncome)}` : euro(r.income)}</td>
               <td className="py-2 pr-4">{euro(r.takeHomeBefore)}</td>
               <td className="py-2 pr-4">{euro(r.takeHomeAfter)}</td>
-              <td className="py-2 pr-4">{signedEuro(r.diffYear)}</td>
-              <td className="py-2">{signedEuro(r.diffMonth)}</td>
+              <td className="py-2 pr-4 font-medium text-ink">{signedEuro2(r.diffWeek)}</td>
+              <td className="py-2 pr-4">{signedEuro(r.diffMonth)}</td>
+              <td className="py-2">{signedEuro(r.diffYear)}</td>
             </tr>
           ))}
         </tbody>
@@ -186,11 +195,7 @@ export default function Budget2027Page() {
   const b = BUDGET_2027;
   const table = buildBudgetTable(2026, 2027);
   const single45 = table.single.find((r) => r.income === 45000);
-  const headline =
-    single45 &&
-    (Math.abs(single45.diffMonth) < 1
-      ? 'about the same'
-      : `${euro(Math.abs(single45.diffMonth))} a month ${single45.diffMonth > 0 ? 'better off' : 'worse off'}`);
+  const headline = single45 && headlineWeekly(single45.diffWeek);
   const lines = whatChangedLines();
 
   return (
@@ -200,6 +205,7 @@ export default function Budget2027Page() {
           Budget 2027 was announced on Tuesday 6 October 2026. Most changes start in January 2027. Here&apos;s an
           estimate of what it means for your take-home pay.
         </p>
+        <TrustStrip />
       </PageHeader>
 
       <div className="space-y-10 text-base leading-relaxed text-ink-muted">
@@ -228,11 +234,13 @@ export default function Budget2027Page() {
           <p>These are the Budget day announcements. Most become law later, in the Finance Act.</p>
           {headline ? (
             <p className="text-ink">
-              On €45,000 as a single person, you&apos;d take home {headline}
-              {' '}in 2027.
+              On €45,000 as a single person, you&apos;re {headline} in 2027 ({signedEuro(single45!.diffMonth)} a month,{' '}
+              {signedEuro(single45!.diffYear)} a year).
             </p>
           ) : null}
         </section>
+
+        <Budget2027Compare />
 
         <section>
           <h2 className={h2}>How much better off?</h2>
@@ -240,9 +248,13 @@ export default function Budget2027Page() {
           <Table rows={table.single} />
           <p className="mt-6 font-semibold text-ink">Couple: married or civil partners, one earner</p>
           <Table rows={table.couple} />
+          <p className="mt-6 font-semibold text-ink">Couple: married or civil partners, both earning</p>
+          <Table rows={table.coupleTwoEarners} />
           <p className="mt-4">
             <strong className="text-ink">What &quot;Couple&quot; means here:</strong> you&apos;re married or in a civil
-            partnership and taxed jointly. One of you earns the salary shown and the other has no income.
+            partnership and taxed jointly. In the one-earner table, one of you earns the salary shown and the other has no
+            income. In the both-earning table the figures are for the household, with the second-earner band increase
+            and both Employee Tax Credits.
           </p>
           <p className="mt-4 font-semibold text-ink">How we worked it out:</p>
           <ul className="mt-2 list-disc space-y-1 pl-5">

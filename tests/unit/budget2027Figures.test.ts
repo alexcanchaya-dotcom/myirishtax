@@ -131,8 +131,9 @@ describe('/budget-2027 while pending', () => {
     expect(metadata.robots).toEqual({ index: false, follow: true });
   });
 
-  it('is not in the sitemap', () => {
-    const sitemap = fs.readFileSync(path.join(__dirname, '../../public/sitemap.xml'), 'utf8');
-    expect(sitemap).not.toContain('budget-2027');
+  it('is not in the sitemap while pending', () => {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const sitemap = require('../../app/sitemap').default as () => { url: string }[];
+    expect(sitemap().map((e) => e.url).join(' ')).not.toContain('budget-2027');
   });
 });

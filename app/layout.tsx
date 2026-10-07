@@ -5,6 +5,7 @@ import { SessionProvider } from '@/components/auth/SessionProvider';
 import { NavBar } from '@/components/NavBar';
 import { StickyDisclaimer } from '@/components/StickyDisclaimer';
 import Link from 'next/link';
+import { BUDGET_2027 } from '@/lib/config/taxYear2027';
 import { Analytics } from '@vercel/analytics/next';
 
 const sans = Source_Sans_3({
@@ -19,9 +20,14 @@ const serif = Source_Serif_4({
   display: 'swap',
 });
 
-const title = 'Irish take-home pay | 2026 tax year | MyIrishTax';
-const description =
-  'Free Irish PAYE, USC and PRSI calculator for the 2026 tax year (2025 still available). Based on published Irish tax bands; not advice.';
+// When Budget 2027 is confirmed (#39 sign-off) the homepage title and description switch to 2027.
+const BUDGET_2027_LIVE = BUDGET_2027.status === 'confirmed';
+const title = BUDGET_2027_LIVE
+  ? 'Irish take-home pay 2027 and 2026 | Budget 2027 calculator | MyIrishTax'
+  : 'Irish take-home pay | 2026 tax year | MyIrishTax';
+const description = BUDGET_2027_LIVE
+  ? 'Free Irish PAYE, USC and PRSI calculator with Budget 2027 rates and 2026 for comparison, single or couples. Estimate only; not financial or tax advice.'
+  : 'Free Irish PAYE, USC and PRSI calculator for the 2026 tax year (2025 still available). Based on published Irish tax bands; not advice.';
 
 export const metadata = {
   metadataBase: new URL('https://myirishtax.com'),

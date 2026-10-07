@@ -7,7 +7,8 @@ export type Pending<T> = T | null;
 
 export const BUDGET_2027 = {
   status: 'pending' as 'pending' | 'confirmed',
-  figuresCheckedOn: null as Pending<string>, // [[FIGURES_CHECKED_DATE]]
+  figuresCheckedOn: null as Pending<string>, // [[FIGURES_CHECKED_DATE]] shown as text, e.g. '8 Oct 2026'
+  figuresCheckedOnIso: null as Pending<string>, // same date as YYYY-MM-DD, used for the sitemap lastmod of /budget-2027
   startDate: '1 January 2027' as Pending<string>, // [[2027_START_DATE]] TPC p.4 (most changes)
   sources: {
     speech: 'https://www.gov.ie/en/department-of-finance/speeches/statement-by-minister-harris-on-budget-2027/' as Pending<string>, // [[LINK_BUDGET_2027_SPEECH]]

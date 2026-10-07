@@ -30,7 +30,7 @@ describe('old static .html pages', () => {
   });
 
   it('no .html page is in the sitemap', () => {
-    expect(readFileSync(join(__dirname, '../../public/sitemap.xml'), 'utf8')).not.toMatch(/\.html/);
+    expect(readFileSync(join(__dirname, '../../app/sitemap.ts'), 'utf8')).not.toMatch(/\.html/);
   });
 
   it('signup links to the live terms and privacy pages', () => {

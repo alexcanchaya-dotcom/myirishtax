@@ -100,6 +100,13 @@ export default function HomePage() {
             : ''}
           . Free to use — no account needed.
         </p>
+        {BUDGET_2027.status === 'confirmed' ? (
+          <p>
+            <Link href="/budget-2027" className="font-semibold text-brand-700 underline decoration-line underline-offset-2">
+              New: Budget 2027 — how much better off per week?
+            </Link>
+          </p>
+        ) : null}
         <TrustStrip />
       </PageHeader>
 

@@ -3,8 +3,11 @@
  * One place to change: when Budget 2027 (#39) ships, set RATES_LABEL to 'Budget 2027 rates'
  * and RATES_CHECKED to the date the 2027 figures were checked against Revenue and gov.ie.
  */
-export const RATES_LABEL = '2026 rates';
-export const RATES_CHECKED = '7 Oct 2026';
+import { BUDGET_2027 } from './taxYear2027';
+
+const BUDGET_2027_LIVE = BUDGET_2027.status === 'confirmed';
+export const RATES_LABEL = BUDGET_2027_LIVE ? 'Budget 2027 rates' : '2026 rates';
+export const RATES_CHECKED = BUDGET_2027_LIVE && BUDGET_2027.figuresCheckedOn ? BUDGET_2027.figuresCheckedOn : '7 Oct 2026';
 
 export type SourceLink = { label: string; href: string };
 
