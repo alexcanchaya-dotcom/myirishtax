@@ -1,208 +1,199 @@
 // /lib/redundancy2025.ts
+//
+// Redundancy / termination payments (Revenue Tax and Duty Manual Part 05-05-19; Revenue "Lump sum payments").
+// - Statutory redundancy: exempt from income tax, USC and PRSI (s.203 TCA 1997).
+// - Ex-gratia lump sum (package less statutory, plus any non-contractual PILON): tax-free up to the best of
+//   basic (€10,160 + €765 per complete year), increased (basic + up to €10,000, less any pension lump sum,
+//   if no relief above basic in the previous 10 years) or SCSB (average pay × years ÷ 15, less any pension lump sum),
+//   within the €200,000 lifetime limit (s.201(8)).
+// - The taxable excess is charged to income tax and USC at the person's own rates. It is not reckonable for PRSI.
+// - Contractual PILON and holiday pay are ordinary pay: income tax, USC and PRSI, no exemption.
+
+import { getTaxYearConfig, CURRENT_TAX_YEAR } from './config/taxYearConfig';
+import { calculateClassAPRSI, calculateCredits, calculatePAYE, calculateUSC, sumBands } from './taxEngine';
 
 export interface RedundancyInputs {
-  annualSalary: number; // gross annual salary
+  annualSalary: number; // gross annual salary (also used as the 36-month average for SCSB)
   weeklyPay?: number; // optional - will be derived from annualSalary if omitted
-  yearsService: number; // full years of service (integer >=0)
+  yearsService: number; // complete years of service (integer >= 0)
 
   // Package components (amounts in euros)
-  packageAmount?: number; // employer total package offered (optional)
+  packageAmount?: number; // total redundancy package from the employer, including statutory redundancy (excluding PILON and holiday pay)
   pilon?: number; // pay in lieu of notice
-  holidayPay?: number; // accrued holiday pay
+  pilonContractual?: boolean; // default true: notice pay in the contract is taxable as pay (no exemption)
+  holidayPay?: number; // accrued holiday pay (taxable as pay)
 
   // Pension information
   hasPension?: boolean;
-  pensionLumpSum?: number; // lump sum pension paid on redundancy (0 if none)
-  pensionWaived?: boolean; // if true, lump sum can be ignored or waived
+  pensionLumpSum?: number; // tax-free pension lump sum received or receivable (relevant capital sum)
+  pensionWaived?: boolean; // lump sum irrevocably given up: not deducted
 
-  // Enhanced / ex-gratia choices
-  enhancedType?: 'none' | 'basic' | 'increased' | 'scsb';
-  noRedundancyLast10Years?: boolean; // affect Increased option
+  /** True if relief above the basic exemption was claimed in the previous 10 years (no increased exemption). */
+  claimedAboveBasicLast10Years?: boolean;
+  /** Tax-free termination relief already used on earlier payments (counts against the €200,000 lifetime limit). */
+  priorReliefUsed?: number;
 
-  // Misc
+  taxYear?: number;
   statutoryWeeklyCap?: number; // defaults to 600
 }
+
+export type ExemptionMethod = 'basic' | 'increased' | 'scsb';
 
 export interface RedundancyResults {
   statutoryRedundancy: number; // statutory, tax-free
   statutoryWeeklyCap: number;
 
-  enhancedGross: number; // enhanced/ex-gratia gross before lifetime cap
-  enhancedAfterLifetimeCap: number; // enhanced after applying lifetime cap (€200k)
-  enhancedTaxable: number; // portion of enhanced subject to income tax
-  enhancedTopSliceRelief: number; // computed top-slice relief amount (33% of taxable enhanced, per requirement)
+  /** Package less statutory redundancy, plus non-contractual PILON. */
+  exGratiaLumpSum: number;
+  exemptions: { basic: number; increased: number | null; scsb: number };
+  bestMethod: ExemptionMethod;
+  /** Tax-free part of the ex-gratia lump sum (best exemption, within the lifetime limit, no more than the lump sum). */
+  taxFreeLumpSum: number;
+  /** Taxable part of the ex-gratia lump sum. */
+  taxableLumpSum: number;
+  lumpSumIncomeTax: number;
+  lumpSumUsc: number;
 
-  pilonTaxable: number;
+  pilonTaxable: number; // contractual PILON (taxed as pay)
   holidayTaxable: number;
-  pilonTaxDeductedApprox: number; // approximate tax @ marginal rate
-  holidayTaxDeductedApprox: number; // approx
+  pilonTax: number; // income tax + USC + PRSI on contractual PILON
+  holidayTax: number; // income tax + USC + PRSI on holiday pay
+
+  totalTax: number;
+  netPackage: number; // package + PILON + holiday pay − tax on them
 
   lifetimeCapApplied: boolean;
   warnings: string[];
 
   breakdown: {
-    statutory: {
-      formula: string;
-      weeklyPayUsed: number;
-      yearsService: number;
-    };
-    enhanced: {
-      type: string;
-      components: Record<string, number>;
-    };
+    statutory: { formula: string; weeklyPayUsed: number; yearsService: number };
+    exemption: { method: ExemptionMethod; basic: number; increased: number | null; scsb: number; lifetimeLimitLeft: number };
+    taxYear: number;
   };
 }
 
 // Constants
-export const STATUTORY_WEEKLY_CAP = 600; // per requirement
+export const STATUTORY_WEEKLY_CAP = 600; // Redundancy Payments Act: weekly pay capped at €600
 export const BASIC_EXGRATIA_BASE = 10160; // €10,160
-export const BASIC_EXGRATIA_PER_YEAR = 765; // €765 × years
-export const INCREASED_EXTRA_MAX = 10000; // up to €10,000 increased element
-export const LIFETIME_CAP = 200000; // €200,000 lifetime cap for ex-gratia
-export const PILON_MARGINAL_RATE = 0.52; // ~52% marginal rate on PILON & holiday
-export const TOP_SLICE_RELIEF_RATE = 0.33; // 33% on taxable enhanced redundancy
+export const BASIC_EXGRATIA_PER_YEAR = 765; // €765 × complete years
+export const INCREASED_EXTRA_MAX = 10000; // up to €10,000 extra, less the pension lump sum
+export const LIFETIME_CAP = 200000; // €200,000 lifetime limit on termination relief (s.201(8))
 
-// Utility helpers
+const round2 = (n: number) => Math.round(n * 100) / 100;
+
 function safeNumber(input?: number): number {
   if (typeof input !== 'number' || Number.isNaN(input) || !Number.isFinite(input)) return 0;
   return Math.max(0, input);
 }
 
 function annualToWeekly(annual: number) {
-  // Use 52.1429 weeks per year (average) for more accurate weekly conversion
-  const weeks = 52.1429;
-  return Math.round((annual / weeks) * 100) / 100; // rounded to cents
+  // 52.1429 weeks per year (average)
+  return Math.round((annual / 52.1429) * 100) / 100;
 }
 
-export function calculateRedundancy(rawInputs: RedundancyInputs): RedundancyResults {
-  // Validate & normalise inputs
-  const inputs: RedundancyInputs = {
-    annualSalary: safeNumber(rawInputs.annualSalary),
-    weeklyPay: rawInputs.weeklyPay ? safeNumber(rawInputs.weeklyPay) : undefined,
-    yearsService: Math.max(0, Math.floor(rawInputs.yearsService || 0)),
+/** Income tax (after single credits) and USC on an annual amount, plus Class A PRSI on the PRSI base. */
+function taxOn(itUscBase: number, prsiBase: number, taxYear: number) {
+  const config = getTaxYearConfig(taxYear);
+  const credits = calculateCredits(config, 0, 'single');
+  const it = Math.max(0, sumBands(calculatePAYE(itUscBase, config, 'single')) - credits);
+  const usc = sumBands(calculateUSC(itUscBase, config));
+  const prsi = calculateClassAPRSI(prsiBase, config);
+  return { it, usc, prsi };
+}
 
-    packageAmount: safeNumber(rawInputs.packageAmount),
-    pilon: safeNumber(rawInputs.pilon),
-    holidayPay: safeNumber(rawInputs.holidayPay),
-
-    hasPension: !!rawInputs.hasPension,
-    pensionLumpSum: safeNumber(rawInputs.pensionLumpSum),
-    pensionWaived: !!rawInputs.pensionWaived,
-
-    enhancedType: rawInputs.enhancedType || 'none',
-    noRedundancyLast10Years: !!rawInputs.noRedundancyLast10Years,
-
-    statutoryWeeklyCap: rawInputs.statutoryWeeklyCap || STATUTORY_WEEKLY_CAP,
-  };
-
+export function calculateRedundancy(raw: RedundancyInputs): RedundancyResults {
+  const annualSalary = safeNumber(raw.annualSalary);
+  const yearsService = Math.max(0, Math.floor(raw.yearsService || 0));
+  const packageAmount = safeNumber(raw.packageAmount);
+  const pilon = safeNumber(raw.pilon);
+  const pilonContractual = raw.pilonContractual !== false;
+  const holidayPay = safeNumber(raw.holidayPay);
+  const pensionLumpSum = raw.hasPension && !raw.pensionWaived ? safeNumber(raw.pensionLumpSum) : 0;
+  const priorReliefUsed = safeNumber(raw.priorReliefUsed);
+  const taxYear = raw.taxYear ?? CURRENT_TAX_YEAR;
   const warnings: string[] = [];
 
-  // Compute weekly pay if not provided
-  const weeklyPayComputed = inputs.weeklyPay ?? annualToWeekly(inputs.annualSalary);
+  // 1) Statutory redundancy: [(years × 2) + 1] × min(weekly pay, €600). Tax-free.
+  const weeklyPay = raw.weeklyPay ? safeNumber(raw.weeklyPay) : annualToWeekly(annualSalary);
+  const statutoryWeeklyCap = raw.statutoryWeeklyCap || STATUTORY_WEEKLY_CAP;
+  const weeklyUsed = Math.min(weeklyPay, statutoryWeeklyCap);
+  const statutoryRedundancy = yearsService >= 2 ? round2((yearsService * 2 + 1) * weeklyUsed) : 0;
+  if (yearsService < 2) warnings.push('Statutory redundancy needs at least 2 years (104 weeks) of service.');
 
-  // 1) Statutory redundancy
-  // Formula: [(years × 2) + 1] × min(weekly_pay, €600) - 100% tax-free
-  const statutoryWeeklyCap = inputs.statutoryWeeklyCap || STATUTORY_WEEKLY_CAP;
-  const weeklyUsed = Math.min(weeklyPayComputed, statutoryWeeklyCap);
-  const statutoryMultiplier = inputs.yearsService * 2 + 1;
-  const statutoryRedundancy = Math.round(statutoryMultiplier * weeklyUsed * 100) / 100;
-
-  // 2) Enhanced/ex-gratia with 3 options
-  let enhancedGross = 0;
-  const enhancedComponents: Record<string, number> = {};
-
-  if (inputs.enhancedType === 'basic') {
-    const val = BASIC_EXGRATIA_BASE + BASIC_EXGRATIA_PER_YEAR * inputs.yearsService;
-    enhancedGross = Math.round(val * 100) / 100;
-    enhancedComponents['base'] = enhancedGross;
-  } else if (inputs.enhancedType === 'increased') {
-    const basic = BASIC_EXGRATIA_BASE + BASIC_EXGRATIA_PER_YEAR * inputs.yearsService;
-    // Increased: Basic + max(0, €10,000 - pension_lump_sum) [if no redundancy last 10 years]
-    let extra = 0;
-    if (inputs.noRedundancyLast10Years) {
-      extra = Math.max(0, INCREASED_EXTRA_MAX - safeNumber(inputs.pensionLumpSum));
-    }
-    enhancedGross = Math.round((basic + extra) * 100) / 100;
-    enhancedComponents['basic'] = Math.round(basic * 100) / 100;
-    enhancedComponents['increased_extra'] = Math.round(extra * 100) / 100;
-  } else if (inputs.enhancedType === 'scsb') {
-    // SCSB: (avg_salary × years ÷ 15) - pension_lump_sum OR full if pension waived
-    // avg_salary: use annualSalary as proxy for average salary
-    const avgSalary = inputs.annualSalary;
-    const scsbBase = (avgSalary * inputs.yearsService) / 15;
-    let scsbFinal = scsbBase - safeNumber(inputs.pensionLumpSum);
-    if (inputs.pensionWaived) {
-      // If pension waived, full SCSB applies
-      scsbFinal = scsbBase;
-      warnings.push('⚠️ Pension waived: this is irreversible and may have pension consequences.');
-    }
-    enhancedGross = Math.round(Math.max(0, scsbFinal) * 100) / 100;
-    enhancedComponents['scsb_base'] = Math.round(scsbBase * 100) / 100;
-    enhancedComponents['pension_lump_sum_applied'] = inputs.pensionWaived ? 0 : Math.round(safeNumber(inputs.pensionLumpSum) * 100) / 100;
+  // 2) Ex-gratia lump sum = package − statutory (+ non-contractual PILON)
+  if (packageAmount > 0 && packageAmount < statutoryRedundancy) {
+    warnings.push('The package entered is less than the estimated statutory redundancy.');
   }
+  const exGratiaFromPackage = Math.max(0, packageAmount - statutoryRedundancy);
+  const exGratiaLumpSum = round2(exGratiaFromPackage + (pilonContractual ? 0 : pilon));
 
-  // 3) Lifetime cap €200,000 for ex-gratia
-  const lifetimeCapApplied = enhancedGross > LIFETIME_CAP;
-  let enhancedAfterLifetimeCap = enhancedGross;
+  // 3) Exemptions: best of basic, increased, SCSB
+  const basic = BASIC_EXGRATIA_BASE + BASIC_EXGRATIA_PER_YEAR * yearsService;
+  const increased = raw.claimedAboveBasicLast10Years ? null : basic + Math.max(0, INCREASED_EXTRA_MAX - pensionLumpSum);
+  const scsb = Math.max(0, (annualSalary * yearsService) / 15 - pensionLumpSum);
+  const candidates: [ExemptionMethod, number][] = [['basic', basic], ['scsb', scsb]];
+  if (increased !== null) candidates.splice(1, 0, ['increased', increased]);
+  const [bestMethod, bestExemption] = candidates.reduce((a, b) => (b[1] > a[1] ? b : a));
+
+  // 4) €200,000 lifetime limit, less relief already used
+  const lifetimeLimitLeft = Math.max(0, LIFETIME_CAP - priorReliefUsed);
+  const lifetimeCapApplied = bestExemption > lifetimeLimitLeft && exGratiaLumpSum > lifetimeLimitLeft;
   if (lifetimeCapApplied) {
-    enhancedAfterLifetimeCap = LIFETIME_CAP;
-    warnings.push(`⚠️ Lifetime cap of €${LIFETIME_CAP.toLocaleString()} applied to enhanced/ex-gratia payments.`);
+    warnings.push(`The €${LIFETIME_CAP.toLocaleString('en-IE')} lifetime limit on tax-free termination payments applies.`);
+  }
+  const taxFreeLumpSum = round2(Math.min(exGratiaLumpSum, bestExemption, lifetimeLimitLeft));
+  const taxableLumpSum = round2(exGratiaLumpSum - taxFreeLumpSum);
+
+  // 5) Tax at the person's own rates (income tax, USC; PRSI on pay items only)
+  const pilonTaxable = pilonContractual ? pilon : 0;
+  const payItems = pilonTaxable + holidayPay;
+  const base = taxOn(annualSalary, annualSalary, taxYear);
+  const withPay = taxOn(annualSalary + payItems, annualSalary + payItems, taxYear);
+  const withAll = taxOn(annualSalary + payItems + taxableLumpSum, annualSalary + payItems, taxYear);
+  const payItemsTax = withPay.it + withPay.usc + withPay.prsi - (base.it + base.usc + base.prsi);
+  const pilonTax = round2(payItems > 0 ? (payItemsTax * pilonTaxable) / payItems : 0);
+  const holidayTax = round2(payItems > 0 ? (payItemsTax * holidayPay) / payItems : 0);
+  const lumpSumIncomeTax = round2(withAll.it - withPay.it);
+  const lumpSumUsc = round2(withAll.usc - withPay.usc);
+  const totalTax = round2(lumpSumIncomeTax + lumpSumUsc + pilonTax + holidayTax);
+  const netPackage = round2(packageAmount + pilon + holidayPay - totalTax);
+
+  if (raw.pensionWaived && raw.hasPension) {
+    warnings.push('Pension lump sum given up: this is irreversible and may have pension consequences.');
   }
 
-  // Determine taxable portion of enhanced/ex-gratia
-  // Statutory redundancy is tax-free; enhanced/ex-gratia is normally taxable (but top-slice relief may apply)
-  const enhancedTaxable = Math.round(enhancedAfterLifetimeCap * 100) / 100;
-
-  // 4) PILON & Holiday pay: taxed at ~52% marginal rate
-  const pilonTaxable = safeNumber(inputs.pilon);
-  const holidayTaxable = safeNumber(inputs.holidayPay);
-  const pilonTaxDeductedApprox = Math.round(pilonTaxable * PILON_MARGINAL_RATE * 100) / 100;
-  const holidayTaxDeductedApprox = Math.round(holidayTaxable * PILON_MARGINAL_RATE * 100) / 100;
-
-  // 5) Top slice relief: 33% on taxable enhanced redundancy
-  // NOTE: Top-slice relief reduces the tax on the enhanced redundancy by applying the normal rate to a 'top slice'
-  // For the purpose of this calculator we compute a simple relief amount = enhancedTaxable * TOP_SLICE_RELIEF_RATE
-  const enhancedTopSliceRelief = Math.round(enhancedTaxable * TOP_SLICE_RELIEF_RATE * 100) / 100;
-
-  // Warnings: pension waiver irreversible
-  if (inputs.pensionWaived && inputs.hasPension) {
-    if (!warnings.includes('⚠️ Pension waived: this is irreversible and may have pension consequences.')) {
-      warnings.push('⚠️ Pension waived: this is irreversible and may have pension consequences.');
-    }
-  }
-
-  // Build breakdown
-  const breakdown = {
-    statutory: {
-      formula: '[(years × 2) + 1] × min(weekly_pay, €600) - 100% tax-free',
-      weeklyPayUsed: weeklyUsed,
-      yearsService: inputs.yearsService,
-    },
-    enhanced: {
-      type: inputs.enhancedType || 'none',
-      components: enhancedComponents,
-    },
-  };
-
-  const results: RedundancyResults = {
+  return {
     statutoryRedundancy,
     statutoryWeeklyCap,
-
-    enhancedGross,
-    enhancedAfterLifetimeCap,
-    enhancedTaxable,
-    enhancedTopSliceRelief,
-
+    exGratiaLumpSum,
+    exemptions: { basic: round2(basic), increased: increased === null ? null : round2(increased), scsb: round2(scsb) },
+    bestMethod,
+    taxFreeLumpSum,
+    taxableLumpSum,
+    lumpSumIncomeTax,
+    lumpSumUsc,
     pilonTaxable,
-    holidayTaxable,
-    pilonTaxDeductedApprox,
-    holidayTaxDeductedApprox,
-
+    holidayTaxable: holidayPay,
+    pilonTax,
+    holidayTax,
+    totalTax,
+    netPackage,
     lifetimeCapApplied,
     warnings,
-
-    breakdown,
+    breakdown: {
+      statutory: {
+        formula: '[(years × 2) + 1] × min(weekly pay, €600), tax-free',
+        weeklyPayUsed: weeklyUsed,
+        yearsService,
+      },
+      exemption: {
+        method: bestMethod,
+        basic: round2(basic),
+        increased: increased === null ? null : round2(increased),
+        scsb: round2(scsb),
+        lifetimeLimitLeft,
+      },
+      taxYear,
+    },
   };
-
-  return results;
 }
