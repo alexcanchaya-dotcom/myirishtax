@@ -14,7 +14,7 @@ export type SummaryRows = {
 };
 
 // Round a set of parts to whole euros so they still sum to the rounded total (largest remainder).
-function roundToTotal(parts: number[], total: number): number[] {
+export function roundToTotal(parts: number[], total: number): number[] {
   const floors = parts.map((p) => Math.floor(p));
   let left = total - floors.reduce((a, b) => a + b, 0);
   const order = parts
