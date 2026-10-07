@@ -5,6 +5,7 @@ import { calculateRedundancy, RedundancyInputs, RedundancyResults } from "@/lib/
 import { TaxFreeSection } from "@/components/redundancy/TaxFreeSection";
 import { SCOPE_DISCLAIMER } from "@/components/TaxDisclaimer";
 import { RelatedCalculators } from "@/components/RelatedCalculators";
+import { CalculatorInput } from "@/components/CalculatorInput";
 import { TrustStrip } from '@/components/TrustStrip';
 import { REVENUE_RATES as REVENUE_RATES_CHARTS } from '@/lib/config/siteRates';
 
@@ -54,19 +55,16 @@ export default function RedundancyCalculatorPage() {
     }
   };
 
+  // Same shared input as the other calculators: number keypad, accepts "€60,000", can be left empty.
   const numberField = (field: keyof RedundancyInputs, label: string, hint?: string) => (
-    <div>
-      <label className="block font-medium" htmlFor={`rc-${field}`}>{label}</label>
-      <input
-        id={`rc-${field}`}
-        type="number"
-        min={0}
-        className="w-full p-2 border rounded"
-        value={(inputs[field] as number) ?? 0}
-        onChange={(e) => handleChange(field, e.target.value)}
-      />
-      {hint && <p className="mt-1 text-xs text-ink-muted">{hint}</p>}
-    </div>
+    <CalculatorInput
+      id={`rc-${field}`}
+      label={label}
+      value={(inputs[field] as number) ?? 0}
+      onChange={(v) => handleChange(field, v)}
+      hint={hint}
+      inputMode={field === "yearsService" ? "numeric" : "decimal"}
+    />
   );
 
   return (
@@ -102,7 +100,7 @@ export default function RedundancyCalculatorPage() {
       {/* Form */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-white p-6 rounded-2xl shadow">
         {numberField("annualSalary", "Annual salary (€)", "Your average yearly pay over the last 3 years is used for SCSB.")}
-        {numberField("weeklyPay", "Weekly pay (€)", "Leave at 0 to work it out from the annual salary.")}
+        {numberField("weeklyPay", "Weekly pay (€)", "Leave empty to work it out from the annual salary.")}
         {numberField("yearsService", "Complete years of service")}
         {numberField(
           "packageAmount",
