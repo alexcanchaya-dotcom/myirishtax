@@ -134,15 +134,19 @@ function prsiRateForMonth(config: TaxYearConfig, month: number): number {
 // Weekly pay at or below €352: nil. €352.01–€424: the charge is reduced by a tapered credit of
 // €12 less one-sixth of earnings over €352.01. Above €424: the rate on all earnings.
 // The rate is weighted by month when it changes partway through the year.
-export function calculateClassAPRSI(income: number, config: TaxYearConfig): number {
+/** Class A employee PRSI for one week at a given rate: nil up to €352, tapered credit to €424 (DSP Class A rates). */
+export function weeklyClassAPRSI(weekly: number, rate: number, config: TaxYearConfig): number {
   const { weeklyNilUpTo, creditMax, creditTaperTo } = config.classAPrsi;
-  const weekly = income / 52;
   if (weekly <= weeklyNilUpTo) return 0;
   const credit = weekly <= creditTaperTo ? Math.max(0, creditMax - (weekly - (weeklyNilUpTo + 0.01)) / 6) : 0;
+  return Math.max(0, weekly * rate - credit);
+}
+
+export function calculateClassAPRSI(income: number, config: TaxYearConfig): number {
+  const weekly = income / 52;
   let total = 0;
   for (let month = 1; month <= 12; month++) {
-    const weeklyCharge = Math.max(0, weekly * prsiRateForMonth(config, month) - credit);
-    total += (weeklyCharge * 52) / 12;
+    total += (weeklyClassAPRSI(weekly, prsiRateForMonth(config, month), config) * 52) / 12;
   }
   return total;
 }
