@@ -6,6 +6,8 @@ import { SelectField } from '../components/SelectField';
 import { BreakdownTable } from '../components/BreakdownTable';
 import { TaxSummaryCard } from '../components/TaxSummaryCard';
 import { buildSummaryRows } from '../lib/summaryRows';
+import { CopyEstimateLink } from '../components/CopyEstimateLink';
+import { fromSearch, toSearch, type HomeUrlState } from '../lib/homeUrlState';
 import { ComparisonView } from '../components/ComparisonView';
 import { TaxBreakdown, calculateNetIncome, compareScenarios } from '../lib/taxEngine';
 import { formatTaxYearLabel, getDefaultTaxYear, listSupportedYears } from '../lib/config/taxYearConfig';
@@ -23,6 +25,17 @@ function formatEuro(n: number): string {
   return `€${Math.round(n).toLocaleString('en-IE')}`;
 }
 
+const URL_DEFAULTS: HomeUrlState = {
+  income: 60000,
+  period: 'annual',
+  maritalStatus: 'single',
+  spouseIncome: 0,
+  pension: 0,
+  pensionAge: '',
+  credits: 0,
+  taxYear: getDefaultTaxYear(),
+};
+
 const MARRIED_HINT =
   'Joint assessment. Enter your own pay above and your spouse or partner’s pay below. Leave their pay at 0 if only one of you earns. We assume both of you are PAYE employees and the band and credits are shared in the way that saves most tax.';
 
@@ -35,6 +48,7 @@ export default function HomePage() {
   const [pensionAge, setPensionAge] = useState('');
   const [credits, setCredits] = useState(0);
   const [spouseIncome, setSpouseIncome] = useState(0);
+  const [urlLoaded, setUrlLoaded] = useState(false);
   const [taxYear, setTaxYear] = useState<number>(getDefaultTaxYear());
   const [result, setResult] = useState<TaxBreakdown | null>(null);
   const [resultKey, setResultKey] = useState<string | null>(null);
@@ -54,6 +68,31 @@ export default function HomePage() {
     }),
     [credits, income, maritalStatus, pension, pensionAge, period, spouseIncome, taxYear],
   );
+  // Inputs live in the URL (?income=…&year=…) so an estimate can be reloaded or shared.
+  useEffect(() => {
+    const s = fromSearch(window.location.search, URL_DEFAULTS);
+    setIncome(s.income);
+    setPeriod(s.period);
+    setMaritalStatus(s.maritalStatus);
+    setSpouseIncome(s.spouseIncome);
+    setPension(s.pension);
+    setPensionAge(s.pensionAge);
+    setCredits(s.credits);
+    setTaxYear(s.taxYear);
+    setUrlLoaded(true);
+  }, []);
+
+  useEffect(() => {
+    if (!urlLoaded) return;
+    const search = toSearch(
+      { income, period, maritalStatus, spouseIncome, pension, pensionAge, credits, taxYear },
+      URL_DEFAULTS,
+    );
+    if (search !== window.location.search) {
+      window.history.replaceState(window.history.state, '', `${window.location.pathname}${search}${window.location.hash}`);
+    }
+  }, [credits, income, maritalStatus, pension, pensionAge, period, spouseIncome, taxYear, urlLoaded]);
+
   const inputKey = JSON.stringify(input);
   const isCurrent = result !== null && resultKey === inputKey;
 
@@ -209,6 +248,7 @@ export default function HomePage() {
 
         <div id="take-home-result" className="space-y-6 lg:col-span-5">
           {result && <TaxSummaryCard data={result} isCurrent={isCurrent} taxYear={taxYear} />}
+          {result && <CopyEstimateLink />}
           {result && (
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-1">
               <BreakdownTable title="PAYE" rows={result.paye} />
