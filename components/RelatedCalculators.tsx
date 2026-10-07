@@ -17,6 +17,12 @@ const CALCULATORS: { key: CalculatorKey; href: string; label: string; blurb: str
     label: 'Contractor',
     blurb: 'Self-employed tax and Class S PRSI.',
   },
+  {
+    key: 'redundancy',
+    href: '/redundancy-calculator',
+    label: 'Redundancy',
+    blurb: 'Tax-free amount and tax on a package.',
+  },
 ];
 
 export function RelatedCalculators({ current, className = '' }: { current: CalculatorKey; className?: string }) {
