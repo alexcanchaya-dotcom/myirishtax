@@ -88,7 +88,21 @@ export default function SmallBenefitExemptionPage() {
               </tbody>
             </table>
           </div>
-          <p className="mt-3">Budget 2027 could change this. We&apos;ll update the page if it does.</p>
+          <p className="mt-3">
+            Budget 2027 (6 October 2026) did not change these limits: still up to 5 benefits worth up to €1,500 in total
+            a year, to the end of 2029. The only related change is for employers. From 1 January 2027 they can report
+            small benefits to Revenue (Enhanced Reporting Requirements) by the 14th of the following month, instead of
+            on or before the day they give them. Source:{' '}
+            <a
+              href="https://assets.gov.ie/static/documents/c6792805/Budget_2027_-_Tax_Policy_Changes_-_Publication_Version.pdf"
+              className="underline decoration-line underline-offset-2"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Budget 2027 Tax Policy Changes, section 6.11
+            </a>
+            .
+          </p>
           <p className="mt-3">
             The limit is per tax year (January to December). Any unused amount does not carry over to next year.
           </p>
