@@ -21,6 +21,8 @@ import {
   calculateAutoEnrolment,
   AutoEnrolmentBreakdown,
 } from "@/lib/taxEngine/autoEnrolmentCalculator";
+import { TrustStrip } from '@/components/TrustStrip';
+import { REVENUE_RATES } from '@/lib/config/siteRates';
 
 // Retirement age options: 60–70
 const retirementAgeOptions = Array.from({ length: 11 }, (_, i) => ({
@@ -89,6 +91,12 @@ export default function AutoEnrolmentCalculatorPage() {
           MyFutureFund from January 2026. For every €3 you save, your employer adds €3 and the
           State adds €1.
         </p>
+        <TrustStrip
+          sources={[
+            { label: 'gov.ie', href: 'https://www.gov.ie/en/department-of-social-protection/publications/auto-enrolment-retirement-savings-system-for-employees/' },
+            REVENUE_RATES,
+          ]}
+        />
         <TaxDisclaimer />
       </PageHeader>
 

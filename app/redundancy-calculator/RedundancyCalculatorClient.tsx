@@ -5,6 +5,8 @@ import { calculateRedundancy, RedundancyInputs, RedundancyResults } from "@/lib/
 import { TaxFreeSection } from "@/components/redundancy/TaxFreeSection";
 import { SCOPE_DISCLAIMER } from "@/components/TaxDisclaimer";
 import { RelatedCalculators } from "@/components/RelatedCalculators";
+import { TrustStrip } from '@/components/TrustStrip';
+import { REVENUE_RATES as REVENUE_RATES_CHARTS } from '@/lib/config/siteRates';
 
 const METHOD_LABEL: Record<RedundancyResults["bestMethod"], string> = {
   basic: "basic exemption",
@@ -72,6 +74,13 @@ export default function RedundancyCalculatorPage() {
       <header className="max-w-2xl">
         <h1 className="font-serif text-4xl font-semibold">Redundancy calculator: how much is tax-free?</h1>
         <p className="mt-3 text-ink-muted">Estimate your statutory redundancy, the tax-free part of any extra payment, and the tax on the rest.</p>
+        <TrustStrip
+          className="mt-2"
+          sources={[
+            { label: 'Revenue', href: 'https://www.revenue.ie/en/personal-tax-credits-reliefs-and-exemptions/lump-sum-payments/index.aspx' },
+            REVENUE_RATES_CHARTS,
+          ]}
+        />
         <p className="mt-2 text-sm text-ink-muted">Based on published Irish tax bands; not advice. {SCOPE_DISCLAIMER}</p>
       </header>
 

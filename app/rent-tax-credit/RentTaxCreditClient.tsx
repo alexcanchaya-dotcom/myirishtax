@@ -8,6 +8,7 @@ import { PageHeader } from '@/components/PageHeader';
 import { TaxDisclaimer } from '@/components/TaxDisclaimer';
 import { HowToClaimSection } from '@/components/rent/HowToClaimSection';
 import { RelatedCalculators } from '@/components/RelatedCalculators';
+import { TrustStrip } from '@/components/TrustStrip';
 
 // ─── Rent Tax Credit rates ────────────────────────────────────────────────
 type FilingStatus = 'single' | 'jointly';
@@ -78,6 +79,9 @@ export default function RentTaxCreditPage() {
     <main className="mx-auto max-w-5xl px-4 py-12 sm:px-6 sm:py-16">
       <PageHeader title="Rent tax credit: how much, and how to claim">
         <p>See how much rent credit you can claim for 2022–2026. Free to use — no account needed.</p>
+        <TrustStrip
+          sources={[{ label: 'Revenue', href: 'https://www.revenue.ie/en/personal-tax-credits-reliefs-and-exemptions/land-and-property/rent-credit/index.aspx' }]}
+        />
         <TaxDisclaimer />
       </PageHeader>
 

@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { PageHeader } from '@/components/PageHeader';
 import { TaxDisclaimer } from '@/components/TaxDisclaimer';
+import { TrustStrip } from '@/components/TrustStrip';
 
 export const metadata = {
   title: 'Second income in Ireland: do I need to file a Form 12 or Form 11? | MyIrishTax',
@@ -80,6 +81,10 @@ export default function SecondIncomeForm12Page() {
   return (
     <main className="mx-auto max-w-2xl px-4 py-12 sm:px-6 sm:py-16">
       <PageHeader title="Second income / Form 12: do I need to file?">
+        <TrustStrip
+          kind="guide"
+          sources={[{ label: 'Revenue', href: 'https://www.revenue.ie/en/jobs-and-pensions/end-of-year-process/need-to-submit-a-tax-return.aspx' }]}
+        />
         <TaxDisclaimer />
       </PageHeader>
 

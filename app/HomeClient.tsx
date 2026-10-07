@@ -14,6 +14,7 @@ import { FireHandoff } from '../components/FireHandoff';
 import { RelatedCalculators } from '../components/RelatedCalculators';
 import { TaxDisclaimer } from '../components/TaxDisclaimer';
 import { PENSION_AGE_OPTIONS } from '../lib/pensionAgeOptions';
+import { TrustStrip } from '@/components/TrustStrip';
 
 const years = listSupportedYears();
 
@@ -87,6 +88,7 @@ export default function HomePage() {
           Estimate PAYE, USC and PRSI from published bands. The {formatTaxYearLabel(getDefaultTaxYear())}{' '}
           is the default; 2025 is still available. Free to use — no account needed.
         </p>
+        <TrustStrip />
       </PageHeader>
 
       {result && (
