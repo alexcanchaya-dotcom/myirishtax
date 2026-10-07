@@ -315,9 +315,9 @@ export default function AutoEnrolmentCalculatorPage() {
                   </span>
                 </div>
                 <div className="mt-4 rounded-lg bg-emerald-50 border border-emerald-100 p-3 text-xs text-emerald-800">
-                  <strong>Good news:</strong> Employee contributions to Auto-Enrolment do not
-                  qualify for income tax relief (unlike private pensions), but your employer and
-                  the State add an extra {fmtEuro(result.employerContribution + result.stateContribution)} per year at no extra cost to you.
+                  <strong>No tax relief on your share:</strong> unlike a private pension, your contributions get
+                  no income tax relief. Your employer and the State still add{' '}
+                  {fmtEuro(result.employerContribution + result.stateContribution)} a year on top.
                 </div>
               </div>
             </div>
