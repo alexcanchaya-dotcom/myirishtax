@@ -5,7 +5,8 @@ import Link from "next/link";
 import { useState, useRef, useEffect } from "react";
 import { User, LogOut, Settings, CreditCard } from "lucide-react";
 
-export function UserNav() {
+/** In the header only a signed-in account menu shows; Sign in / Create account live in the footer. */
+export function UserNav({ signedOutLinks = true }: { signedOutLinks?: boolean } = {}) {
   const { data: session, status } = useSession();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -22,6 +23,8 @@ export function UserNav() {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  if (!signedOutLinks && status !== "authenticated") return null;
 
   if (status === "loading") {
     return (

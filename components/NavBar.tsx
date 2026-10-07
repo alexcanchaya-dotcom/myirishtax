@@ -57,10 +57,10 @@ export function NavBar() {
               {link.label}
             </Link>
           ))}
-          <UserNav />
+          <UserNav signedOutLinks={false} />
         </div>
         <div className="flex items-center gap-3 md:hidden">
-          <UserNav />
+          <UserNav signedOutLinks={false} />
           <button
             onClick={() => setMobileOpen((prev) => !prev)}
             className="rounded-md p-3 text-ink-muted hover:bg-white hover:text-ink"

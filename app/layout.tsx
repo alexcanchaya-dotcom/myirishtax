@@ -3,8 +3,8 @@ import React from 'react';
 import { Source_Sans_3, Source_Serif_4 } from 'next/font/google';
 import { SessionProvider } from '@/components/auth/SessionProvider';
 import { NavBar } from '@/components/NavBar';
-import { StickyDisclaimer } from '@/components/StickyDisclaimer';
 import Link from 'next/link';
+import { FooterAccountLinks } from '@/components/auth/FooterAccountLinks';
 import { Analytics } from '@vercel/analytics/next';
 
 const sans = Source_Sans_3({
@@ -98,6 +98,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                     <li><Link href="/cookies" className="hover:text-brand-700">Cookies</Link></li>
                     <li><Link href="/disclaimer" className="hover:text-brand-700">Disclaimer</Link></li>
                   </ul>
+                  <FooterAccountLinks />
                   <h3 className="mt-6 text-xs font-semibold uppercase tracking-wider text-ink-muted">Sister sites</h3>
                   <ul className="mt-3 space-y-2 text-sm text-ink">
                     <li>
@@ -114,11 +115,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 </div>
               </div>
               <p className="mt-10 border-t border-line pt-6 text-xs text-ink-muted">
-                © {new Date().getFullYear()} MyIrishTax. Registered company details on request.
+                © {new Date().getFullYear()} MyIrishTax. Estimate only, not financial or tax advice.{' '}
+                <Link href="/disclaimer" className="underline decoration-line underline-offset-2 hover:text-ink">
+                  Disclaimer
+                </Link>
               </p>
             </div>
           </footer>
-          <StickyDisclaimer />
         </SessionProvider>
         <Analytics />
       </body>
