@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { CalculatorInput } from "@/components/CalculatorInput";
 import { SelectField } from "@/components/SelectField";
+import { PENSION_AGE_OPTIONS } from "@/lib/pensionAgeOptions";
 import { ContractorBreakdown, COMMON_EXPENSE_CATEGORIES } from "@/lib/taxEngine/contractorCalculator";
 import { formatTaxYearLabel, getDefaultTaxYear, listSupportedYears } from "@/lib/config/taxYearConfig";
 import {
@@ -37,6 +38,7 @@ export default function ContractorCalculatorPage() {
     { id: "2", category: "Equipment & Software", amount: 3000 },
   ]);
   const [pensionContribution, setPensionContribution] = useState(0);
+  const [pensionAge, setPensionAge] = useState("");
   const [maritalStatus, setMaritalStatus] = useState<"single" | "married">("single");
   const [taxYear, setTaxYear] = useState<number>(getDefaultTaxYear());
   const [previousYearTax, setPreviousYearTax] = useState<number>(0);
@@ -57,6 +59,7 @@ export default function ContractorCalculatorPage() {
             grossIncome,
             expenses: totalExpenses,
             pensionContribution,
+            ...(pensionAge !== "" ? { age: Number(pensionAge) } : {}),
             maritalStatus,
             taxYear,
             previousYearTax: includePreliminaryTax ? previousYearTax : undefined,
@@ -78,7 +81,7 @@ export default function ContractorCalculatorPage() {
     };
 
     calculate();
-  }, [grossIncome, totalExpenses, pensionContribution, maritalStatus, taxYear, previousYearTax, includePreliminaryTax]);
+  }, [grossIncome, totalExpenses, pensionContribution, pensionAge, maritalStatus, taxYear, previousYearTax, includePreliminaryTax]);
 
   const addExpense = () => {
     setExpenses([
@@ -126,11 +129,32 @@ export default function ContractorCalculatorPage() {
                 prefix="€"
               />
               <CalculatorInput
-                label="Pension Contributions"
+                label="Pension Contributions (per year)"
                 value={pensionContribution}
                 onChange={setPensionContribution}
                 prefix="€"
               />
+              <SelectField
+                label="Age (pension relief limit)"
+                value={pensionAge}
+                onChange={setPensionAge}
+                options={PENSION_AGE_OPTIONS}
+              />
+              {result?.pension && pensionContribution > 0 && result.pension.overLimit > 0 && (
+                <p role="alert" className="text-xs font-normal leading-snug text-amber-800 md:col-span-2">
+                  Over the limit: income tax relief is capped at {Math.round(result.pension.agePct * 100)}% of
+                  profit (capped at €115,000), so €{Math.round(result.pension.limit).toLocaleString("en-IE")} this
+                  year. The other €{Math.round(result.pension.overLimit).toLocaleString("en-IE")} gets no relief in this
+                  estimate.
+                  {!result.pension.ageGiven && " Choose your age to check the limit for your age."}
+                </p>
+              )}
+              {pensionContribution > 0 && (
+                <p className="text-xs font-normal leading-snug text-ink-muted md:col-span-2">
+                  Pension contributions reduce income tax only. USC and PRSI are still charged on your full profit.
+                  Take-home is shown after the contribution.
+                </p>
+              )}
               <SelectField
                 label="Marital Status"
                 value={maritalStatus}
@@ -404,7 +428,9 @@ export default function ContractorCalculatorPage() {
             <h4 className="font-semibold mb-1">Income Tax</h4>
             <p>
               Calculated on profits (income minus expenses), less pension
-              contributions, using standard Irish tax bands: 20% and 40%. USC is
+              contributions up to Revenue&apos;s age limit (15% of profit under 30, rising to
+              40% at 60 or over, on profit up to €115,000), using standard Irish tax bands:
+              20% and 40%. USC is
               charged on profits (pension contributions don&apos;t reduce it), with an
               extra 3% on profits over €100,000.
             </p>

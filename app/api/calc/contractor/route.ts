@@ -6,6 +6,7 @@ const schema = z.object({
   grossIncome: z.number().min(0),
   expenses: z.number().min(0),
   pensionContribution: z.number().min(0).optional(),
+  age: z.number().int().min(16).max(120).optional(),
   taxYear: z.number().min(2023).max(2026),
   maritalStatus: z.enum(['single', 'married']),
   previousYearTax: z.number().min(0).optional(),

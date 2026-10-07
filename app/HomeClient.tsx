@@ -13,6 +13,7 @@ import { PageHeader } from '../components/PageHeader';
 import { FireHandoff } from '../components/FireHandoff';
 import { RelatedCalculators } from '../components/RelatedCalculators';
 import { TaxDisclaimer } from '../components/TaxDisclaimer';
+import { PENSION_AGE_OPTIONS } from '../lib/pensionAgeOptions';
 
 const years = listSupportedYears();
 
@@ -22,17 +23,6 @@ function formatEuro(n: number): string {
 
 const MARRIED_HINT =
   'Married uses the one-income standard-rate band and married personal credit on this person’s pay only. Enter one salary — not a combined couple figure. We do not add a second income.';
-
-// Revenue age bands for pension relief; the value is a representative age for the band.
-const PENSION_AGE_OPTIONS = [
-  { label: 'Not set (uses the 40% maximum)', value: '' },
-  { label: 'Under 30 (15%)', value: '29' },
-  { label: '30–39 (20%)', value: '35' },
-  { label: '40–49 (25%)', value: '45' },
-  { label: '50–54 (30%)', value: '52' },
-  { label: '55–59 (35%)', value: '57' },
-  { label: '60 or over (40%)', value: '60' },
-];
 
 export default function HomePage() {
   const { data: session } = useSession();
