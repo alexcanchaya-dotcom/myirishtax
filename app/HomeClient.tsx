@@ -5,6 +5,7 @@ import { CalculatorInput } from '../components/CalculatorInput';
 import { SelectField } from '../components/SelectField';
 import { BreakdownTable } from '../components/BreakdownTable';
 import { TaxSummaryCard } from '../components/TaxSummaryCard';
+import { buildSummaryRows } from '../lib/summaryRows';
 import { ComparisonView } from '../components/ComparisonView';
 import { TaxBreakdown, calculateNetIncome, compareScenarios } from '../lib/taxEngine';
 import { formatTaxYearLabel, getDefaultTaxYear, listSupportedYears } from '../lib/config/taxYearConfig';
@@ -104,7 +105,7 @@ export default function HomePage() {
             className={`font-serif text-2xl text-brand-700 ${isCurrent ? '' : 'opacity-50'}`}
             aria-live="polite"
           >
-            {formatEuro(result.netAnnual)}
+            {formatEuro(buildSummaryRows(result).takeHome)}
           </span>
         </div>
       )}
