@@ -28,5 +28,6 @@ describe('/payslip-october-prsi', () => {
     expect(src).toContain('prsi-class-a-rates');
     expect(src).toContain('<TrustStrip kind="guide"');
     expect(read('public/sitemap.xml')).toContain('https://myirishtax.com/payslip-october-prsi');
+    expect(read('components/RelatedCalculators.tsx')).toContain("href: '/payslip-october-prsi'");
   });
 });

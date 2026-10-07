@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { PageHeader } from '@/components/PageHeader';
 import { TaxDisclaimer } from '@/components/TaxDisclaimer';
 import { TrustStrip } from '@/components/TrustStrip';
+import { RelatedCalculators } from '@/components/RelatedCalculators';
 import { OCTOBER_EXAMPLE_SALARIES, octoberPrsiExample } from '@/lib/payslipPrsi';
 
 export const metadata = {
@@ -115,6 +116,7 @@ export default function PayslipOctoberPrsiPage() {
           </p>
         </section>
       </div>
+      <RelatedCalculators current="payslip-october-prsi" />
     </main>
   );
 }

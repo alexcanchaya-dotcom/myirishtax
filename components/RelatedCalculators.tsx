@@ -1,6 +1,6 @@
 import Link from 'next/link';
 
-export type CalculatorKey = 'take-home' | 'auto-enrolment' | 'rent-credit' | 'contractor' | 'redundancy';
+export type CalculatorKey = 'take-home' | 'auto-enrolment' | 'rent-credit' | 'contractor' | 'redundancy' | 'payslip-october-prsi';
 
 const CALCULATORS: { key: CalculatorKey; href: string; label: string; blurb: string }[] = [
   { key: 'take-home', href: '/', label: 'Take-home pay', blurb: 'PAYE, USC and PRSI on your salary.' },
@@ -22,6 +22,12 @@ const CALCULATORS: { key: CalculatorKey; href: string; label: string; blurb: str
     href: '/redundancy-calculator',
     label: 'Redundancy',
     blurb: 'Tax-free amount and tax on a package.',
+  },
+  {
+    key: 'payslip-october-prsi',
+    href: '/payslip-october-prsi',
+    label: 'Why October pay dropped',
+    blurb: 'Employee PRSI went from 4.2% to 4.35% on 1 Oct 2026.',
   },
 ];
 
