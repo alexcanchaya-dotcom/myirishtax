@@ -203,8 +203,9 @@ export default function ContractorCalculatorPage() {
                 Business Expenses
               </h2>
               <button
+                type="button"
                 onClick={addExpense}
-                className="flex items-center gap-1 text-sm font-medium text-brand-600 hover:text-brand-700"
+                className="flex min-h-11 items-center gap-1 px-2 text-sm font-medium text-brand-700 hover:text-brand-800"
               >
                 <Plus className="h-4 w-4" />
                 Add Expense
@@ -213,10 +214,11 @@ export default function ContractorCalculatorPage() {
 
             <div className="space-y-3">
               {expenses.map((expense) => (
-                <div key={expense.id} className="flex items-center gap-2">
-                  <div className="flex-1">
+                <div key={expense.id} className="flex flex-wrap items-end gap-2 sm:flex-nowrap">
+                  <div className="basis-full sm:flex-1 sm:basis-auto">
                     <SelectField
-                      label=""
+                      label="Expense type"
+                      hideLabel
                       value={expense.category}
                       onChange={(v) => updateExpense(expense.id, "category", v)}
                       options={COMMON_EXPENSE_CATEGORIES.map((cat) => ({
@@ -225,19 +227,22 @@ export default function ContractorCalculatorPage() {
                       }))}
                     />
                   </div>
-                  <div className="w-40">
+                  <div className="flex-1 sm:w-40 sm:flex-none">
                     <CalculatorInput
-                      label=""
+                      label="Amount"
+                      hideLabel
                       value={expense.amount}
                       onChange={(v) => updateExpense(expense.id, "amount", v)}
                       prefix="€"
                     />
                   </div>
                   <button
+                    type="button"
                     onClick={() => removeExpense(expense.id)}
-                    className="p-2 text-red-600 hover:bg-red-50 rounded"
+                    aria-label={`Remove expense: ${expense.category}`}
+                    className="flex h-11 w-11 shrink-0 items-center justify-center rounded text-red-700 hover:bg-red-50"
                   >
-                    <X className="h-4 w-4" />
+                    <X className="h-5 w-5" aria-hidden="true" />
                   </button>
                 </div>
               ))}
