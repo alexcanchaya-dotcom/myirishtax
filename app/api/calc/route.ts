@@ -12,6 +12,7 @@ const schema = z.object({
   pensionContribution: z.number().finite().min(0).optional(),
   age: z.number().int().min(16).max(120).optional(),
   additionalCredits: z.number().finite().min(0).optional(),
+  spouseIncome: z.number().finite().min(0, 'Spouse income cannot be negative').optional(),
   taxYear: z
     .number()
     .int()

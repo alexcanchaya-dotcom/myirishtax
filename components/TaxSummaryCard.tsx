@@ -18,7 +18,7 @@ export function TaxSummaryCard({
     <div className={`card ${isCurrent ? '' : 'opacity-60'}`}>
       <div className="flex items-start justify-between gap-3">
         <p className="text-xs font-semibold uppercase tracking-wider text-ink-muted">
-          Take-home pay
+          {data.household ? 'Household take-home pay' : 'Take-home pay'}
           {taxYear ? <span className="mt-0.5 block font-medium normal-case tracking-normal">{taxYear} tax year</span> : null}
         </p>
         <p className={`text-xs font-medium ${isCurrent ? 'text-brand-700' : 'text-ink-muted'}`}>
@@ -29,6 +29,13 @@ export function TaxSummaryCard({
       <p className="mt-1 text-sm text-ink-muted">
         {money(data.netMonthly)} a month · {money(data.netWeekly)} a week
       </p>
+      {data.household && (
+        <p className="mt-2 text-xs text-ink-muted">
+          You and your spouse or partner together: {money(data.household.yourIncome)} +{' '}
+          {money(data.household.spouseIncome)}. 20% band {money(data.household.standardRateBand)} (includes{' '}
+          {money(data.household.bandIncrease)} second-earner increase).
+        </p>
+      )}
       <dl className="mt-6 space-y-2 border-t border-line pt-4 text-sm">
         <div className="flex justify-between gap-4">
           <dt className="text-ink-muted">PAYE after credits</dt>
