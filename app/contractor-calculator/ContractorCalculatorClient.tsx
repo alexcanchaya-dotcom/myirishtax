@@ -108,10 +108,23 @@ export default function ContractorCalculatorPage() {
 
   return (
     <main className="mx-auto max-w-5xl px-4 py-12 sm:px-6 sm:py-16">
-      <PageHeader title="Contractor tax">
+      <PageHeader title="Sole trader / self-employed tax (Class S)">
         <p>
-          Estimate self-employed income tax, USC, and Class S PRSI for the {formatTaxYearLabel(taxYear)}.
-          Free to use — no account needed.
+          Estimate income tax, USC and Class S PRSI on your profit as a sole trader or self-employed person for
+          the {formatTaxYearLabel(taxYear)}. Not for umbrella or limited company pay. Free to use — no account needed.
+        </p>
+        <p className="rounded-lg border border-line bg-white px-3 py-2 text-sm text-ink">
+          <strong className="font-semibold">Deadline:</strong> your 2025 tax return (Form 11) and 2026 preliminary tax
+          are due by Saturday 31 October 2026. If you both pay and file on ROS, the date is Wednesday 18 November
+          2026.{' '}
+          <a
+            href="https://www.revenue.ie/en/tax-professionals/ebrief/2026/no-0342026.aspx"
+            className="underline decoration-line underline-offset-2"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Revenue eBrief 034/26
+          </a>
         </p>
         <TrustStrip sources={[REVENUE_RATES, GOV_PRSI_CLASS_S]} />
         <TaxDisclaimer />
