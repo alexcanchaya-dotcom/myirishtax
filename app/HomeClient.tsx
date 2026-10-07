@@ -19,6 +19,8 @@ import { RelatedCalculators } from '../components/RelatedCalculators';
 import { TaxDisclaimer } from '../components/TaxDisclaimer';
 import { PENSION_AGE_HINT, PENSION_AGE_OPTIONS } from '../lib/pensionAgeOptions';
 import { TrustStrip } from '@/components/TrustStrip';
+import { Faq, WebAppJsonLd } from '@/components/Faq';
+import { TAKE_HOME_FAQ } from '@/lib/faq/calculatorFaqs';
 
 const years = listSupportedYears();
 
@@ -333,6 +335,12 @@ export default function HomePage() {
         <TaxDisclaimer className="mt-8" />
       </section>
 
+      <Faq items={TAKE_HOME_FAQ} />
+      <WebAppJsonLd
+        name="Irish take-home pay calculator"
+        path="/"
+        description="Estimate PAYE, USC and PRSI from published bands. Free to use, no account needed."
+      />
       <RelatedCalculators current="take-home" />
 
       <p className="mt-12 text-sm text-ink-muted">
