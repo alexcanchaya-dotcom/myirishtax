@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { CalculatorInput } from "@/components/CalculatorInput";
+import { buildContractorRows } from "@/lib/contractorRows";
 import { SelectField } from "@/components/SelectField";
 import { PENSION_AGE_OPTIONS } from "@/lib/pensionAgeOptions";
 import { ContractorBreakdown, COMMON_EXPENSE_CATEGORIES } from "@/lib/taxEngine/contractorCalculator";
@@ -46,6 +47,7 @@ export default function ContractorCalculatorPage() {
   const [previousYearTax, setPreviousYearTax] = useState<number>(0);
   const [includePreliminaryTax, setIncludePreliminaryTax] = useState(false);
   const [result, setResult] = useState<ContractorBreakdown | null>(null);
+  const rows = result ? buildContractorRows(result) : null;
   const [isLoading, setIsLoading] = useState(false);
 
   const totalExpenses = expenses.reduce((sum, exp) => sum + exp.amount, 0);
@@ -228,7 +230,7 @@ export default function ContractorCalculatorPage() {
                 <div className="flex justify-between items-center text-sm font-semibold">
                   <span>Total Expenses:</span>
                   <span className="text-lg text-brand-600">
-                    €{totalExpenses.toLocaleString()}
+                    €{Math.round(totalExpenses).toLocaleString("en-IE")}
                   </span>
                 </div>
               </div>
@@ -282,100 +284,62 @@ export default function ContractorCalculatorPage() {
             </div>
           )}
 
-          {result && !isLoading && (
+          {result && !isLoading && rows && (
             <>
               {/* Net Income Summary */}
               <div className="card">
                 <h3 className="text-sm font-semibold text-gray-600 mb-2">
-                  NET INCOME
+                  Take-home
                 </h3>
                 <div className="text-4xl font-bold text-gray-900 mb-4">
-                  €{result.netIncome.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                  {euro(rows.takeHome)}
                 </div>
                 <div className="grid grid-cols-3 gap-2 text-sm">
                   <div>
                     <div className="text-gray-600">Monthly</div>
                     <div className="font-semibold">
-                      €{result.monthly.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                      {euro(result.monthly)}
                     </div>
                   </div>
                   <div>
                     <div className="text-gray-600">Weekly</div>
                     <div className="font-semibold">
-                      €{result.weekly.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                      {euro(result.weekly)}
                     </div>
                   </div>
                   <div>
                     <div className="text-gray-600">Daily</div>
                     <div className="font-semibold">
-                      €{result.daily.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                      {euro(result.daily)}
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* Tax Breakdown */}
+              {/* Tax Breakdown: whole euros, rows add up (gross − expenses − tax − pension = take-home) */}
               <div className="card">
-                <h3 className="font-semibold text-gray-900 mb-4">Tax Breakdown</h3>
-                <div className="space-y-3 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Gross Income</span>
-                    <span className="font-semibold">
-                      €{result.grossIncome.toLocaleString()}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Business Expenses</span>
-                    <span className="font-semibold text-green-600">
-                      -€{result.totalExpenses.toLocaleString()}
-                    </span>
-                  </div>
-                  <div className="flex justify-between border-t pt-2">
-                    <span className="text-gray-600">Taxable Income</span>
-                    <span className="font-semibold">
-                      €{result.taxableIncome.toLocaleString()}
-                    </span>
-                  </div>
-
-                  <div className="border-t pt-3 mt-3 space-y-2">
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Income tax after credits</span>
-                      <span className="font-semibold text-red-600">
-                        €{result.incomeTax.afterCredits.toLocaleString()}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">USC</span>
-                      <span className="font-semibold text-red-600">
-                        €{result.usc.total.toLocaleString()}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">PRSI (Class S)</span>
-                      <span className="font-semibold text-red-600">
-                        €{result.prsi.amount.toLocaleString()}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Tax Credits</span>
-                      <span className="font-semibold text-green-600">
-                        -€{result.credits.total.toLocaleString()}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="border-t pt-3 mt-3">
-                    <div className="flex justify-between text-base font-bold">
-                      <span>Total Tax & PRSI</span>
-                      <span className="text-red-600">
-                        €{result.totalTaxAndPrsi.toLocaleString()}
-                      </span>
-                    </div>
-                    <div className="text-xs text-gray-500 mt-1">
-                      Effective rate: {result.effectiveTaxRate.toFixed(1)}%
-                    </div>
-                  </div>
-                </div>
+                <h3 className="font-semibold text-gray-900 mb-4">Tax breakdown</h3>
+                <dl className="space-y-2 text-sm">
+                  <ResultRow label="Gross income" value={euro(rows.gross)} />
+                  <ResultRow label="Less business expenses" value={`−${euro(rows.expenses)}`} indent minus />
+                  <ResultRow label="Profit" value={euro(rows.profit)} rule />
+                  <ResultRow label="Income tax before credits" value={euro(rows.incomeTaxBeforeCredits)} />
+                  <ResultRow label="Less tax credits" value={`−${euro(rows.creditsUsed)}`} indent minus />
+                  <ResultRow label="Income tax" value={euro(rows.incomeTax)} />
+                  <ResultRow label="USC" value={euro(rows.usc)} />
+                  <ResultRow label="PRSI (Class S)" value={euro(rows.prsi)} />
+                  <ResultRow label="Total tax, USC and PRSI" value={euro(rows.totalDeductions)} strong rule />
+                  {rows.pension > 0 && (
+                    <ResultRow
+                      label={`Pension contribution (income tax relief on ${euro(result.pension.relieved)})`}
+                      value={`−${euro(rows.pension)}`}
+                    />
+                  )}
+                  <ResultRow label="Take-home" value={euro(rows.takeHome)} strong rule />
+                </dl>
+                <p className="text-xs text-gray-500 mt-2">
+                  Effective rate: {result.effectiveTaxRate.toFixed(1)}% of gross income
+                </p>
               </div>
 
               {/* Preliminary Tax */}
@@ -385,7 +349,7 @@ export default function ContractorCalculatorPage() {
                     Preliminary Tax Due
                   </h3>
                   <div className="text-2xl font-bold text-yellow-900 mb-2">
-                    €{result.preliminaryTax.amount.toLocaleString()}
+                    {euro(result.preliminaryTax.amount)}
                   </div>
                   <p className="text-sm text-yellow-800">
                     Due: {result.preliminaryTax.dueDate}
@@ -480,5 +444,33 @@ export default function ContractorCalculatorPage() {
         . Figures you enter are sent to our server to compute the result.
       </p>
     </main>
+  );
+}
+
+// Whole euros, en-IE (same on every phone locale).
+function euro(n: number): string {
+  return `€${Math.round(n).toLocaleString("en-IE")}`;
+}
+
+function ResultRow({
+  label,
+  value,
+  indent = false,
+  strong = false,
+  rule = false,
+  minus = false,
+}: {
+  label: string;
+  value: string;
+  indent?: boolean;
+  strong?: boolean;
+  rule?: boolean;
+  minus?: boolean;
+}) {
+  return (
+    <div className={`flex justify-between gap-4 ${rule ? "border-t pt-2" : ""} ${strong ? "font-semibold text-gray-900" : ""}`}>
+      <dt className={`${strong ? "" : "text-gray-600"} ${indent ? "pl-4" : ""}`}>{label}</dt>
+      <dd className={`tabular-nums ${minus ? "text-green-700" : ""}`}>{value}</dd>
+    </div>
   );
 }
