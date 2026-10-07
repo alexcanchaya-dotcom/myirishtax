@@ -53,6 +53,12 @@ export type TaxYearConfig = {
    * and TDM 15-01-29. Can't be combined with the second-earner band increase in the same year (whichever is better).
    */
   homeCarer: { max: number; incomeLimit: number };
+  /**
+   * 65 or over (you, or your spouse if jointly assessed) at any time in the year. Age Tax Credit (Revenue tax relief
+   * charts; TDM 15-01-26) and the income tax exemption limits with 40% marginal relief up to twice the limit
+   * (Revenue "Exemption limits", "Marginal relief"; TDM 07-01-18). Child increases to the limits are not modelled.
+   */
+  over65: { creditSingle: number; creditMarried: number; exemptionSingle: number; exemptionMarried: number };
   /** Married / civil partners, both with income: maximum increase in the standard rate band (Revenue tax relief charts). */
   marriedSecondEarnerIncrease: number;
   /** Earned Income Tax Credit (self-employed): lower of this or 20% of earned income. Revenue tax relief charts. */
@@ -79,6 +85,9 @@ const CLASS_A_PRSI_2016_ON: ClassAPrsiRules = { weeklyNilUpTo: 352, creditMax: 1
 /** USC exemption threshold €13,000 for 2016 onwards (Revenue USC manual 18D-00-01; "Payments and income exempt from USC"). */
 const USC_EXEMPTION_2016_ON = 13000;
 
+/** Age Tax Credit €245 / €490 and exemption limits €18,000 / €36,000, unchanged since 2020 (Revenue). */
+const OVER_65_2020_ON = { creditSingle: 245, creditMarried: 490, exemptionSingle: 18000, exemptionMarried: 36000 };
+
 const baseConfigs: Record<number, TaxYearConfig> = {
   2023: {
     year: 2023,
@@ -101,6 +110,7 @@ const baseConfigs: Record<number, TaxYearConfig> = {
     creditsMarried: { personal: 3550, paye: 1775 },
     singlePersonChildCarer: { credit: 1650, band: 44000 },
     homeCarer: { max: 1700, incomeLimit: 7200 },
+    over65: OVER_65_2020_ON,
     marriedSecondEarnerIncrease: 31000,
     earnedIncomeCredit: 1775,
     classSMinimum: 500,
@@ -131,6 +141,7 @@ const baseConfigs: Record<number, TaxYearConfig> = {
     creditsMarried: { personal: 3750, paye: 1875 },
     singlePersonChildCarer: { credit: 1750, band: 46000 },
     homeCarer: { max: 1800, incomeLimit: 7200 },
+    over65: OVER_65_2020_ON,
     marriedSecondEarnerIncrease: 33000,
     earnedIncomeCredit: 1875,
     classSMinimum: 537.5, // €500 to 30 Sep 2024, €650 from 1 Oct 2024: blended €537.50 for 2024 self-assessment
@@ -161,6 +172,7 @@ const baseConfigs: Record<number, TaxYearConfig> = {
     creditsMarried: { personal: 4000, paye: 2000 },
     singlePersonChildCarer: { credit: 1900, band: 48000 },
     homeCarer: { max: 1950, incomeLimit: 7200 },
+    over65: OVER_65_2020_ON,
     marriedSecondEarnerIncrease: 35000,
     earnedIncomeCredit: 2000,
     classSMinimum: 650,
@@ -195,6 +207,7 @@ const baseConfigs: Record<number, TaxYearConfig> = {
     creditsMarried: { personal: 4000, paye: 2000 },
     singlePersonChildCarer: { credit: 1900, band: 48000 },
     homeCarer: { max: 1950, incomeLimit: 7200 },
+    over65: OVER_65_2020_ON,
     marriedSecondEarnerIncrease: 35000,
     earnedIncomeCredit: 2000,
     classSMinimum: 650,

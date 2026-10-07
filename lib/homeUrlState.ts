@@ -10,6 +10,8 @@ export type HomeUrlState = {
   singleParent: boolean;
   /** Married only: Home Carer Tax Credit. */
   homeCarer: boolean;
+  /** 65 or over (you, or either of you if married). */
+  over65: boolean;
   pension: number;
   pensionAge: string;
   credits: number;
@@ -22,7 +24,7 @@ const num = (v: string | null): number | undefined => {
   return Number.isFinite(n) && n >= 0 ? n : undefined;
 };
 
-/** Reads ?income=&period=&status=&spouse=&parent=&carer=&pension=&age=&credits=&year= ; bad or missing values keep the defaults. */
+/** Reads ?income=&period=&status=&spouse=&parent=&carer=&over65=&pension=&age=&credits=&year= ; bad or missing values keep the defaults. */
 export function fromSearch(search: string, defaults: HomeUrlState): HomeUrlState {
   const p = new URLSearchParams(search);
   const period = p.get('period');
@@ -36,6 +38,7 @@ export function fromSearch(search: string, defaults: HomeUrlState): HomeUrlState
     spouseIncome: num(p.get('spouse')) ?? defaults.spouseIncome,
     singleParent: p.get('parent') === '1' ? true : p.get('parent') === '0' ? false : defaults.singleParent,
     homeCarer: p.get('carer') === '1' ? true : p.get('carer') === '0' ? false : defaults.homeCarer,
+    over65: p.get('over65') === '1' ? true : p.get('over65') === '0' ? false : defaults.over65,
     pension: num(p.get('pension')) ?? defaults.pension,
     pensionAge: age !== undefined && Number.isInteger(age) && age >= 16 && age <= 120 ? String(age) : defaults.pensionAge,
     credits: num(p.get('credits')) ?? defaults.credits,
@@ -52,6 +55,7 @@ export function toSearch(s: HomeUrlState, defaults: HomeUrlState): string {
   if (s.maritalStatus === 'married' && s.spouseIncome > 0) p.set('spouse', String(s.spouseIncome));
   if (s.maritalStatus === 'single' && s.singleParent) p.set('parent', '1');
   if (s.maritalStatus === 'married' && s.homeCarer) p.set('carer', '1');
+  if (s.over65) p.set('over65', '1');
   if (s.pension !== defaults.pension) p.set('pension', String(s.pension));
   if (s.pensionAge !== '' && s.pensionAge !== defaults.pensionAge) p.set('age', s.pensionAge);
   if (s.credits !== defaults.credits) p.set('credits', String(s.credits));
