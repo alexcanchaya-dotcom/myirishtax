@@ -14,6 +14,12 @@ const nextConfig = {
         destination: '/',
         permanent: true,
       },
+      {
+        // Old static page said Class S is 4% "on income over €5,000", USC 4.5% and personal credit only.
+        source: '/contractor-calculator-landing.html',
+        destination: '/contractor-calculator',
+        permanent: true,
+      },
     ];
   },
 };

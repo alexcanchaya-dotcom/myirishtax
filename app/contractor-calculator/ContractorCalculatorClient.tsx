@@ -229,14 +229,15 @@ export default function ContractorCalculatorPage() {
             {includePreliminaryTax && (
               <div>
                 <CalculatorInput
-                  label="Previous Year Tax Paid"
+                  label="Last year's total income tax, USC and PRSI"
                   value={previousYearTax}
                   onChange={setPreviousYearTax}
                   prefix="€"
                 />
                 <p className="text-xs text-gray-500 mt-2">
-                  Preliminary tax is due by October 31. You must pay 90% of current
-                  year tax OR 100% of previous year tax (whichever is lower).
+                  Preliminary tax is due by 31 October. It covers income tax, USC and PRSI:
+                  pay 90% of this year&apos;s total OR 100% of last year&apos;s total
+                  (whichever is lower).
                 </p>
               </div>
             )}
@@ -402,31 +403,35 @@ export default function ContractorCalculatorPage() {
           <div>
             <h4 className="font-semibold mb-1">Income Tax</h4>
             <p>
-              Calculated on profits (income minus expenses) using standard Irish tax
-              bands: 20% and 40%
+              Calculated on profits (income minus expenses), less pension
+              contributions, using standard Irish tax bands: 20% and 40%. USC is
+              charged on profits (pension contributions don&apos;t reduce it), with an
+              extra 3% on profits over €100,000.
             </p>
           </div>
           <div>
             <h4 className="font-semibold mb-1">Class S PRSI</h4>
             <p>
-              Class S PRSI on income over €5,000. In 2025 the rate is 4%. In 2026
-              it is 4.2% for January to September and 4.35% from 1 October (about
-              4.2375% over a full year), or a minimum of €650, whichever is greater.
-              Does not provide unemployment benefits.
+              Once your profit is €5,000 or more, Class S PRSI is charged on all of it
+              (no €5,000 deduction). In 2026 it is 4.2% for January to September and
+              4.35% from 1 October (4.2375% over a full year), or a minimum of €650,
+              whichever is greater. Under €5,000 there is no Class S PRSI.
             </p>
           </div>
           <div>
             <h4 className="font-semibold mb-1">Tax Credits</h4>
             <p>
-              Self-employed individuals get the Personal Tax Credit but not the PAYE
-              credit.
+              Self-employed people get the Personal Tax Credit and the Earned Income
+              Tax Credit (€2,000 in 2025 and 2026, or 20% of your profit if lower), but
+              not the PAYE credit.
             </p>
           </div>
           <div>
             <h4 className="font-semibold mb-1">Preliminary Tax</h4>
             <p>
-              Must be paid by October 31. Pay 90% of current year OR 100% of previous
-              year (lower amount).
+              Must be paid by 31 October of the tax year. It
+              covers income tax, USC and PRSI: pay 90% of this year&apos;s total OR 100%
+              of last year&apos;s total (lower amount).
             </p>
           </div>
         </div>
