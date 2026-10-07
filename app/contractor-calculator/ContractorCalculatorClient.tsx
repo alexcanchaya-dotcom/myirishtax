@@ -23,6 +23,8 @@ import { PageHeader } from "@/components/PageHeader";
 import { RelatedCalculators } from "@/components/RelatedCalculators";
 import { TrustStrip } from '@/components/TrustStrip';
 import { GOV_PRSI_CLASS_S, REVENUE_RATES } from '@/lib/config/siteRates';
+import { Faq, WebAppJsonLd } from '@/components/Faq';
+import { CONTRACTOR_FAQ } from '@/lib/faq/calculatorFaqs';
 
 const years = listSupportedYears();
 
@@ -444,6 +446,12 @@ export default function ContractorCalculatorPage() {
         </div>
       </div>
 
+      <Faq items={CONTRACTOR_FAQ} />
+      <WebAppJsonLd
+        name="Sole trader / self-employed tax calculator (Class S)"
+        path="/contractor-calculator"
+        description="Estimate income tax, USC and Class S PRSI on your profit as a sole trader or self-employed person. Free to use, no account needed."
+      />
       <RelatedCalculators current="contractor" />
 
       <p className="mt-12 text-sm text-ink-muted">
