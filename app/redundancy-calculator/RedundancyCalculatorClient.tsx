@@ -8,6 +8,8 @@ import { RelatedCalculators } from "@/components/RelatedCalculators";
 import { CalculatorInput } from "@/components/CalculatorInput";
 import { TrustStrip } from '@/components/TrustStrip';
 import { REVENUE_RATES as REVENUE_RATES_CHARTS } from '@/lib/config/siteRates';
+import { Faq, WebAppJsonLd } from '@/components/Faq';
+import { REDUNDANCY_FAQ } from '@/lib/faq/calculatorFaqs';
 
 const METHOD_LABEL: Record<RedundancyResults["bestMethod"], string> = {
   basic: "basic exemption",
@@ -249,6 +251,12 @@ export default function RedundancyCalculatorPage() {
 
       <TaxFreeSection />
 
+      <Faq items={REDUNDANCY_FAQ} />
+      <WebAppJsonLd
+        name="Redundancy calculator: how much is tax-free?"
+        path="/redundancy-calculator"
+        description="Estimate your statutory redundancy, the tax-free part of any extra payment, and the tax on the rest."
+      />
       <RelatedCalculators current="redundancy" />
     </div>
   );
