@@ -117,6 +117,7 @@ export default function AutoEnrolmentCalculatorPage() {
               />
               <CalculatorInput
                 label="Your Age"
+                inputMode="numeric"
                 value={age}
                 onChange={setAge}
               />
