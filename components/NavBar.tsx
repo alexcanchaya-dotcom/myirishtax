@@ -30,6 +30,7 @@ const mobileGroups: { heading: string; links: { href: string; label: string }[] 
     links: [
       { href: '/small-benefit-exemption', label: 'Small benefit exemption' },
       { href: '/second-income-form-12', label: 'Second income / Form 12' },
+      { href: '/payslip-october-prsi', label: 'Why October pay dropped' },
     ],
   },
   { heading: 'MyIrishTax', links: [{ href: '/about', label: 'About' }] },
