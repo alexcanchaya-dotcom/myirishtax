@@ -32,6 +32,72 @@ const nextConfig = {
         destination: '/',
         permanent: true,
       },
+      {
+        // Old static about page; /about is current.
+        source: '/about.html',
+        destination: '/about',
+        permanent: true,
+      },
+      {
+        // Old generic sources list; /about has the live methodology and sources.
+        source: '/data-sources.html',
+        destination: '/about',
+        permanent: true,
+      },
+      {
+        // Old static copy of the cookies page.
+        source: '/cookies.html',
+        destination: '/cookies',
+        permanent: true,
+      },
+      {
+        // Old static copy of the privacy page.
+        source: '/privacy.html',
+        destination: '/privacy',
+        permanent: true,
+      },
+      {
+        // Old static copy of the terms page.
+        source: '/terms.html',
+        destination: '/terms',
+        permanent: true,
+      },
+      {
+        // Old static copy of the disclaimer page.
+        source: '/disclaimer.html',
+        destination: '/disclaimer',
+        permanent: true,
+      },
+      {
+        // Said 75% mortgage interest and a flat €600 rental credit; both out of date.
+        source: '/rental-calculator-landing.html',
+        destination: '/rental-calculator',
+        permanent: true,
+      },
+      {
+        // Thin generic BIK note; the small benefit page is the live BIK-related page.
+        source: '/guides/bik.html',
+        destination: '/small-benefit-exemption',
+        permanent: true,
+      },
+      {
+        // Generic note with no figures; the take-home page now explains the pension age limits and €115,000 cap.
+        source: '/guides/pension-tax-relief.html',
+        destination: '/',
+        permanent: true,
+      },
+      {
+        // Generic rental expenses note; nearest live page is the rental calculator.
+        source: '/guides/rental-expenses.html',
+        destination: '/rental-calculator',
+        permanent: true,
+      },
+      {
+        // Internal design page (shows 'PRSI 4%'); not for visitors.
+        source: '/styleguide.html',
+        destination: '/',
+        permanent: true,
+      },
     ];
   },
 };
