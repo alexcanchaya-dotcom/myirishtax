@@ -190,6 +190,12 @@ export default function PortfolioPage() {
                 Viewing realized gains and CGT for tax year {selectedYear}.
                 CGT due by 15 December {selectedYear}.
               </p>
+              <p className="mt-1 text-sm text-gray-700">
+                Irish funds and most EU ETFs pay exit tax, not CGT.{" "}
+                <Link href="/exit-tax-ireland" className="font-medium underline underline-offset-2">
+                  Exit tax: 38% now, 35% announced in Budget 2027
+                </Link>
+              </p>
             </div>
             <select
               value={selectedYear}
