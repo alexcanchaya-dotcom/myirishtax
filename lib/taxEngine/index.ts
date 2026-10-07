@@ -57,20 +57,45 @@ export function calculatePAYE(income: number, config: TaxYearConfig, maritalStat
   return calculateBands(income, bands);
 }
 
+// No USC at all when total income for the year is at or below the exemption threshold (€13,000).
+// Above it, USC is charged on the full income, not just the excess (s.531AM(2) TCA 1997).
 export function calculateUSC(income: number, config: TaxYearConfig): BandBreakdown[] {
+  if (income <= config.uscExemptionThreshold) {
+    return [{ band: `exempt (income €${String(config.uscExemptionThreshold).replace(/\B(?=(\d{3})+(?!\d))/g, ',')} or less)`, amount: 0, rate: 0 }];
+  }
   return calculateBands(income, config.uscBands);
 }
 
-// PRSI weighted by month when the rate changes partway through the year.
+function prsiRateForMonth(config: TaxYearConfig, month: number): number {
+  const applicable = (config.prsiRateChanges ?? []).filter((c) => c.fromMonth <= month);
+  return applicable.length > 0 ? applicable[applicable.length - 1].rate : config.prsiRate;
+}
+
+// Class A employee PRSI (take-home calculator). Assumes even weekly pay (annual ÷ 52).
+// Weekly pay at or below €352: nil. €352.01–€424: the charge is reduced by a tapered credit of
+// €12 less one-sixth of earnings over €352.01. Above €424: the rate on all earnings.
+// The rate is weighted by month when it changes partway through the year.
+export function calculateClassAPRSI(income: number, config: TaxYearConfig): number {
+  const { weeklyNilUpTo, creditMax, creditTaperTo } = config.classAPrsi;
+  const weekly = income / 52;
+  if (weekly <= weeklyNilUpTo) return 0;
+  const credit = weekly <= creditTaperTo ? Math.max(0, creditMax - (weekly - (weeklyNilUpTo + 0.01)) / 6) : 0;
+  let total = 0;
+  for (let month = 1; month <= 12; month++) {
+    const weeklyCharge = Math.max(0, weekly * prsiRateForMonth(config, month) - credit);
+    total += (weeklyCharge * 52) / 12;
+  }
+  return total;
+}
+
+// Rate-only PRSI (used for Class S), weighted by month when the rate changes partway through the year.
 // Assumes even monthly pay, so this is an estimate. With no changes listed it is income × prsiRate.
 export function calculatePRSI(income: number, config: TaxYearConfig): number {
   const changes = config.prsiRateChanges ?? [];
   if (changes.length === 0) return income * config.prsiRate;
   let total = 0;
   for (let month = 1; month <= 12; month++) {
-    const applicable = changes.filter((c) => c.fromMonth <= month);
-    const rate = applicable.length > 0 ? applicable[applicable.length - 1].rate : config.prsiRate;
-    total += (income / 12) * rate;
+    total += (income / 12) * prsiRateForMonth(config, month);
   }
   return total;
 }
@@ -95,7 +120,7 @@ export function calculateNetIncome(input: CalculationInput): TaxBreakdown {
 
   const payeBreakdown = calculatePAYE(taxableIncome, config, input.maritalStatus);
   const uscBreakdown = calculateUSC(taxableIncome, config);
-  const prsi = calculatePRSI(taxableIncome, config);
+  const prsi = calculateClassAPRSI(taxableIncome, config);
 
   const payeBeforeCredits = sumBands(payeBreakdown);
   const uscTotal = sumBands(uscBreakdown);

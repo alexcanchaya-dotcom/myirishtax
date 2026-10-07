@@ -214,17 +214,18 @@ export default function HomePage() {
           <div>
             <h3 className="mb-2 text-base font-semibold text-ink">USC</h3>
             <p>
-              2025: 0.5% to €12,012, 2% to €27,382, 3% to €70,044, then 8%. 2026 raises the 2%
-              ceiling to €28,700. Credits do not reduce USC.
+              No USC if your total income for the year is €13,000 or less. Above that, USC applies
+              to all of it. 2025: 0.5% to €12,012, 2% to €27,382, 3% to €70,044, then 8%. 2026
+              raises the 2% ceiling to €28,700. Credits do not reduce USC.
             </p>
           </div>
           <div>
             <h3 className="mb-2 text-base font-semibold text-ink">PRSI</h3>
             <p>
-              Class A employee rate in the year book: 4% in 2025 and 4.2% in 2026. The Class A
-              rate rises to 4.35% from 1 October 2026; this estimate uses 4.2% for January to
-              September and 4.35% from October.
-              Credits do not reduce PRSI.
+              Class A employee rate: 4.1% to 30 September 2025, then 4.2%, rising to 4.35% from
+              1 October 2026. The estimate weights the rate by month. No PRSI if you earn €352 a
+              week or less. Between €352.01 and €424 a week, a PRSI credit of up to €12 a week
+              reduces it. Tax credits do not reduce PRSI.
             </p>
           </div>
         </div>
