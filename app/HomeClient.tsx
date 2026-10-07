@@ -8,6 +8,7 @@ import { TaxSummaryCard } from '../components/TaxSummaryCard';
 import { buildSummaryRows } from '../lib/summaryRows';
 import { CopyEstimateLink } from '../components/CopyEstimateLink';
 import { fromSearch, toSearch, type HomeUrlState } from '../lib/homeUrlState';
+import { OwedTaxBack } from '../components/OwedTaxBack';
 import { ComparisonView } from '../components/ComparisonView';
 import { TaxBreakdown, calculateNetIncome, compareScenarios } from '../lib/taxEngine';
 import { formatTaxYearLabel, getDefaultTaxYear, listSupportedYears } from '../lib/config/taxYearConfig';
@@ -249,6 +250,7 @@ export default function HomePage() {
         <div id="take-home-result" className="space-y-6 lg:col-span-5">
           {result && <TaxSummaryCard data={result} isCurrent={isCurrent} taxYear={taxYear} />}
           {result && <CopyEstimateLink />}
+          {result && <OwedTaxBack />}
           {result && (
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-1">
               <BreakdownTable title="PAYE" rows={result.paye} />
