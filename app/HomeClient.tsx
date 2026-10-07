@@ -22,12 +22,24 @@ function formatEuro(n: number): string {
 const MARRIED_HINT =
   'Married uses the one-income standard-rate band and married personal credit on this person’s pay only. Enter one salary — not a combined couple figure. We do not add a second income.';
 
+// Revenue age bands for pension relief; the value is a representative age for the band.
+const PENSION_AGE_OPTIONS = [
+  { label: 'Not set (uses the 40% maximum)', value: '' },
+  { label: 'Under 30 (15%)', value: '29' },
+  { label: '30–39 (20%)', value: '35' },
+  { label: '40–49 (25%)', value: '45' },
+  { label: '50–54 (30%)', value: '52' },
+  { label: '55–59 (35%)', value: '57' },
+  { label: '60 or over (40%)', value: '60' },
+];
+
 export default function HomePage() {
   const { data: session } = useSession();
   const [income, setIncome] = useState(60000);
   const [period, setPeriod] = useState<'annual' | 'monthly' | 'weekly'>('annual');
   const [maritalStatus, setMaritalStatus] = useState<'single' | 'married'>('single');
   const [pension, setPension] = useState(0);
+  const [pensionAge, setPensionAge] = useState('');
   const [credits, setCredits] = useState(0);
   const [taxYear, setTaxYear] = useState<number>(getDefaultTaxYear());
   const [result, setResult] = useState<TaxBreakdown | null>(null);
@@ -41,10 +53,11 @@ export default function HomePage() {
       period,
       maritalStatus,
       pensionContribution: pension,
+      ...(pensionAge !== '' ? { age: Number(pensionAge) } : {}),
       additionalCredits: credits,
       taxYear,
     }),
-    [credits, income, maritalStatus, pension, period, taxYear],
+    [credits, income, maritalStatus, pension, pensionAge, period, taxYear],
   );
   const inputKey = JSON.stringify(input);
   const isCurrent = result !== null && resultKey === inputKey;
@@ -140,7 +153,27 @@ export default function HomePage() {
                 options={years.map((y) => ({ label: formatTaxYearLabel(y), value: y }))}
               />
             </div>
-            <CalculatorInput label="Pension contributions" value={pension} onChange={setPension} prefix="€" />
+            <CalculatorInput label="Pension contributions (per year)" value={pension} onChange={setPension} prefix="€" />
+            <SelectField
+              label="Age (pension relief limit)"
+              value={pensionAge}
+              onChange={setPensionAge}
+              options={PENSION_AGE_OPTIONS}
+            />
+            {result && pension > 0 && result.pension.overLimit > 0 && (
+              <p role="alert" className="text-xs font-normal leading-snug text-amber-800 sm:col-span-2">
+                Over the limit: income tax relief is capped at {Math.round(result.pension.agePct * 100)}% of
+                earnings (earnings capped at €115,000), so €{Math.round(result.pension.limit).toLocaleString('en-IE')} this
+                year. The other €{Math.round(result.pension.overLimit).toLocaleString('en-IE')} gets no relief in this
+                estimate.
+                {!result.pension.ageGiven && ' Choose your age to check the limit for your age.'}
+              </p>
+            )}
+            {pension > 0 && (
+              <p className="text-xs font-normal leading-snug text-ink-muted sm:col-span-2">
+                Pension contributions reduce income tax only. USC and PRSI are still charged on your full pay.
+              </p>
+            )}
             <CalculatorInput
               label="Extra credits"
               value={credits}
@@ -208,7 +241,9 @@ export default function HomePage() {
             <p>
               20% up to €44,000 if you are single, or €53,000 if married with one income (2025 and
               2026). Income above that is 40%. Credits reduce income tax only. Married here is one
-              salary, not a two-income couple.
+              salary, not a two-income couple. Pension contributions reduce income tax only, up to
+              Revenue&apos;s age limit (15% of earnings under 30, rising to 40% at 60 or over, on
+              earnings up to €115,000). They do not reduce USC or PRSI.
             </p>
           </div>
           <div>
