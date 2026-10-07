@@ -53,7 +53,7 @@ describe('Home Carer Tax Credit (Revenue rates page, TDM 15-01-29)', () => {
     const s2 = calculateNetIncome({ ...married, maritalStatus: 'single', income: 40000 });
     expect(s1.netAnnual).toBe(s2.netAnnual);
     const d: HomeUrlState = {
-      income: 60000, period: 'annual', maritalStatus: 'single', spouseIncome: 0, singleParent: false, homeCarer: false, over65: false,
+      income: 60000, period: 'annual', maritalStatus: 'single', spouseIncome: 0, singleParent: false, homeCarer: false, over65: false, reducedUsc: false,
       pension: 0, pensionAge: '', credits: 0, taxYear: 2026,
     };
     const s = fromSearch('?status=married&carer=1', d);

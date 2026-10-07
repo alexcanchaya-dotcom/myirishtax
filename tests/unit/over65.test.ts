@@ -57,7 +57,7 @@ describe('65 or over: Age Tax Credit, exemption limits and marginal relief (Reve
 
   it('URL over65=1, checkbox wording, hint and card line', () => {
     const d: HomeUrlState = {
-      income: 60000, period: 'annual', maritalStatus: 'single', spouseIncome: 0, singleParent: false, homeCarer: false, over65: false,
+      income: 60000, period: 'annual', maritalStatus: 'single', spouseIncome: 0, singleParent: false, homeCarer: false, over65: false, reducedUsc: false,
       pension: 0, pensionAge: '', credits: 0, taxYear: 2026,
     };
     const s = fromSearch('?over65=1', d);

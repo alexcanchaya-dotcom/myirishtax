@@ -36,6 +36,7 @@ const URL_DEFAULTS: HomeUrlState = {
   singleParent: false,
   homeCarer: false,
   over65: false,
+  reducedUsc: false,
   pension: 0,
   pensionAge: '',
   credits: 0,
@@ -51,6 +52,8 @@ const HOME_CARER_HINT =
   'Tick if your spouse or partner works in the home caring for a child you get Child Benefit for, someone aged 65 or over, or someone permanently incapacitated. Home Carer Tax Credit up to €1,950 in 2026, reduced if their own pay is over €7,200. We use it only if it saves more than the second-earner band.';
 const OVER_65_HINT =
   'Adds the Age Tax Credit (€245, or €490 for a couple). If total income is €18,000 or less (€36,000 for a couple) there is no income tax, and just above that marginal relief can lower it. USC and PRSI are not changed in this estimate.';
+const REDUCED_USC_HINT =
+  'Reduced USC: 0.5% on the first €12,012 and 2% on the rest, if your own income is €60,000 or less. Not for a GP visit card. Medical card holders need to ask Revenue to apply it.';
 const CREDITS_HINT =
   'Only credits not already counted, e.g. rent tax credit (up to €1,000 in 2026, €2,000 for a couple) or dependent relative credit (€305). Your personal and Employee (PAYE) credits are already included.';
 
@@ -66,6 +69,7 @@ export default function HomePage() {
   const [singleParent, setSingleParent] = useState(false);
   const [homeCarer, setHomeCarer] = useState(false);
   const [over65, setOver65] = useState(false);
+  const [reducedUsc, setReducedUsc] = useState(false);
   const [urlLoaded, setUrlLoaded] = useState(false);
   const [taxYear, setTaxYear] = useState<number>(getDefaultTaxYear());
   const [result, setResult] = useState<TaxBreakdown | null>(null);
@@ -85,9 +89,10 @@ export default function HomePage() {
       ...(maritalStatus === 'single' && singleParent ? { singleParent: true } : {}),
       ...(maritalStatus === 'married' && homeCarer ? { homeCarer: true } : {}),
       ...(over65 ? { over65: true } : {}),
+      ...(reducedUsc ? { reducedUsc: true } : {}),
       taxYear,
     }),
-    [credits, homeCarer, income, over65, maritalStatus, pension, pensionAge, period, singleParent, spouseIncome, taxYear],
+    [credits, homeCarer, income, over65, reducedUsc, maritalStatus, pension, pensionAge, period, singleParent, spouseIncome, taxYear],
   );
   // Inputs live in the URL (?income=…&year=…) so an estimate can be reloaded or shared.
   useEffect(() => {
@@ -99,6 +104,7 @@ export default function HomePage() {
     setSingleParent(s.singleParent);
     setHomeCarer(s.homeCarer);
     setOver65(s.over65);
+    setReducedUsc(s.reducedUsc);
     setPension(s.pension);
     setPensionAge(s.pensionAge);
     setCredits(s.credits);
@@ -109,13 +115,13 @@ export default function HomePage() {
   useEffect(() => {
     if (!urlLoaded) return;
     const search = toSearch(
-      { income, period, maritalStatus, spouseIncome, singleParent, homeCarer, over65, pension, pensionAge, credits, taxYear },
+      { income, period, maritalStatus, spouseIncome, singleParent, homeCarer, over65, reducedUsc, pension, pensionAge, credits, taxYear },
       URL_DEFAULTS,
     );
     if (search !== window.location.search) {
       window.history.replaceState(window.history.state, '', `${window.location.pathname}${search}${window.location.hash}`);
     }
-  }, [credits, homeCarer, income, over65, maritalStatus, pension, pensionAge, period, singleParent, spouseIncome, taxYear, urlLoaded]);
+  }, [credits, homeCarer, income, over65, reducedUsc, maritalStatus, pension, pensionAge, period, singleParent, spouseIncome, taxYear, urlLoaded]);
 
   const inputKey = JSON.stringify(input);
   const isCurrent = result !== null && resultKey === inputKey;
@@ -303,6 +309,21 @@ export default function HomePage() {
               </label>
               <p id="over-65-hint" className="text-xs font-normal leading-snug text-ink-muted">
                 {OVER_65_HINT}
+              </p>
+            </div>
+            <div className="flex flex-col gap-1 sm:col-span-2">
+              <label className="flex min-h-11 items-center gap-3 text-sm font-medium text-ink">
+                <input
+                  type="checkbox"
+                  className="h-5 w-5"
+                  checked={reducedUsc}
+                  onChange={(e) => setReducedUsc(e.target.checked)}
+                  aria-describedby="reduced-usc-hint"
+                />
+                I have a full medical card, or I’m 70 or over
+              </label>
+              <p id="reduced-usc-hint" className="text-xs font-normal leading-snug text-ink-muted">
+                {REDUCED_USC_HINT}
               </p>
             </div>
             <CalculatorInput

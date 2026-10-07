@@ -16,6 +16,7 @@ const schema = z.object({
   singleParent: z.boolean().optional(),
   homeCarer: z.boolean().optional(),
   over65: z.boolean().optional(),
+  reducedUsc: z.boolean().optional(),
   taxYear: z
     .number()
     .int()
