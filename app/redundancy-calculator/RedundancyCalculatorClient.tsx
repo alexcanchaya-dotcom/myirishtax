@@ -216,7 +216,16 @@ export default function RedundancyCalculatorPage() {
             </ul>
             <p className="text-sm text-ink-muted">
               Tax is worked out at your own {results.breakdown.taxYear} rates on top of your salary, with single person
-              credits. Top slicing relief can lower the tax in some cases; it is not included here.
+              credits. Top slicing relief no longer applies: it was abolished for ex-gratia payments made on or after
+              1 January 2014. Source:{" "}
+              <a
+                href="https://www.citizensinformation.ie/en/money-and-tax/budgets/budget-2014/"
+                className="underline"
+                rel="noopener noreferrer"
+              >
+                Citizens Information, Budget 2014
+              </a>
+              .
             </p>
           </div>
 
