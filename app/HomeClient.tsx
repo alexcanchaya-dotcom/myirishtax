@@ -12,6 +12,7 @@ import Link from 'next/link';
 import { PageHeader } from '../components/PageHeader';
 import { FireHandoff } from '../components/FireHandoff';
 import { RelatedCalculators } from '../components/RelatedCalculators';
+import { TaxDisclaimer } from '../components/TaxDisclaimer';
 
 const years = listSupportedYears();
 
@@ -264,6 +265,7 @@ export default function HomePage() {
             </p>
           </div>
         </div>
+        <TaxDisclaimer className="mt-8" />
       </section>
 
       <RelatedCalculators current="take-home" />
