@@ -30,7 +30,7 @@ This document maps the calculators needed for the Irish tax experience, describe
   - Outputs: annual allowance schedules (e.g., 12.5% over 8 years for plant, 4% over 25 years for industrial buildings), balancing charges/allowances on disposal.
 - **CGT estimator (phase 2)**
   - Inputs: disposal proceeds, acquisition cost, enhancement costs, allowable losses, relief flags (PRR, retirement relief, entrepreneur relief).
-  - Outputs: chargeable gain, annual exemption, CGT at 33% (10% entrepreneur relief where valid), payment date guidance.
+  - Outputs: chargeable gain, annual exemption, CGT at 31% for disposals on or after 7 Oct 2026 (33% before; Budget 2027) (10% entrepreneur relief where valid), payment date guidance.
 
 ## Config-driven rates
 - Store tax-year data under `config/tax_years/<year>.yml` (e.g., `config/tax_years/2024.yml`).
