@@ -4,14 +4,8 @@
 
 @layer base {
   :root {
-    /* Space so fold content and CTAs clear the fixed disclaimer bar. */
-    --site-footer-offset: 3.5rem;
-  }
-
-  @media (max-width: 640px) {
-    :root {
-      --site-footer-offset: 4.5rem;
-    }
+    /* No fixed bottom bar any more (one sticky bar: the take-home Calculate bar). Kept as a hook at 0. */
+    --site-footer-offset: 0rem;
   }
 
   html {
