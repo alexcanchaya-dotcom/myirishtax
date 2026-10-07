@@ -1,9 +1,9 @@
 import ContractorCalculatorClient from './ContractorCalculatorClient';
 
 export const metadata = {
-  title: 'Irish contractor tax calculator | MyIrishTax',
+  title: 'Sole trader / self-employed tax calculator (Class S) | MyIrishTax',
   description:
-    'Estimate income tax, USC and Class S PRSI for self-employed contractors in Ireland, after expenses and pension contributions. Based on published Irish tax bands; not advice.',
+    'Sole trader or self-employed in Ireland? Estimate income tax, USC and Class S PRSI on your profit, plus preliminary tax due 31 October (18 November if you pay and file on ROS). Estimate only; not financial or tax advice.',
   alternates: { canonical: '/contractor-calculator' },
 };
 
