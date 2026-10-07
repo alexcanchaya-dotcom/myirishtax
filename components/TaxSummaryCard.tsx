@@ -1,5 +1,6 @@
 import React from 'react';
 import { TaxBreakdown } from '../lib/taxEngine';
+import { buildSummaryRows } from '../lib/summaryRows';
 
 function money(n: number): string {
   return `€${Math.round(n).toLocaleString('en-IE')}`;
@@ -14,6 +15,7 @@ export function TaxSummaryCard({
   isCurrent?: boolean;
   taxYear?: number;
 }) {
+  const rows = buildSummaryRows(data);
   return (
     <div className={`card ${isCurrent ? '' : 'opacity-60'}`}>
       <div className="flex items-start justify-between gap-3">
@@ -25,7 +27,7 @@ export function TaxSummaryCard({
           {isCurrent ? 'Current estimate' : 'Out of date — click Calculate'}
         </p>
       </div>
-      <p className="mt-2 font-serif text-4xl text-brand-700">{money(data.netAnnual)}</p>
+      <p className="mt-2 font-serif text-4xl text-brand-700">{money(rows.takeHome)}</p>
       <p className="mt-1 text-sm text-ink-muted">
         {money(data.netMonthly)} a month · {money(data.netWeekly)} a week
       </p>
@@ -37,35 +39,44 @@ export function TaxSummaryCard({
         </p>
       )}
       <dl className="mt-6 space-y-2 border-t border-line pt-4 text-sm">
-        <div className="flex justify-between gap-4">
-          <dt className="text-ink-muted">PAYE after credits</dt>
-          <dd>{money(data.payeAfterCredits)}</dd>
-        </div>
-        <div className="flex justify-between gap-4">
-          <dt className="text-ink-muted">USC</dt>
-          <dd>{money(data.uscTotal)}</dd>
-        </div>
-        <div className="flex justify-between gap-4">
-          <dt className="text-ink-muted">PRSI</dt>
-          <dd>{money(data.prsi)}</dd>
-        </div>
-        <div className="flex justify-between gap-4">
-          <dt className="text-ink-muted">Credits used (income tax only)</dt>
-          <dd>{money(Math.min(data.credits, data.payeBeforeCredits))}</dd>
-        </div>
-        <div className="flex justify-between gap-4 border-t border-line pt-2 font-medium">
-          <dt>Total deductions</dt>
-          <dd>{money(data.totalTax)}</dd>
-        </div>
-        {data.pension && data.pension.contribution > 0 && (
-          <div className="flex justify-between gap-4">
-            <dt className="text-ink-muted">
-              Pension contribution (income tax relief on {money(data.pension.relieved)})
-            </dt>
-            <dd>{money(data.pension.contribution)}</dd>
-          </div>
+        <Row label={data.household ? 'Gross pay (both of you)' : 'Gross pay'} value={money(rows.gross)} />
+        <Row label="Income tax before credits" value={money(rows.incomeTaxBeforeCredits)} />
+        <Row label="Less tax credits" value={`−${money(rows.creditsUsed)}`} indent valueClass="text-green-700" />
+        <Row label="Income tax" value={money(rows.incomeTax)} />
+        <Row label="USC" value={money(rows.usc)} />
+        <Row label="PRSI" value={money(rows.prsi)} />
+        <Row label="Total tax, USC and PRSI" value={money(rows.totalDeductions)} strong rule />
+        {rows.pension > 0 && (
+          <Row
+            label={`Pension contribution (income tax relief on ${money(data.pension.relieved)})`}
+            value={`−${money(rows.pension)}`}
+          />
         )}
+        <Row label="Take-home" value={money(rows.takeHome)} strong rule />
       </dl>
+    </div>
+  );
+}
+
+function Row({
+  label,
+  value,
+  indent = false,
+  strong = false,
+  rule = false,
+  valueClass = '',
+}: {
+  label: string;
+  value: string;
+  indent?: boolean;
+  strong?: boolean;
+  rule?: boolean;
+  valueClass?: string;
+}) {
+  return (
+    <div className={`flex justify-between gap-4 ${rule ? 'border-t border-line pt-2' : ''} ${strong ? 'font-medium' : ''}`}>
+      <dt className={`${strong ? '' : 'text-ink-muted'} ${indent ? 'pl-4' : ''}`}>{label}</dt>
+      <dd className={`tabular-nums ${valueClass}`}>{value}</dd>
     </div>
   );
 }
