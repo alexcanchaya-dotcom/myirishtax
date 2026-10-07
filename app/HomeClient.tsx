@@ -17,7 +17,7 @@ import { PageHeader } from '../components/PageHeader';
 import { FireHandoff } from '../components/FireHandoff';
 import { RelatedCalculators } from '../components/RelatedCalculators';
 import { TaxDisclaimer } from '../components/TaxDisclaimer';
-import { PENSION_AGE_OPTIONS } from '../lib/pensionAgeOptions';
+import { PENSION_AGE_HINT, PENSION_AGE_OPTIONS } from '../lib/pensionAgeOptions';
 import { TrustStrip } from '@/components/TrustStrip';
 
 const years = listSupportedYears();
@@ -38,7 +38,10 @@ const URL_DEFAULTS: HomeUrlState = {
 };
 
 const MARRIED_HINT =
-  'Joint assessment. Enter your own pay above and your spouse or partner’s pay below. Leave their pay at 0 if only one of you earns. We assume both of you are PAYE employees and the band and credits are shared in the way that saves most tax.';
+  'Married or civil partners are taxed together (joint assessment). Add your spouse or partner’s pay, or leave it at 0 if only you earn.';
+const SPOUSE_HINT = 'We assume you are both PAYE employees and share the tax band and credits in the way that saves most tax.';
+const CREDITS_HINT =
+  'Only credits not already counted, e.g. rent tax credit (up to €1,000 in 2026, €2,000 for a couple) or age tax credit if you are 65 or over (€245, €490 for a couple). Your personal and Employee (PAYE) credits are already included.';
 
 export default function HomePage() {
   const { data: session } = useSession();
@@ -180,7 +183,7 @@ export default function HomePage() {
             />
             <div className="grid gap-5 sm:col-span-2 sm:grid-cols-2">
               <SelectField
-                label="Marital status"
+                label="Single or married?"
                 value={maritalStatus}
                 onChange={(v) => setMaritalStatus(v as 'single' | 'married')}
                 options={[
@@ -201,6 +204,7 @@ export default function HomePage() {
                   value={spouseIncome}
                   onChange={setSpouseIncome}
                   prefix="€"
+                  hint={SPOUSE_HINT}
                 />
               )}
               <SelectField
@@ -212,10 +216,11 @@ export default function HomePage() {
             </div>
             <CalculatorInput label="Pension contributions (per year)" value={pension} onChange={setPension} prefix="€" />
             <SelectField
-              label="Age (pension relief limit)"
+              label="Your age"
               value={pensionAge}
               onChange={setPensionAge}
               options={PENSION_AGE_OPTIONS}
+              hint={PENSION_AGE_HINT}
             />
             {result && pension > 0 && result.pension.overLimit > 0 && (
               <p role="alert" className="text-xs font-normal leading-snug text-amber-800 sm:col-span-2">
@@ -232,10 +237,11 @@ export default function HomePage() {
               </p>
             )}
             <CalculatorInput
-              label="Extra credits"
+              label="Other tax credits (per year)"
               value={credits}
               onChange={setCredits}
               prefix="€"
+              hint={CREDITS_HINT}
             />
           </div>
           <div className="sticky bottom-[calc(var(--site-footer-offset)+0.5rem)] z-10 mt-6 -mx-6 border-t border-line bg-white/95 px-6 py-2.5 backdrop-blur lg:static lg:mx-0 lg:border-0 lg:bg-transparent lg:px-0 lg:py-0 lg:backdrop-blur-none">
@@ -251,7 +257,6 @@ export default function HomePage() {
             </div>
           </div>
           <p className="mt-4 text-xs text-ink-muted">
-            Extra credits sit on top of the standard personal and PAYE credits for your status.
             The estimate is worked out in your browser as you change a figure, or when you click
             Calculate.{' '}
             <Link href="/privacy" className="underline decoration-line underline-offset-2 hover:text-ink">
