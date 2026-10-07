@@ -189,7 +189,7 @@ export const COMMON_EXPENSE_CATEGORIES = [
   'Equipment & Software',
   'Phone & Internet',
   'Travel & Mileage',
-  'Professional Fees (Accountant, Legal)',
+  'Professional Fees (Bookkeeping, Legal)',
   'Insurance',
   'Marketing & Advertising',
   'Training & Education',
