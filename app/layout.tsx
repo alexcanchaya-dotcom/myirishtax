@@ -88,6 +88,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                     <li><Link href="/small-benefit-exemption" className="hover:text-brand-700">Small benefit exemption</Link></li>
                     <li><Link href="/second-income-form-12" className="hover:text-brand-700">Second income / Form 12</Link></li>
                     <li><Link href="/payslip-october-prsi" className="hover:text-brand-700">Why October pay dropped</Link></li>
+                    <li><Link href="/exit-tax-ireland" className="hover:text-brand-700">Exit tax (funds and ETFs)</Link></li>
                   </ul>
                 </div>
                 <div>
