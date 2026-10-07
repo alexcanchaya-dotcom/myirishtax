@@ -5,9 +5,47 @@ export type CalculationInput = {
   period: 'annual' | 'monthly' | 'weekly';
   maritalStatus: 'single' | 'married';
   pensionContribution?: number;
+  /** Age at the end of the year, for the pension relief age limit. Optional: without it only the 40% / €115,000 ceiling applies. */
+  age?: number;
   additionalCredits?: number;
   taxYear: number;
 };
+
+/** Revenue "Tax relief limits on pension contributions": % of earnings by age, earnings capped at €115,000. */
+export const PENSION_EARNINGS_CAP = 115000;
+export const PENSION_AGE_LIMITS: { minAge: number; pct: number }[] = [
+  { minAge: 60, pct: 0.4 },
+  { minAge: 55, pct: 0.35 },
+  { minAge: 50, pct: 0.3 },
+  { minAge: 40, pct: 0.25 },
+  { minAge: 30, pct: 0.2 },
+  { minAge: 0, pct: 0.15 },
+];
+
+export function pensionAgeLimitPct(age?: number): number {
+  if (age === undefined || !Number.isFinite(age)) return PENSION_AGE_LIMITS[0].pct; // no age: the highest (60+) limit
+  return (PENSION_AGE_LIMITS.find((b) => age >= b.minAge) ?? PENSION_AGE_LIMITS[PENSION_AGE_LIMITS.length - 1]).pct;
+}
+
+export type PensionRelief = {
+  contribution: number;
+  /** Most that can get income tax relief this year: age % × earnings (capped at €115,000). */
+  limit: number;
+  /** The part of the contribution that reduces income tax. */
+  relieved: number;
+  /** Contribution above the limit: no relief this year. */
+  overLimit: number;
+  agePct: number;
+  ageGiven: boolean;
+};
+
+export function calculatePensionRelief(earnings: number, contribution: number, age?: number): PensionRelief {
+  const agePct = pensionAgeLimitPct(age);
+  const limit = Math.max(0, Math.min(earnings, PENSION_EARNINGS_CAP)) * agePct;
+  const c = Math.max(0, contribution);
+  const relieved = Math.min(c, limit);
+  return { contribution: c, limit, relieved, overLimit: c - relieved, agePct, ageGiven: age !== undefined && Number.isFinite(age) };
+}
 
 export type BandBreakdown = { band: string; amount: number; rate: number };
 export type TaxBreakdown = {
@@ -23,6 +61,7 @@ export type TaxBreakdown = {
   netMonthly: number;
   netWeekly: number;
   netDaily: number;
+  pension: PensionRelief;
 };
 
 export function sumBands(bands: BandBreakdown[]): number {
@@ -115,12 +154,14 @@ export function calculateCredits(
 export function calculateNetIncome(input: CalculationInput): TaxBreakdown {
   const config = getTaxYearConfig(input.taxYear);
   const annualIncome = convertToAnnual(input.income, input.period);
-  const pension = input.pensionContribution ?? 0;
-  const taxableIncome = Math.max(0, annualIncome - pension);
+  // Employee pension contributions get income tax relief only, within the age % and €115,000 earnings limits.
+  // "There is no relief from USC or PRSI for employee pension contributions" (Revenue).
+  const pension = calculatePensionRelief(annualIncome, input.pensionContribution ?? 0, input.age);
+  const taxableIncome = Math.max(0, annualIncome - pension.relieved);
 
   const payeBreakdown = calculatePAYE(taxableIncome, config, input.maritalStatus);
-  const uscBreakdown = calculateUSC(taxableIncome, config);
-  const prsi = calculateClassAPRSI(taxableIncome, config);
+  const uscBreakdown = calculateUSC(annualIncome, config);
+  const prsi = calculateClassAPRSI(annualIncome, config);
 
   const payeBeforeCredits = sumBands(payeBreakdown);
   const uscTotal = sumBands(uscBreakdown);
@@ -129,7 +170,8 @@ export function calculateNetIncome(input: CalculationInput): TaxBreakdown {
   // Tax credits reduce income tax (PAYE) only. They cannot reduce USC or PRSI.
   const payeAfterCredits = Math.max(0, payeBeforeCredits - totalCredits);
   const totalTax = payeAfterCredits + uscTotal + prsi;
-  const netAnnual = taxableIncome - totalTax;
+  // Take-home after tax and after the full pension contribution (it leaves your pay either way).
+  const netAnnual = annualIncome - pension.contribution - totalTax;
 
   return {
     paye: payeBreakdown,
@@ -144,6 +186,7 @@ export function calculateNetIncome(input: CalculationInput): TaxBreakdown {
     netMonthly: netAnnual / 12,
     netWeekly: netAnnual / 52,
     netDaily: netAnnual / 365,
+    pension,
   };
 }
 

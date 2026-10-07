@@ -7,6 +7,7 @@ const schema = z.object({
   period: z.enum(['annual', 'monthly', 'weekly']),
   maritalStatus: z.enum(['single', 'married']),
   pensionContribution: z.number().optional(),
+  age: z.number().int().min(16).max(120).optional(),
   additionalCredits: z.number().optional(),
   taxYear: z.number(),
 });

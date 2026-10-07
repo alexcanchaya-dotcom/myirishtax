@@ -50,6 +50,14 @@ export function TaxSummaryCard({
           <dt>Total deductions</dt>
           <dd>{money(data.totalTax)}</dd>
         </div>
+        {data.pension && data.pension.contribution > 0 && (
+          <div className="flex justify-between gap-4">
+            <dt className="text-ink-muted">
+              Pension contribution (income tax relief on {money(data.pension.relieved)})
+            </dt>
+            <dd>{money(data.pension.contribution)}</dd>
+          </div>
+        )}
       </dl>
     </div>
   );
