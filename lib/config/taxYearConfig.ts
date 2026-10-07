@@ -42,6 +42,11 @@ export type TaxYearConfig = {
   prsiRateChanges?: { fromMonth: number; rate: number }[];
   credits: TaxCredits;
   creditsMarried: TaxCredits;
+  /**
+   * Single Person Child Carer Credit and the standard rate band that comes with it (single + €4,000).
+   * Revenue tax relief charts; Revenue SPCCC page: "If you are due the SPCCC, then you are automatically due the increased rate band."
+   */
+  singlePersonChildCarer: { credit: number; band: number };
   /** Married / civil partners, both with income: maximum increase in the standard rate band (Revenue tax relief charts). */
   marriedSecondEarnerIncrease: number;
   /** Earned Income Tax Credit (self-employed): lower of this or 20% of earned income. Revenue tax relief charts. */
@@ -88,6 +93,7 @@ const baseConfigs: Record<number, TaxYearConfig> = {
     prsiRate: 0.04,
     credits: { personal: 1775, paye: 1775 },
     creditsMarried: { personal: 3550, paye: 1775 },
+    singlePersonChildCarer: { credit: 1650, band: 44000 },
     marriedSecondEarnerIncrease: 31000,
     earnedIncomeCredit: 1775,
     classSMinimum: 500,
@@ -116,6 +122,7 @@ const baseConfigs: Record<number, TaxYearConfig> = {
     prsiRateChanges: [{ fromMonth: 10, rate: 0.041 }],
     credits: { personal: 1875, paye: 1875 },
     creditsMarried: { personal: 3750, paye: 1875 },
+    singlePersonChildCarer: { credit: 1750, band: 46000 },
     marriedSecondEarnerIncrease: 33000,
     earnedIncomeCredit: 1875,
     classSMinimum: 537.5, // €500 to 30 Sep 2024, €650 from 1 Oct 2024: blended €537.50 for 2024 self-assessment
@@ -144,6 +151,7 @@ const baseConfigs: Record<number, TaxYearConfig> = {
     prsiRateChanges: [{ fromMonth: 10, rate: 0.042 }],
     credits: { personal: 2000, paye: 2000 },
     creditsMarried: { personal: 4000, paye: 2000 },
+    singlePersonChildCarer: { credit: 1900, band: 48000 },
     marriedSecondEarnerIncrease: 35000,
     earnedIncomeCredit: 2000,
     classSMinimum: 650,
@@ -176,6 +184,7 @@ const baseConfigs: Record<number, TaxYearConfig> = {
     // Budget 2026: No change to credits (same as 2025)
     credits: { personal: 2000, paye: 2000 },
     creditsMarried: { personal: 4000, paye: 2000 },
+    singlePersonChildCarer: { credit: 1900, band: 48000 },
     marriedSecondEarnerIncrease: 35000,
     earnedIncomeCredit: 2000,
     classSMinimum: 650,
