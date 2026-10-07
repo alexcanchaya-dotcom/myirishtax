@@ -22,7 +22,7 @@ function formatEuro(n: number): string {
 }
 
 const MARRIED_HINT =
-  'Married uses the one-income standard-rate band and married personal credit on this person’s pay only. Enter one salary — not a combined couple figure. We do not add a second income.';
+  'Joint assessment. Enter your own pay above and your spouse or partner’s pay below. Leave their pay at 0 if only one of you earns. We assume both of you are PAYE employees and the band and credits are shared in the way that saves most tax.';
 
 export default function HomePage() {
   const { data: session } = useSession();
@@ -32,6 +32,7 @@ export default function HomePage() {
   const [pension, setPension] = useState(0);
   const [pensionAge, setPensionAge] = useState('');
   const [credits, setCredits] = useState(0);
+  const [spouseIncome, setSpouseIncome] = useState(0);
   const [taxYear, setTaxYear] = useState<number>(getDefaultTaxYear());
   const [result, setResult] = useState<TaxBreakdown | null>(null);
   const [resultKey, setResultKey] = useState<string | null>(null);
@@ -46,9 +47,10 @@ export default function HomePage() {
       pensionContribution: pension,
       ...(pensionAge !== '' ? { age: Number(pensionAge) } : {}),
       additionalCredits: credits,
+      ...(maritalStatus === 'married' && spouseIncome > 0 ? { spouseIncome } : {}),
       taxYear,
     }),
-    [credits, income, maritalStatus, pension, pensionAge, period, taxYear],
+    [credits, income, maritalStatus, pension, pensionAge, period, spouseIncome, taxYear],
   );
   const inputKey = JSON.stringify(input);
   const isCurrent = result !== null && resultKey === inputKey;
@@ -90,7 +92,7 @@ export default function HomePage() {
       {result && (
         <div className="mb-6 flex items-baseline justify-between gap-4 rounded-2xl border border-line bg-white px-5 py-4 lg:hidden">
           <span className="text-sm text-ink-muted">
-            Take-home
+            {result.household ? 'Household take-home' : 'Take-home'}
             <span className="mt-0.5 block text-xs font-medium text-ink-muted">
               {formatTaxYearLabel(taxYear)}
               {isCurrent ? ' · current estimate' : ' · out of date — click Calculate'}
@@ -127,7 +129,7 @@ export default function HomePage() {
                 onChange={(v) => setMaritalStatus(v as 'single' | 'married')}
                 options={[
                   { label: 'Single', value: 'single' },
-                  { label: 'Married — one income only', value: 'married' },
+                  { label: 'Married or civil partners', value: 'married' },
                 ]}
                 describedBy="married-one-income-hint"
               />
@@ -137,6 +139,14 @@ export default function HomePage() {
               >
                 {MARRIED_HINT}
               </p>
+              {maritalStatus === 'married' && (
+                <CalculatorInput
+                  label="Spouse or partner’s pay (per year)"
+                  value={spouseIncome}
+                  onChange={setSpouseIncome}
+                  prefix="€"
+                />
+              )}
               <SelectField
                 label="Tax year"
                 value={taxYear}
@@ -231,8 +241,10 @@ export default function HomePage() {
             <h3 className="mb-2 text-base font-semibold text-ink">PAYE</h3>
             <p>
               20% up to €44,000 if you are single, or €53,000 if married with one income (2025 and
-              2026). Income above that is 40%. Credits reduce income tax only. Married here is one
-              salary, not a two-income couple. Pension contributions reduce income tax only, up to
+              2026). If you both earn, the 20% band goes up by the lower of €35,000 or the lower
+              earner&apos;s pay, and each of you gets the €2,000 Employee Tax Credit. USC and PRSI are
+              worked out on each person&apos;s own pay. Income above the band is 40%. Credits reduce
+              income tax only. Pension contributions reduce income tax only, up to
               Revenue&apos;s age limit (15% of earnings under 30, rising to 40% at 60 or over, on
               earnings up to €115,000). They do not reduce USC or PRSI.
             </p>

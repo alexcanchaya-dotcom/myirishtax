@@ -5,7 +5,7 @@
  * (see commit history: "Correct all tax year rates against Revenue.ie Budget data").
  * Married personal credit is twice the single personal credit (joint assessment,
  * one income — same assumption as the married standard-rate band).
- * Married two-income bands are not modelled.
+ * Married two-income: the band rises by up to marriedSecondEarnerIncrease (lower earner's income), see calculateNetIncome.
  *
  * config/tax_years/*.yml is an older draft and is not used by these calculators.
  */
@@ -42,6 +42,8 @@ export type TaxYearConfig = {
   prsiRateChanges?: { fromMonth: number; rate: number }[];
   credits: TaxCredits;
   creditsMarried: TaxCredits;
+  /** Married / civil partners, both with income: maximum increase in the standard rate band (Revenue tax relief charts). */
+  marriedSecondEarnerIncrease: number;
   /** Earned Income Tax Credit (self-employed): lower of this or 20% of earned income. Revenue tax relief charts. */
   earnedIncomeCredit: number;
   /** Class S PRSI annual minimum when Class S applies (DSP / Revenue). 2024 is the self-assessment blend. */
@@ -86,6 +88,7 @@ const baseConfigs: Record<number, TaxYearConfig> = {
     prsiRate: 0.04,
     credits: { personal: 1775, paye: 1775 },
     creditsMarried: { personal: 3550, paye: 1775 },
+    marriedSecondEarnerIncrease: 31000,
     earnedIncomeCredit: 1775,
     classSMinimum: 500,
     uscExemptionThreshold: USC_EXEMPTION_2016_ON,
@@ -113,6 +116,7 @@ const baseConfigs: Record<number, TaxYearConfig> = {
     prsiRateChanges: [{ fromMonth: 10, rate: 0.041 }],
     credits: { personal: 1875, paye: 1875 },
     creditsMarried: { personal: 3750, paye: 1875 },
+    marriedSecondEarnerIncrease: 33000,
     earnedIncomeCredit: 1875,
     classSMinimum: 537.5, // €500 to 30 Sep 2024, €650 from 1 Oct 2024: blended €537.50 for 2024 self-assessment
     uscExemptionThreshold: USC_EXEMPTION_2016_ON,
@@ -140,6 +144,7 @@ const baseConfigs: Record<number, TaxYearConfig> = {
     prsiRateChanges: [{ fromMonth: 10, rate: 0.042 }],
     credits: { personal: 2000, paye: 2000 },
     creditsMarried: { personal: 4000, paye: 2000 },
+    marriedSecondEarnerIncrease: 35000,
     earnedIncomeCredit: 2000,
     classSMinimum: 650,
     uscExemptionThreshold: USC_EXEMPTION_2016_ON,
@@ -171,6 +176,7 @@ const baseConfigs: Record<number, TaxYearConfig> = {
     // Budget 2026: No change to credits (same as 2025)
     credits: { personal: 2000, paye: 2000 },
     creditsMarried: { personal: 4000, paye: 2000 },
+    marriedSecondEarnerIncrease: 35000,
     earnedIncomeCredit: 2000,
     classSMinimum: 650,
     uscExemptionThreshold: USC_EXEMPTION_2016_ON,
