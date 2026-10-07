@@ -5,7 +5,7 @@ import { useSession } from "next-auth/react";
 import { CalculatorInput } from "@/components/CalculatorInput";
 import { buildContractorRows } from "@/lib/contractorRows";
 import { SelectField } from "@/components/SelectField";
-import { PENSION_AGE_OPTIONS } from "@/lib/pensionAgeOptions";
+import { PENSION_AGE_HINT, PENSION_AGE_OPTIONS } from "@/lib/pensionAgeOptions";
 import { ContractorBreakdown, COMMON_EXPENSE_CATEGORIES } from "@/lib/taxEngine/contractorCalculator";
 import { formatTaxYearLabel, getDefaultTaxYear, listSupportedYears } from "@/lib/config/taxYearConfig";
 import {
@@ -140,10 +140,11 @@ export default function ContractorCalculatorPage() {
                 prefix="€"
               />
               <SelectField
-                label="Age (pension relief limit)"
+                label="Your age"
                 value={pensionAge}
                 onChange={setPensionAge}
                 options={PENSION_AGE_OPTIONS}
+                hint={PENSION_AGE_HINT}
               />
               {result?.pension && pensionContribution > 0 && result.pension.overLimit > 0 && (
                 <p role="alert" className="text-xs font-normal leading-snug text-amber-800 md:col-span-2">
