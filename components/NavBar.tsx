@@ -13,6 +13,28 @@ const navLinks = [
   { href: '/about', label: 'About' },
 ];
 
+// Phone menu lists every calculator and guide (the desktop bar stays short).
+const mobileGroups: { heading: string; links: { href: string; label: string }[] }[] = [
+  {
+    heading: 'Calculators',
+    links: [
+      { href: '/', label: 'Take-home pay (PAYE)' },
+      { href: '/contractor-calculator', label: 'Contractor' },
+      { href: '/redundancy-calculator', label: 'Redundancy' },
+      { href: '/auto-enrolment-calculator', label: 'Auto-enrolment' },
+      { href: '/rent-tax-credit', label: 'Rent credit' },
+    ],
+  },
+  {
+    heading: 'Guides',
+    links: [
+      { href: '/small-benefit-exemption', label: 'Small benefit exemption' },
+      { href: '/second-income-form-12', label: 'Second income / Form 12' },
+    ],
+  },
+  { heading: 'MyIrishTax', links: [{ href: '/about', label: 'About' }] },
+];
+
 export function NavBar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const pathname = usePathname();
@@ -41,27 +63,38 @@ export function NavBar() {
           <UserNav />
           <button
             onClick={() => setMobileOpen((prev) => !prev)}
-            className="rounded-md p-2 text-ink-muted hover:bg-white hover:text-ink"
-            aria-label="Toggle navigation menu"
+            className="rounded-md p-3 text-ink-muted hover:bg-white hover:text-ink"
+            aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
+            aria-expanded={mobileOpen}
+            aria-controls="mobile-menu"
           >
             {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
         </div>
       </div>
       {mobileOpen && (
-        <div className="border-t border-line bg-paper md:hidden">
-          <div className="space-y-1 px-4 py-3">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                onClick={() => setMobileOpen(false)}
-                className={`block rounded-md px-3 py-2 text-sm ${
-                  pathname === link.href ? 'bg-white text-brand-700' : 'text-ink'
-                }`}
-              >
-                {link.label}
-              </Link>
+        <div id="mobile-menu" className="border-t border-line bg-paper md:hidden">
+          <div className="space-y-3 px-4 py-3">
+            {mobileGroups.map((group) => (
+              <div key={group.heading}>
+                <p className="px-3 pb-1 text-xs font-semibold uppercase tracking-wider text-ink-muted">{group.heading}</p>
+                <ul>
+                  {group.links.map((link) => (
+                    <li key={link.href}>
+                      <Link
+                        href={link.href}
+                        onClick={() => setMobileOpen(false)}
+                        aria-current={pathname === link.href ? 'page' : undefined}
+                        className={`block rounded-md px-3 py-3 text-base ${
+                          pathname === link.href ? 'bg-white text-brand-700' : 'text-ink'
+                        }`}
+                      >
+                        {link.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             ))}
           </div>
         </div>

@@ -1,4 +1,5 @@
 import { LegalArticle } from '@/components/LegalArticle';
+import { SCOPE_DISCLAIMER } from '@/components/TaxDisclaimer';
 
 export const metadata = {
   title: 'Disclaimer | MyIrishTax',
@@ -10,7 +11,7 @@ export default function DisclaimerPage() {
   return (
     <LegalArticle badge="Disclaimer" title="Disclaimer">
       <p>
-        Based on published Irish tax bands; not advice. The calculators and articles on MyIrishTax
+        Based on published Irish tax bands; not advice. {SCOPE_DISCLAIMER} The calculators and articles on MyIrishTax
         are for information only. They are not a substitute for advice from a qualified tax advisor
         who knows your situation.
       </p>

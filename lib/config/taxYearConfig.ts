@@ -5,7 +5,7 @@
  * (see commit history: "Correct all tax year rates against Revenue.ie Budget data").
  * Married personal credit is twice the single personal credit (joint assessment,
  * one income — same assumption as the married standard-rate band).
- * Married two-income bands are not modelled.
+ * Married two-income: the band rises by up to marriedSecondEarnerIncrease (lower earner's income), see calculateNetIncome.
  *
  * config/tax_years/*.yml is an older draft and is not used by these calculators.
  */
@@ -44,7 +44,31 @@ export type TaxYearConfig = {
   prsiRateChanges?: { fromMonth: number; rate: number }[];
   credits: TaxCredits;
   creditsMarried: TaxCredits;
+  /** Married / civil partners, both with income: maximum increase in the standard rate band (Revenue tax relief charts). */
+  marriedSecondEarnerIncrease: number;
+  /** Earned Income Tax Credit (self-employed): lower of this or 20% of earned income. Revenue tax relief charts. */
+  earnedIncomeCredit: number;
+  /** Class S PRSI annual minimum when Class S applies (DSP / Revenue). 2024 is the self-assessment blend. */
+  classSMinimum: number;
+  /** No USC when total income for the year does not exceed this (s.531AM(2) TCA 1997; Revenue USC manual 18D-00-01). */
+  uscExemptionThreshold: number;
+  /** Class A employee PRSI: nil at or below weeklyNilUpTo; tapered weekly credit up to creditTaperTo (DSP Class A rates). */
+  classAPrsi: ClassAPrsiRules;
 };
+
+export type ClassAPrsiRules = {
+  /** Weekly earnings at or below this pay no employee PRSI (subclass A0). */
+  weeklyNilUpTo: number;
+  /** Maximum weekly PRSI credit, reduced by one-sixth of earnings over weeklyNilUpTo + €0.01. */
+  creditMax: number;
+  /** The credit applies on weekly earnings up to and including this (subclass AX). */
+  creditTaperTo: number;
+};
+
+/** Unchanged 2023–2026: €352 weekly nil band, €12 tapered credit on €352.01–€424 (DSP Class A rates; Revenue Employer Notice 2024). */
+const CLASS_A_PRSI_2016_ON: ClassAPrsiRules = { weeklyNilUpTo: 352, creditMax: 12, creditTaperTo: 424 };
+/** USC exemption threshold €13,000 for 2016 onwards (Revenue USC manual 18D-00-01; "Payments and income exempt from USC"). */
+const USC_EXEMPTION_2016_ON = 13000;
 
 const baseConfigs: Record<number, TaxYearConfig> = {
   2023: {
@@ -66,6 +90,11 @@ const baseConfigs: Record<number, TaxYearConfig> = {
     prsiRate: 0.04,
     credits: { personal: 1775, paye: 1775 },
     creditsMarried: { personal: 3550, paye: 1775 },
+    marriedSecondEarnerIncrease: 31000,
+    earnedIncomeCredit: 1775,
+    classSMinimum: 500,
+    uscExemptionThreshold: USC_EXEMPTION_2016_ON,
+    classAPrsi: CLASS_A_PRSI_2016_ON,
   },
   2024: {
     year: 2024,
@@ -83,9 +112,17 @@ const baseConfigs: Record<number, TaxYearConfig> = {
       { upTo: 70044, rate: 0.04 },
       { upTo: null, rate: 0.08 },
     ],
+    // PRSI (Class A and Class S): 4% Jan–Sep 2024, 4.1% from 1 Oct 2024 (Social Welfare (Misc. Provisions) Act 2024 s.3).
+    // Month-weighted in calculatePRSI: 9 months at 4% + 3 months at 4.1% = 4.025% blend.
     prsiRate: 0.04,
+    prsiRateChanges: [{ fromMonth: 10, rate: 0.041 }],
     credits: { personal: 1875, paye: 1875 },
     creditsMarried: { personal: 3750, paye: 1875 },
+    marriedSecondEarnerIncrease: 33000,
+    earnedIncomeCredit: 1875,
+    classSMinimum: 537.5, // €500 to 30 Sep 2024, €650 from 1 Oct 2024: blended €537.50 for 2024 self-assessment
+    uscExemptionThreshold: USC_EXEMPTION_2016_ON,
+    classAPrsi: CLASS_A_PRSI_2016_ON,
   },
   2025: {
     year: 2025,
@@ -103,9 +140,17 @@ const baseConfigs: Record<number, TaxYearConfig> = {
       { upTo: 70044, rate: 0.03 },
       { upTo: null, rate: 0.08 },
     ],
-    prsiRate: 0.04,
+    // PRSI (Class A and Class S): 4.1% Jan–Sep 2025, 4.2% from 1 Oct 2025 (Social Welfare (Misc. Provisions) Act 2024 s.3).
+    // Month-weighted in calculatePRSI: 9 months at 4.1% + 3 months at 4.2% = 4.125% blend.
+    prsiRate: 0.041,
+    prsiRateChanges: [{ fromMonth: 10, rate: 0.042 }],
     credits: { personal: 2000, paye: 2000 },
     creditsMarried: { personal: 4000, paye: 2000 },
+    marriedSecondEarnerIncrease: 35000,
+    earnedIncomeCredit: 2000,
+    classSMinimum: 650,
+    uscExemptionThreshold: USC_EXEMPTION_2016_ON,
+    classAPrsi: CLASS_A_PRSI_2016_ON,
   },
   2026: {
     year: 2026,
@@ -133,6 +178,11 @@ const baseConfigs: Record<number, TaxYearConfig> = {
     // Budget 2026: No change to credits (same as 2025)
     credits: { personal: 2000, paye: 2000 },
     creditsMarried: { personal: 4000, paye: 2000 },
+    marriedSecondEarnerIncrease: 35000,
+    earnedIncomeCredit: 2000,
+    classSMinimum: 650,
+    uscExemptionThreshold: USC_EXEMPTION_2016_ON,
+    classAPrsi: CLASS_A_PRSI_2016_ON,
   },
 };
 
@@ -156,6 +206,13 @@ export function toTaxYearConfig(b: Budget2027): TaxYearConfig {
   const personalSingle = need(b.credits.personalSingle, '2027_PERSONAL_CREDIT_SINGLE');
   const personalMarried = need(b.credits.personalMarried, '2027_PERSONAL_CREDIT_MARRIED');
   const employeePaye = need(b.credits.employeePaye, '2027_EMPLOYEE_PAYE_CREDIT');
+  const earnedIncome = need(b.credits.earnedIncome, '2027_EARNED_INCOME_CREDIT');
+  const secondEarner = need(b.incomeTax.twoEarnerMaxIncrease, '2027_TWO_EARNER_MAX_INCREASE');
+  const uscExemption = need(b.usc.exemptionThreshold, '2027_USC_EXEMPTION_THRESHOLD');
+  const classSMinimum = need(b.prsi.classSMinimum, '2027_CLASS_S_MINIMUM');
+  const weeklyNilUpTo = need(b.prsi.weeklyNilThreshold, '2027_PRSI_WEEKLY_NIL_THRESHOLD');
+  const creditMax = need(b.prsi.creditMaxWeekly, '2027_PRSI_CREDIT_MAX_WEEKLY');
+  const creditTaperTo = need(b.prsi.creditTopWeekly, '2027_PRSI_CREDIT_TOP');
   const uscBands: TaxBand[] = b.usc.bands.map((band, i) => ({
     upTo: band.upTo === 'balance' ? null : need(band.upTo, `2027_USC_BAND_${i + 1}_TOP`),
     rate: need(band.rate, `2027_USC_RATE_${i + 1}`),
@@ -186,6 +243,11 @@ export function toTaxYearConfig(b: Budget2027): TaxYearConfig {
     ...(prsiRateChanges ? { prsiRateChanges } : {}),
     credits: { personal: personalSingle, paye: employeePaye },
     creditsMarried: { personal: personalMarried, paye: employeePaye },
+    marriedSecondEarnerIncrease: secondEarner,
+    earnedIncomeCredit: earnedIncome,
+    classSMinimum,
+    uscExemptionThreshold: uscExemption,
+    classAPrsi: { weeklyNilUpTo, creditMax, creditTaperTo },
   };
 }
 

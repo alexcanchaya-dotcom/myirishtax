@@ -45,7 +45,8 @@ describe('tax engine', () => {
 
     // Unused credits must not wipe USC or PRSI
     expect(result.uscTotal).toBeGreaterThan(0);
-    expect(result.prsi).toBeCloseTo(600, 2);
+    // €15,000 ÷ 52 = €288.46 a week, at or below the €352 Class A nil band: no employee PRSI
+    expect(result.prsi).toBe(0);
     expect(result.totalTax).toBeCloseTo(result.uscTotal + result.prsi, 2);
     expect(result.totalTax).toBeGreaterThan(0);
   });
@@ -61,7 +62,8 @@ describe('tax engine', () => {
     expect(single2025.payeBeforeCredits).toBeCloseTo(11200, 2);
     expect(single2025.credits).toBe(4000);
     expect(single2025.payeAfterCredits).toBeCloseTo(7200, 2);
-    expect(single2025.prsi).toBeCloseTo(2000, 2);
+    // PRSI 2025: 4.1% Jan–Sep, 4.2% from 1 Oct (month-weighted = 4.125%)
+    expect(single2025.prsi).toBeCloseTo(2062.5, 2);
 
     const single2026 = calculateNetIncome({
       income: 50000,
@@ -127,8 +129,8 @@ describe('tax engine', () => {
     expect(y2025.uscTotal).toBeCloseTo(60.06 + 307.4 + 18.54, 2);
     expect(y2026.uscTotal).toBeCloseTo(60.06 + 319.76, 2);
     expect(y2026.uscTotal).toBeLessThan(y2025.uscTotal);
-    // PRSI is 4% in 2025; 2026 is 4.2% Jan–Sep and 4.35% from October
-    expect(y2025.prsi).toBeCloseTo(1120, 2);
+    // PRSI 2025 is 4.1% Jan–Sep and 4.2% from October; 2026 is 4.2% Jan–Sep and 4.35% from October
+    expect(y2025.prsi).toBeCloseTo(28000 * 0.04125, 2);
     expect(y2026.prsi).toBeCloseTo(28000 * 0.042375, 2);
   });
 
@@ -197,8 +199,8 @@ describe('contractor calculator', () => {
     expect(result.taxableIncome).toBe(65000);
     expect(result.incomeTax.total).toBeGreaterThan(0);
     expect(result.usc.total).toBeGreaterThan(0);
-    expect(result.credits.total).toBe(2000); // personal only, no PAYE credit
-    expect(result.incomeTax.afterCredits).toBe(Math.max(0, result.incomeTax.total - 2000));
+    expect(result.credits.total).toBe(4000); // personal + Earned Income Credit, no PAYE credit
+    expect(result.incomeTax.afterCredits).toBe(Math.max(0, result.incomeTax.total - 4000));
     expect(result.totalTaxAndPrsi).toBeCloseTo(
       result.incomeTax.afterCredits + result.usc.total + result.prsi.amount,
       2,
@@ -219,12 +221,12 @@ describe('contractor calculator', () => {
       maritalStatus: 'married',
     });
 
-    expect(married.credits.total).toBe(4000);
-    expect(single.credits.total).toBe(2000);
+    expect(married.credits.total).toBe(6000);
+    expect(single.credits.total).toBe(4000);
     expect(married.incomeTax.total).toBeLessThan(single.incomeTax.total);
   });
 
-  it('computes preliminary tax from income tax after credits', () => {
+  it('computes preliminary tax from income tax, USC and PRSI', () => {
     const result = calculateContractorTax({
       grossIncome: 60000,
       expenses: 0,
@@ -234,6 +236,6 @@ describe('contractor calculator', () => {
     });
 
     expect(result.preliminaryTax).toBeDefined();
-    expect(result.preliminaryTax?.amount).toBeCloseTo(result.incomeTax.afterCredits * 0.9, 2);
+    expect(result.preliminaryTax?.amount).toBeCloseTo(result.totalTaxAndPrsi * 0.9, 2);
   });
 });

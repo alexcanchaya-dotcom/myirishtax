@@ -1,3 +1,11 @@
+import {
+  CGT_RATE_BEFORE_7_OCT_2026,
+  CGT_RATE_FROM_7_OCT_2026,
+  cgtRateForDisposal,
+  splitTaxableGainByRate,
+  type CGTRatePart,
+} from './cgtRate';
+
 /**
  * Investment Capital Gains Tax Calculator for Ireland
  *
@@ -7,6 +15,7 @@
  * - Share pooling and cost basis calculation
  * - FIFO method (Irish Revenue standard)
  * - Annual CGT exemption (€1,270)
+ * - Rate by disposal date: 33% before 7 Oct 2026, 31% on or after (Budget 2027)
  * - Loss carry-forward
  * - Tax year calculation
  */
@@ -41,7 +50,8 @@ export interface CGTCalculation {
   // Tax calculation
   annualExemption: number; // €1,270
   taxableGain: number;
-  cgtRate: number; // 33%
+  cgtRate: number; // effective rate on the taxable gain: 31% from 7 Oct 2026, 33% before (blended if both)
+  cgtByRate: CGTRatePart[]; // taxable gain and CGT at each rate
   cgtDue: number;
 
   // Loss carry-forward
@@ -73,7 +83,6 @@ export interface TaxYearReport {
   transactions: Investment[];
 }
 
-const CGT_RATE = 0.33; // 33% for Ireland
 const ANNUAL_EXEMPTION = 1270; // €1,270 annual exemption
 
 /**
@@ -145,11 +154,14 @@ export function calculateCGT(
   // Calculate gains and losses
   let totalGains = 0;
   let totalLosses = 0;
+  const gainsByRate = new Map<number, number>();
 
   for (const disposal of disposals) {
     const gain = (disposal.disposalProceeds || 0) - disposal.acquisitionCost;
     if (gain > 0) {
       totalGains += gain;
+      const rate = cgtRateForDisposal(disposal.disposalDate);
+      gainsByRate.set(rate, (gainsByRate.get(rate) ?? 0) + gain);
     } else {
       totalLosses += Math.abs(gain);
     }
@@ -165,8 +177,15 @@ export function calculateCGT(
   const taxableGain = Math.max(0, netAfterLosses - ANNUAL_EXEMPTION);
   const exemptionUsed = Math.min(ANNUAL_EXEMPTION, netAfterLosses);
 
-  // Calculate CGT due
-  const cgtDue = taxableGain * CGT_RATE;
+  // Calculate CGT due: 33% for disposals before 7 Oct 2026, 31% on or after.
+  // Losses and the exemption come off the 33% gains first.
+  const { cgtDue, parts: cgtByRate } = splitTaxableGainByRate(gainsByRate, taxableGain);
+  const cgtRate =
+    taxableGain > 0
+      ? cgtDue / taxableGain
+      : taxYear < 2026
+        ? CGT_RATE_BEFORE_7_OCT_2026
+        : CGT_RATE_FROM_7_OCT_2026;
 
   // Calculate loss carry-forward
   const lossCarriedForward = netGain < 0 ? Math.abs(netGain) : 0;
@@ -188,7 +207,8 @@ export function calculateCGT(
     netGain,
     annualExemption: ANNUAL_EXEMPTION,
     taxableGain,
-    cgtRate: CGT_RATE,
+    cgtRate,
+    cgtByRate,
     cgtDue,
     lossCarriedForward,
     previousLosses,

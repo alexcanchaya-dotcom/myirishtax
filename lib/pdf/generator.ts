@@ -22,6 +22,14 @@ export async function generateTaxPdf(result: FullTaxComputation, user?: { name?:
   cursor -= 20;
   drawText(`CGT: €${result.cgt.toFixed(2)}`, cursor);
   cursor -= 20;
+  if (result.cgtNote) {
+    drawText(result.cgtNote, cursor);
+    cursor -= 20;
+  }
+  for (const item of result.unsupported ?? []) {
+    drawText(`${item.type === 'dividend' ? 'Dividends' : 'ETFs'}: not supported (left out of the total).`, cursor);
+    cursor -= 20;
+  }
   drawText(`Foreign Tax Credit: €${result.foreignCredit.toFixed(2)}`, cursor);
   cursor -= 20;
   drawText(`Final Liability/Refund: €${result.finalLiability.toFixed(2)}`, cursor);

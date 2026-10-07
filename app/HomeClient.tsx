@@ -5,6 +5,7 @@ import { CalculatorInput } from '../components/CalculatorInput';
 import { SelectField } from '../components/SelectField';
 import { BreakdownTable } from '../components/BreakdownTable';
 import { TaxSummaryCard } from '../components/TaxSummaryCard';
+import { buildSummaryRows } from '../lib/summaryRows';
 import { ComparisonView } from '../components/ComparisonView';
 import { TaxBreakdown, calculateNetIncome, compareScenarios } from '../lib/taxEngine';
 import { formatTaxYearLabel, getDefaultTaxYear, isTaxYearAvailable, listSupportedYears } from '../lib/config/taxYearConfig';
@@ -13,6 +14,9 @@ import Link from 'next/link';
 import { PageHeader } from '../components/PageHeader';
 import { FireHandoff } from '../components/FireHandoff';
 import { RelatedCalculators } from '../components/RelatedCalculators';
+import { TaxDisclaimer } from '../components/TaxDisclaimer';
+import { PENSION_AGE_OPTIONS } from '../lib/pensionAgeOptions';
+import { TrustStrip } from '@/components/TrustStrip';
 
 const years = listSupportedYears();
 
@@ -21,7 +25,7 @@ function formatEuro(n: number): string {
 }
 
 const MARRIED_HINT =
-  'Married uses the one-income standard-rate band and married personal credit on this person’s pay only. Enter one salary — not a combined couple figure. We do not add a second income.';
+  'Joint assessment. Enter your own pay above and your spouse or partner’s pay below. Leave their pay at 0 if only one of you earns. We assume both of you are PAYE employees and the band and credits are shared in the way that saves most tax.';
 
 export default function HomePage() {
   const { data: session } = useSession();
@@ -29,7 +33,9 @@ export default function HomePage() {
   const [period, setPeriod] = useState<'annual' | 'monthly' | 'weekly'>('annual');
   const [maritalStatus, setMaritalStatus] = useState<'single' | 'married'>('single');
   const [pension, setPension] = useState(0);
+  const [pensionAge, setPensionAge] = useState('');
   const [credits, setCredits] = useState(0);
+  const [spouseIncome, setSpouseIncome] = useState(0);
   const [taxYear, setTaxYear] = useState<number>(getDefaultTaxYear());
   const [result, setResult] = useState<TaxBreakdown | null>(null);
   const [resultKey, setResultKey] = useState<string | null>(null);
@@ -42,10 +48,12 @@ export default function HomePage() {
       period,
       maritalStatus,
       pensionContribution: pension,
+      ...(pensionAge !== '' ? { age: Number(pensionAge) } : {}),
       additionalCredits: credits,
+      ...(maritalStatus === 'married' && spouseIncome > 0 ? { spouseIncome } : {}),
       taxYear,
     }),
-    [credits, income, maritalStatus, pension, period, taxYear],
+    [credits, income, maritalStatus, pension, pensionAge, period, spouseIncome, taxYear],
   );
   // ?year=2027 (from /budget-2027) picks the year on load, only if that year is available.
   useEffect(() => {
@@ -92,12 +100,13 @@ export default function HomePage() {
             : ''}
           . Free to use — no account needed.
         </p>
+        <TrustStrip />
       </PageHeader>
 
       {result && (
         <div className="mb-6 flex items-baseline justify-between gap-4 rounded-2xl border border-line bg-white px-5 py-4 lg:hidden">
           <span className="text-sm text-ink-muted">
-            Take-home
+            {result.household ? 'Household take-home' : 'Take-home'}
             <span className="mt-0.5 block text-xs font-medium text-ink-muted">
               {formatTaxYearLabel(taxYear)}
               {isCurrent ? ' · current estimate' : ' · out of date — click Calculate'}
@@ -107,7 +116,7 @@ export default function HomePage() {
             className={`font-serif text-2xl text-brand-700 ${isCurrent ? '' : 'opacity-50'}`}
             aria-live="polite"
           >
-            {formatEuro(result.netAnnual)}
+            {formatEuro(buildSummaryRows(result).takeHome)}
           </span>
         </div>
       )}
@@ -134,7 +143,7 @@ export default function HomePage() {
                 onChange={(v) => setMaritalStatus(v as 'single' | 'married')}
                 options={[
                   { label: 'Single', value: 'single' },
-                  { label: 'Married — one income only', value: 'married' },
+                  { label: 'Married or civil partners', value: 'married' },
                 ]}
                 describedBy="married-one-income-hint"
               />
@@ -144,6 +153,14 @@ export default function HomePage() {
               >
                 {MARRIED_HINT}
               </p>
+              {maritalStatus === 'married' && (
+                <CalculatorInput
+                  label="Spouse or partner’s pay (per year)"
+                  value={spouseIncome}
+                  onChange={setSpouseIncome}
+                  prefix="€"
+                />
+              )}
               <SelectField
                 label="Tax year"
                 value={taxYear}
@@ -151,7 +168,27 @@ export default function HomePage() {
                 options={years.map((y) => ({ label: formatTaxYearLabel(y), value: y }))}
               />
             </div>
-            <CalculatorInput label="Pension contributions" value={pension} onChange={setPension} prefix="€" />
+            <CalculatorInput label="Pension contributions (per year)" value={pension} onChange={setPension} prefix="€" />
+            <SelectField
+              label="Age (pension relief limit)"
+              value={pensionAge}
+              onChange={setPensionAge}
+              options={PENSION_AGE_OPTIONS}
+            />
+            {result && pension > 0 && result.pension.overLimit > 0 && (
+              <p role="alert" className="text-xs font-normal leading-snug text-amber-800 sm:col-span-2">
+                Over the limit: income tax relief is capped at {Math.round(result.pension.agePct * 100)}% of
+                earnings (earnings capped at €115,000), so €{Math.round(result.pension.limit).toLocaleString('en-IE')} this
+                year. The other €{Math.round(result.pension.overLimit).toLocaleString('en-IE')} gets no relief in this
+                estimate.
+                {!result.pension.ageGiven && ' Choose your age to check the limit for your age.'}
+              </p>
+            )}
+            {pension > 0 && (
+              <p className="text-xs font-normal leading-snug text-ink-muted sm:col-span-2">
+                Pension contributions reduce income tax only. USC and PRSI are still charged on your full pay.
+              </p>
+            )}
             <CalculatorInput
               label="Extra credits"
               value={credits}
@@ -218,23 +255,29 @@ export default function HomePage() {
             <h3 className="mb-2 text-base font-semibold text-ink">PAYE</h3>
             <p>
               20% up to €44,000 if you are single, or €53,000 if married with one income (2025 and
-              2026). Income above that is 40%. Credits reduce income tax only. Married here is one
-              salary, not a two-income couple.
+              2026). If you both earn, the 20% band goes up by the lower of €35,000 or the lower
+              earner&apos;s pay, and each of you gets the €2,000 Employee Tax Credit. USC and PRSI are
+              worked out on each person&apos;s own pay. Income above the band is 40%. Credits reduce
+              income tax only. Pension contributions reduce income tax only, up to
+              Revenue&apos;s age limit (15% of earnings under 30, rising to 40% at 60 or over, on
+              earnings up to €115,000). They do not reduce USC or PRSI.
             </p>
           </div>
           <div>
             <h3 className="mb-2 text-base font-semibold text-ink">USC</h3>
             <p>
-              2025: 0.5% to €12,012, 2% to €27,382, 3% to €70,044, then 8%. 2026 raises the 2%
-              ceiling to €28,700. Credits do not reduce USC.
+              No USC if your total income for the year is €13,000 or less. Above that, USC applies
+              to all of it. 2025: 0.5% to €12,012, 2% to €27,382, 3% to €70,044, then 8%. 2026
+              raises the 2% ceiling to €28,700. Credits do not reduce USC.
             </p>
           </div>
           <div>
             <h3 className="mb-2 text-base font-semibold text-ink">PRSI</h3>
             <p>
-              Class A employee rate in the year book: 4% in 2025 and 4.2% in 2026. The Class A
-              rate rises to 4.35% from 1 October 2026; this estimate uses 4.2% for January to
-              September and 4.35% from October.
+              Class A employee rate: 4.1% to 30 September 2025, then 4.2%, rising to 4.35% from
+              1 October 2026. The estimate weights the rate by month. No PRSI if you earn €352 a
+              week or less. Between €352.01 and €424 a week, a PRSI credit of up to €12 a week
+              reduces it.
               {BUDGET_2027.status === 'confirmed' && BUDGET_2027.prsi.rateFrom1Jan !== null
                 ? ` 2027: ${Number((BUDGET_2027.prsi.rateFrom1Jan * 100).toFixed(3))}% from January${
                     BUDGET_2027.prsi.rateAfterChange !== null && BUDGET_2027.prsi.changeMonth !== null
@@ -242,10 +285,11 @@ export default function HomePage() {
                       : ''
                   } (Budget 2027).`
                 : ''}{' '}
-              Credits do not reduce PRSI.
+              Tax credits do not reduce PRSI.
             </p>
           </div>
         </div>
+        <TaxDisclaimer className="mt-8" />
       </section>
 
       <RelatedCalculators current="take-home" />

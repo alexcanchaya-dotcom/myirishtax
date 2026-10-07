@@ -5,9 +5,53 @@ export type CalculationInput = {
   period: 'annual' | 'monthly' | 'weekly';
   maritalStatus: 'single' | 'married';
   pensionContribution?: number;
+  /** Age at the end of the year, for the pension relief age limit. Optional: without it only the 40% / €115,000 ceiling applies. */
+  age?: number;
   additionalCredits?: number;
+  /**
+   * Married or civil partners only: the other spouse's yearly PAYE pay. Above 0 the couple is jointly assessed with
+   * the standard rate band increased by the lower of the second-earner maximum or the lower earner's income, and
+   * each spouse gets their own Employee Tax Credit (Revenue "Joint assessment"). 0 or missing = one income.
+   */
+  spouseIncome?: number;
   taxYear: number;
 };
+
+/** Revenue "Tax relief limits on pension contributions": % of earnings by age, earnings capped at €115,000. */
+export const PENSION_EARNINGS_CAP = 115000;
+export const PENSION_AGE_LIMITS: { minAge: number; pct: number }[] = [
+  { minAge: 60, pct: 0.4 },
+  { minAge: 55, pct: 0.35 },
+  { minAge: 50, pct: 0.3 },
+  { minAge: 40, pct: 0.25 },
+  { minAge: 30, pct: 0.2 },
+  { minAge: 0, pct: 0.15 },
+];
+
+export function pensionAgeLimitPct(age?: number): number {
+  if (age === undefined || !Number.isFinite(age)) return PENSION_AGE_LIMITS[0].pct; // no age: the highest (60+) limit
+  return (PENSION_AGE_LIMITS.find((b) => age >= b.minAge) ?? PENSION_AGE_LIMITS[PENSION_AGE_LIMITS.length - 1]).pct;
+}
+
+export type PensionRelief = {
+  contribution: number;
+  /** Most that can get income tax relief this year: age % × earnings (capped at €115,000). */
+  limit: number;
+  /** The part of the contribution that reduces income tax. */
+  relieved: number;
+  /** Contribution above the limit: no relief this year. */
+  overLimit: number;
+  agePct: number;
+  ageGiven: boolean;
+};
+
+export function calculatePensionRelief(earnings: number, contribution: number, age?: number): PensionRelief {
+  const agePct = pensionAgeLimitPct(age);
+  const limit = Math.max(0, Math.min(earnings, PENSION_EARNINGS_CAP)) * agePct;
+  const c = Math.max(0, contribution);
+  const relieved = Math.min(c, limit);
+  return { contribution: c, limit, relieved, overLimit: c - relieved, agePct, ageGiven: age !== undefined && Number.isFinite(age) };
+}
 
 export type BandBreakdown = { band: string; amount: number; rate: number };
 export type TaxBreakdown = {
@@ -23,6 +67,21 @@ export type TaxBreakdown = {
   netMonthly: number;
   netWeekly: number;
   netDaily: number;
+  pension: PensionRelief;
+  /** Present only for a jointly assessed couple with two incomes. Totals above are for the household. */
+  household?: HouseholdBreakdown;
+};
+
+export type HouseholdBreakdown = {
+  yourIncome: number;
+  spouseIncome: number;
+  /** Combined standard rate band: married band plus the second-earner increase. */
+  standardRateBand: number;
+  bandIncrease: number;
+  yourUsc: number;
+  spouseUsc: number;
+  yourPrsi: number;
+  spousePrsi: number;
 };
 
 export function sumBands(bands: BandBreakdown[]): number {
@@ -57,20 +116,45 @@ export function calculatePAYE(income: number, config: TaxYearConfig, maritalStat
   return calculateBands(income, bands);
 }
 
+// No USC at all when total income for the year is at or below the exemption threshold (€13,000).
+// Above it, USC is charged on the full income, not just the excess (s.531AM(2) TCA 1997).
 export function calculateUSC(income: number, config: TaxYearConfig): BandBreakdown[] {
+  if (income <= config.uscExemptionThreshold) {
+    return [{ band: `exempt (income €${String(config.uscExemptionThreshold).replace(/\B(?=(\d{3})+(?!\d))/g, ',')} or less)`, amount: 0, rate: 0 }];
+  }
   return calculateBands(income, config.uscBands);
 }
 
-// PRSI weighted by month when the rate changes partway through the year.
+function prsiRateForMonth(config: TaxYearConfig, month: number): number {
+  const applicable = (config.prsiRateChanges ?? []).filter((c) => c.fromMonth <= month);
+  return applicable.length > 0 ? applicable[applicable.length - 1].rate : config.prsiRate;
+}
+
+// Class A employee PRSI (take-home calculator). Assumes even weekly pay (annual ÷ 52).
+// Weekly pay at or below €352: nil. €352.01–€424: the charge is reduced by a tapered credit of
+// €12 less one-sixth of earnings over €352.01. Above €424: the rate on all earnings.
+// The rate is weighted by month when it changes partway through the year.
+export function calculateClassAPRSI(income: number, config: TaxYearConfig): number {
+  const { weeklyNilUpTo, creditMax, creditTaperTo } = config.classAPrsi;
+  const weekly = income / 52;
+  if (weekly <= weeklyNilUpTo) return 0;
+  const credit = weekly <= creditTaperTo ? Math.max(0, creditMax - (weekly - (weeklyNilUpTo + 0.01)) / 6) : 0;
+  let total = 0;
+  for (let month = 1; month <= 12; month++) {
+    const weeklyCharge = Math.max(0, weekly * prsiRateForMonth(config, month) - credit);
+    total += (weeklyCharge * 52) / 12;
+  }
+  return total;
+}
+
+// Rate-only PRSI (used for Class S), weighted by month when the rate changes partway through the year.
 // Assumes even monthly pay, so this is an estimate. With no changes listed it is income × prsiRate.
 export function calculatePRSI(income: number, config: TaxYearConfig): number {
   const changes = config.prsiRateChanges ?? [];
   if (changes.length === 0) return income * config.prsiRate;
   let total = 0;
   for (let month = 1; month <= 12; month++) {
-    const applicable = changes.filter((c) => c.fromMonth <= month);
-    const rate = applicable.length > 0 ? applicable[applicable.length - 1].rate : config.prsiRate;
-    total += (income / 12) * rate;
+    total += (income / 12) * prsiRateForMonth(config, month);
   }
   return total;
 }
@@ -90,12 +174,17 @@ export function calculateCredits(
 export function calculateNetIncome(input: CalculationInput): TaxBreakdown {
   const config = getTaxYearConfig(input.taxYear);
   const annualIncome = convertToAnnual(input.income, input.period);
-  const pension = input.pensionContribution ?? 0;
-  const taxableIncome = Math.max(0, annualIncome - pension);
+  // Employee pension contributions get income tax relief only, within the age % and €115,000 earnings limits.
+  // "There is no relief from USC or PRSI for employee pension contributions" (Revenue).
+  const pension = calculatePensionRelief(annualIncome, input.pensionContribution ?? 0, input.age);
+  const taxableIncome = Math.max(0, annualIncome - pension.relieved);
+
+  const spouseIncome = input.maritalStatus === 'married' ? Math.max(0, input.spouseIncome ?? 0) : 0;
+  if (spouseIncome > 0) return calculateTwoEarnerCouple(input, config, annualIncome, spouseIncome, pension, taxableIncome);
 
   const payeBreakdown = calculatePAYE(taxableIncome, config, input.maritalStatus);
-  const uscBreakdown = calculateUSC(taxableIncome, config);
-  const prsi = calculatePRSI(taxableIncome, config);
+  const uscBreakdown = calculateUSC(annualIncome, config);
+  const prsi = calculateClassAPRSI(annualIncome, config);
 
   const payeBeforeCredits = sumBands(payeBreakdown);
   const uscTotal = sumBands(uscBreakdown);
@@ -104,7 +193,8 @@ export function calculateNetIncome(input: CalculationInput): TaxBreakdown {
   // Tax credits reduce income tax (PAYE) only. They cannot reduce USC or PRSI.
   const payeAfterCredits = Math.max(0, payeBeforeCredits - totalCredits);
   const totalTax = payeAfterCredits + uscTotal + prsi;
-  const netAnnual = taxableIncome - totalTax;
+  // Take-home after tax and after the full pension contribution (it leaves your pay either way).
+  const netAnnual = annualIncome - pension.contribution - totalTax;
 
   return {
     paye: payeBreakdown,
@@ -119,6 +209,72 @@ export function calculateNetIncome(input: CalculationInput): TaxBreakdown {
     netMonthly: netAnnual / 12,
     netWeekly: netAnnual / 52,
     netDaily: netAnnual / 365,
+    pension,
+  };
+}
+
+// Jointly assessed married couple / civil partners, both with PAYE income (Revenue "Joint assessment" and
+// "Tax rates, bands and reliefs"). Income tax is on combined income: the married band (transferable) plus an
+// increase of the lower of config.marriedSecondEarnerIncrease or the lower earner's income (not transferable, so
+// it can only ever cover that lower income). Married Person credit once; each spouse gets the Employee Tax Credit,
+// which is capped at 20% of that spouse's PAYE income below €10,000. USC and PRSI are always per person.
+// Assumes the band and credits are allocated in the best way between you, and no pension for the spouse.
+function calculateTwoEarnerCouple(
+  input: CalculationInput,
+  config: TaxYearConfig,
+  annualIncome: number,
+  spouseIncome: number,
+  pension: PensionRelief,
+  taxableIncome: number,
+): TaxBreakdown {
+  const married = config.incomeTaxBandsMarried[0].upTo ?? 0;
+  const bandIncrease = Math.min(config.marriedSecondEarnerIncrease, Math.min(taxableIncome, spouseIncome));
+  const standardRateBand = married + bandIncrease;
+  const higherRate = config.incomeTaxBandsMarried[config.incomeTaxBandsMarried.length - 1].rate;
+  const payeBreakdown = calculateBands(taxableIncome + spouseIncome, [
+    { upTo: standardRateBand, rate: config.incomeTaxBandsMarried[0].rate },
+    { upTo: null, rate: higherRate },
+  ]);
+  const employeeCredit = (pay: number) => Math.min(config.creditsMarried.paye, pay * 0.2);
+  const credits =
+    config.creditsMarried.personal +
+    employeeCredit(annualIncome) +
+    employeeCredit(spouseIncome) +
+    (config.creditsMarried.additional ?? 0) +
+    (input.additionalCredits ?? 0);
+
+  const yourUscBands = calculateUSC(annualIncome, config);
+  const spouseUscBands = calculateUSC(spouseIncome, config);
+  const yourUsc = sumBands(yourUscBands);
+  const spouseUsc = sumBands(spouseUscBands);
+  const yourPrsi = calculateClassAPRSI(annualIncome, config);
+  const spousePrsi = calculateClassAPRSI(spouseIncome, config);
+
+  const payeBeforeCredits = sumBands(payeBreakdown);
+  const payeAfterCredits = Math.max(0, payeBeforeCredits - credits);
+  const uscTotal = yourUsc + spouseUsc;
+  const prsi = yourPrsi + spousePrsi;
+  const totalTax = payeAfterCredits + uscTotal + prsi;
+  const netAnnual = annualIncome + spouseIncome - pension.contribution - totalTax;
+
+  return {
+    paye: payeBreakdown,
+    usc: [
+      ...yourUscBands.map((b) => ({ ...b, band: `you ${b.band}` })),
+      ...spouseUscBands.map((b) => ({ ...b, band: `spouse ${b.band}` })),
+    ],
+    prsi,
+    credits,
+    payeBeforeCredits,
+    payeAfterCredits,
+    uscTotal,
+    totalTax,
+    netAnnual,
+    netMonthly: netAnnual / 12,
+    netWeekly: netAnnual / 52,
+    netDaily: netAnnual / 365,
+    pension,
+    household: { yourIncome: annualIncome, spouseIncome, standardRateBand, bandIncrease, yourUsc, spouseUsc, yourPrsi, spousePrsi },
   };
 }
 

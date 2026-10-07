@@ -51,6 +51,7 @@ export const BUDGET_2027 = {
     weeklyNilThreshold: null as Pending<number>, // [[2027_PRSI_WEEKLY_NIL_THRESHOLD]] (follow-up PR B)
     creditMaxWeekly: null as Pending<number>, // [[2027_PRSI_CREDIT_MAX_WEEKLY]] (follow-up PR B)
     creditTopWeekly: null as Pending<number>, // [[2027_PRSI_CREDIT_TOP]] (follow-up PR B)
+    classSMinimum: null as Pending<number>, // [[2027_CLASS_S_MINIMUM]] €650 in 2025/2026 (DSP); fill once DSP confirms 2027
   },
   minimumWage: {
     hourly: 14.94 as Pending<number>, // TPC p.4 (and p.22 Table 6 note) // [[2027_MINIMUM_WAGE_HOURLY]] (page text only; leave null if not announced)
