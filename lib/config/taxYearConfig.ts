@@ -47,6 +47,12 @@ export type TaxYearConfig = {
    * Revenue tax relief charts; Revenue SPCCC page: "If you are due the SPCCC, then you are automatically due the increased rate band."
    */
   singlePersonChildCarer: { credit: number; band: number };
+  /**
+   * Home Carer Tax Credit (married / civil partners, jointly assessed, one cares for a dependant). Full credit when the
+   * carer's income is at or below incomeLimit; reduced by half the excess above it. Revenue "Home Carer Tax Credit rates"
+   * and TDM 15-01-29. Can't be combined with the second-earner band increase in the same year (whichever is better).
+   */
+  homeCarer: { max: number; incomeLimit: number };
   /** Married / civil partners, both with income: maximum increase in the standard rate band (Revenue tax relief charts). */
   marriedSecondEarnerIncrease: number;
   /** Earned Income Tax Credit (self-employed): lower of this or 20% of earned income. Revenue tax relief charts. */
@@ -94,6 +100,7 @@ const baseConfigs: Record<number, TaxYearConfig> = {
     credits: { personal: 1775, paye: 1775 },
     creditsMarried: { personal: 3550, paye: 1775 },
     singlePersonChildCarer: { credit: 1650, band: 44000 },
+    homeCarer: { max: 1700, incomeLimit: 7200 },
     marriedSecondEarnerIncrease: 31000,
     earnedIncomeCredit: 1775,
     classSMinimum: 500,
@@ -123,6 +130,7 @@ const baseConfigs: Record<number, TaxYearConfig> = {
     credits: { personal: 1875, paye: 1875 },
     creditsMarried: { personal: 3750, paye: 1875 },
     singlePersonChildCarer: { credit: 1750, band: 46000 },
+    homeCarer: { max: 1800, incomeLimit: 7200 },
     marriedSecondEarnerIncrease: 33000,
     earnedIncomeCredit: 1875,
     classSMinimum: 537.5, // €500 to 30 Sep 2024, €650 from 1 Oct 2024: blended €537.50 for 2024 self-assessment
@@ -152,6 +160,7 @@ const baseConfigs: Record<number, TaxYearConfig> = {
     credits: { personal: 2000, paye: 2000 },
     creditsMarried: { personal: 4000, paye: 2000 },
     singlePersonChildCarer: { credit: 1900, band: 48000 },
+    homeCarer: { max: 1950, incomeLimit: 7200 },
     marriedSecondEarnerIncrease: 35000,
     earnedIncomeCredit: 2000,
     classSMinimum: 650,
@@ -185,6 +194,7 @@ const baseConfigs: Record<number, TaxYearConfig> = {
     credits: { personal: 2000, paye: 2000 },
     creditsMarried: { personal: 4000, paye: 2000 },
     singlePersonChildCarer: { credit: 1900, band: 48000 },
+    homeCarer: { max: 1950, incomeLimit: 7200 },
     marriedSecondEarnerIncrease: 35000,
     earnedIncomeCredit: 2000,
     classSMinimum: 650,

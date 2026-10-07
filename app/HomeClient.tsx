@@ -34,6 +34,7 @@ const URL_DEFAULTS: HomeUrlState = {
   maritalStatus: 'single',
   spouseIncome: 0,
   singleParent: false,
+  homeCarer: false,
   pension: 0,
   pensionAge: '',
   credits: 0,
@@ -45,6 +46,8 @@ const MARRIED_HINT =
 const SPOUSE_HINT = 'We assume you are both PAYE employees and share the tax band and credits in the way that saves most tax.';
 const SINGLE_PARENT_HINT =
   'Tick if a child lives with you for most of the year and you are not married or living with a partner. Adds the Single Person Child Carer Credit (€1,900 in 2026) and €4,000 more taxed at 20%. Only one parent can claim it.';
+const HOME_CARER_HINT =
+  'Tick if your spouse or partner works in the home caring for a child you get Child Benefit for, someone aged 65 or over, or someone permanently incapacitated. Home Carer Tax Credit up to €1,950 in 2026, reduced if their own pay is over €7,200. We use it only if it saves more than the second-earner band.';
 const CREDITS_HINT =
   'Only credits not already counted, e.g. rent tax credit (up to €1,000 in 2026, €2,000 for a couple) or age tax credit if you are 65 or over (€245, €490 for a couple). Your personal and Employee (PAYE) credits are already included.';
 
@@ -58,6 +61,7 @@ export default function HomePage() {
   const [credits, setCredits] = useState(0);
   const [spouseIncome, setSpouseIncome] = useState(0);
   const [singleParent, setSingleParent] = useState(false);
+  const [homeCarer, setHomeCarer] = useState(false);
   const [urlLoaded, setUrlLoaded] = useState(false);
   const [taxYear, setTaxYear] = useState<number>(getDefaultTaxYear());
   const [result, setResult] = useState<TaxBreakdown | null>(null);
@@ -75,9 +79,10 @@ export default function HomePage() {
       additionalCredits: credits,
       ...(maritalStatus === 'married' && spouseIncome > 0 ? { spouseIncome } : {}),
       ...(maritalStatus === 'single' && singleParent ? { singleParent: true } : {}),
+      ...(maritalStatus === 'married' && homeCarer ? { homeCarer: true } : {}),
       taxYear,
     }),
-    [credits, income, maritalStatus, pension, pensionAge, period, singleParent, spouseIncome, taxYear],
+    [credits, homeCarer, income, maritalStatus, pension, pensionAge, period, singleParent, spouseIncome, taxYear],
   );
   // Inputs live in the URL (?income=…&year=…) so an estimate can be reloaded or shared.
   useEffect(() => {
@@ -87,6 +92,7 @@ export default function HomePage() {
     setMaritalStatus(s.maritalStatus);
     setSpouseIncome(s.spouseIncome);
     setSingleParent(s.singleParent);
+    setHomeCarer(s.homeCarer);
     setPension(s.pension);
     setPensionAge(s.pensionAge);
     setCredits(s.credits);
@@ -97,13 +103,13 @@ export default function HomePage() {
   useEffect(() => {
     if (!urlLoaded) return;
     const search = toSearch(
-      { income, period, maritalStatus, spouseIncome, singleParent, pension, pensionAge, credits, taxYear },
+      { income, period, maritalStatus, spouseIncome, singleParent, homeCarer, pension, pensionAge, credits, taxYear },
       URL_DEFAULTS,
     );
     if (search !== window.location.search) {
       window.history.replaceState(window.history.state, '', `${window.location.pathname}${search}${window.location.hash}`);
     }
-  }, [credits, income, maritalStatus, pension, pensionAge, period, singleParent, spouseIncome, taxYear, urlLoaded]);
+  }, [credits, homeCarer, income, maritalStatus, pension, pensionAge, period, singleParent, spouseIncome, taxYear, urlLoaded]);
 
   const inputKey = JSON.stringify(input);
   const isCurrent = result !== null && resultKey === inputKey;
@@ -231,6 +237,23 @@ export default function HomePage() {
                   prefix="€"
                   hint={SPOUSE_HINT}
                 />
+              )}
+              {maritalStatus === 'married' && (
+                <div className="flex flex-col gap-1">
+                  <label className="flex min-h-11 items-center gap-3 text-sm font-medium text-ink">
+                    <input
+                      type="checkbox"
+                      className="h-5 w-5"
+                      checked={homeCarer}
+                      onChange={(e) => setHomeCarer(e.target.checked)}
+                      aria-describedby="home-carer-hint"
+                    />
+                    My spouse or partner is a home carer
+                  </label>
+                  <p id="home-carer-hint" className="text-xs font-normal leading-snug text-ink-muted">
+                    {HOME_CARER_HINT}
+                  </p>
+                </div>
               )}
               <SelectField
                 label="Tax year"
