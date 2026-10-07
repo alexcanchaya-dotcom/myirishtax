@@ -87,6 +87,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   <ul className="mt-3 space-y-2 text-sm text-ink">
                     <li><Link href="/small-benefit-exemption" className="hover:text-brand-700">Small benefit exemption</Link></li>
                     <li><Link href="/second-income-form-12" className="hover:text-brand-700">Second income / Form 12</Link></li>
+                    <li><Link href="/payslip-october-prsi" className="hover:text-brand-700">Why October pay dropped</Link></li>
                   </ul>
                 </div>
                 <div>
