@@ -94,7 +94,7 @@ export default function SmallBenefitExemptionPage() {
             small benefits to Revenue (Enhanced Reporting Requirements) by the 14th of the following month, instead of
             on or before the day they give them. Source:{' '}
             <a
-              href="https://www.gov.ie/en/department-of-finance/publications/budget-2027-budget-publications/"
+              href="https://assets.gov.ie/static/documents/c6792805/Budget_2027_-_Tax_Policy_Changes_-_Publication_Version.pdf"
               className="underline decoration-line underline-offset-2"
               target="_blank"
               rel="noopener noreferrer"
