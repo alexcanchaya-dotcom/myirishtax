@@ -40,7 +40,12 @@ describe('2026 PRSI split year (4.2% Jan–Sep, 4.35% from October)', () => {
     expect(annual.prsi).toBeCloseTo(48000 * 0.042375, 6);
   });
 
-  it('years without a change stay flat (2025 is 4%)', () => {
-    expect(calculatePRSI(50000, getTaxYearConfig(2025))).toBeCloseTo(2000, 6);
+  it('2023 has no change and stays flat at 4%', () => {
+    expect(calculatePRSI(50000, getTaxYearConfig(2023))).toBeCloseTo(2000, 6);
+  });
+
+  it('2024 and 2025 also change on 1 October (4.025% and 4.125% blends)', () => {
+    expect(calculatePRSI(50000, getTaxYearConfig(2024))).toBeCloseTo(50000 * 0.04025, 6);
+    expect(calculatePRSI(50000, getTaxYearConfig(2025))).toBeCloseTo(50000 * 0.04125, 6);
   });
 });

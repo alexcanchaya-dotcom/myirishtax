@@ -20,6 +20,18 @@ const nextConfig = {
         destination: '/contractor-calculator',
         permanent: true,
       },
+      {
+        // Old static home page said "Most Class A employees pay 4% PRSI" and listed 2024 USC bands.
+        source: '/index.html',
+        destination: '/',
+        permanent: true,
+      },
+      {
+        // Old static USC guide listed 4.5% and €25,460 bands and no €13,000 exemption.
+        source: '/guides/usc.html',
+        destination: '/',
+        permanent: true,
+      },
     ];
   },
 };
