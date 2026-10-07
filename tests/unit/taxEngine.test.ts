@@ -197,8 +197,8 @@ describe('contractor calculator', () => {
     expect(result.taxableIncome).toBe(65000);
     expect(result.incomeTax.total).toBeGreaterThan(0);
     expect(result.usc.total).toBeGreaterThan(0);
-    expect(result.credits.total).toBe(2000); // personal only, no PAYE credit
-    expect(result.incomeTax.afterCredits).toBe(Math.max(0, result.incomeTax.total - 2000));
+    expect(result.credits.total).toBe(4000); // personal + Earned Income Credit, no PAYE credit
+    expect(result.incomeTax.afterCredits).toBe(Math.max(0, result.incomeTax.total - 4000));
     expect(result.totalTaxAndPrsi).toBeCloseTo(
       result.incomeTax.afterCredits + result.usc.total + result.prsi.amount,
       2,
@@ -219,12 +219,12 @@ describe('contractor calculator', () => {
       maritalStatus: 'married',
     });
 
-    expect(married.credits.total).toBe(4000);
-    expect(single.credits.total).toBe(2000);
+    expect(married.credits.total).toBe(6000);
+    expect(single.credits.total).toBe(4000);
     expect(married.incomeTax.total).toBeLessThan(single.incomeTax.total);
   });
 
-  it('computes preliminary tax from income tax after credits', () => {
+  it('computes preliminary tax from income tax, USC and PRSI', () => {
     const result = calculateContractorTax({
       grossIncome: 60000,
       expenses: 0,
@@ -234,6 +234,6 @@ describe('contractor calculator', () => {
     });
 
     expect(result.preliminaryTax).toBeDefined();
-    expect(result.preliminaryTax?.amount).toBeCloseTo(result.incomeTax.afterCredits * 0.9, 2);
+    expect(result.preliminaryTax?.amount).toBeCloseTo(result.totalTaxAndPrsi * 0.9, 2);
   });
 });

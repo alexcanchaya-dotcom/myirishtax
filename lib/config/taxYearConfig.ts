@@ -42,6 +42,10 @@ export type TaxYearConfig = {
   prsiRateChanges?: { fromMonth: number; rate: number }[];
   credits: TaxCredits;
   creditsMarried: TaxCredits;
+  /** Earned Income Tax Credit (self-employed): lower of this or 20% of earned income. Revenue tax relief charts. */
+  earnedIncomeCredit: number;
+  /** Class S PRSI annual minimum when Class S applies (DSP / Revenue). 2024 is the self-assessment blend. */
+  classSMinimum: number;
 };
 
 const baseConfigs: Record<number, TaxYearConfig> = {
@@ -64,6 +68,8 @@ const baseConfigs: Record<number, TaxYearConfig> = {
     prsiRate: 0.04,
     credits: { personal: 1775, paye: 1775 },
     creditsMarried: { personal: 3550, paye: 1775 },
+    earnedIncomeCredit: 1775,
+    classSMinimum: 500,
   },
   2024: {
     year: 2024,
@@ -84,6 +90,8 @@ const baseConfigs: Record<number, TaxYearConfig> = {
     prsiRate: 0.04,
     credits: { personal: 1875, paye: 1875 },
     creditsMarried: { personal: 3750, paye: 1875 },
+    earnedIncomeCredit: 1875,
+    classSMinimum: 537.5, // €500 to 30 Sep 2024, €650 from 1 Oct 2024: blended €537.50 for 2024 self-assessment
   },
   2025: {
     year: 2025,
@@ -104,6 +112,8 @@ const baseConfigs: Record<number, TaxYearConfig> = {
     prsiRate: 0.04,
     credits: { personal: 2000, paye: 2000 },
     creditsMarried: { personal: 4000, paye: 2000 },
+    earnedIncomeCredit: 2000,
+    classSMinimum: 650,
   },
   2026: {
     year: 2026,
@@ -131,6 +141,8 @@ const baseConfigs: Record<number, TaxYearConfig> = {
     // Budget 2026: No change to credits (same as 2025)
     credits: { personal: 2000, paye: 2000 },
     creditsMarried: { personal: 4000, paye: 2000 },
+    earnedIncomeCredit: 2000,
+    classSMinimum: 650,
   },
 };
 
