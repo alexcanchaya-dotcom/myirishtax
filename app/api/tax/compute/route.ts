@@ -2,14 +2,20 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { computeFullTaxReturn } from '../../../../lib/taxEngine/fullReturn';
 import { NormalisedTransaction } from '../../../../lib/normalisers/types';
+import { listSupportedYears } from '../../../../lib/config/taxYearConfig';
+
+const SUPPORTED_YEARS = listSupportedYears();
 
 const schema = z.object({
-  income: z.number(),
+  income: z.number().finite().min(0, 'Income cannot be negative'),
   period: z.enum(['annual', 'monthly', 'weekly']),
   maritalStatus: z.enum(['single', 'married']),
-  pensionContribution: z.number().optional(),
-  additionalCredits: z.number().optional(),
-  taxYear: z.number(),
+  pensionContribution: z.number().finite().min(0).optional(),
+  additionalCredits: z.number().finite().min(0).optional(),
+  taxYear: z
+    .number()
+    .int()
+    .refine((y) => SUPPORTED_YEARS.includes(y), { message: `Supported tax years: ${SUPPORTED_YEARS.join(', ')}` }),
   transactions: z.array(
     z.object({
       id: z.string(),
