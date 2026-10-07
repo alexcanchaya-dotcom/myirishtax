@@ -10,12 +10,14 @@
  */
 
 import { getTaxYearConfig } from '../config/taxYearConfig';
-import { calculateCredits, calculatePAYE, calculatePRSI, calculateUSC, sumBands } from './index';
+import { calculateCredits, calculatePAYE, calculatePRSI, calculatePensionRelief, calculateUSC, sumBands, type PensionRelief } from './index';
 
 export interface ContractorInput {
   grossIncome: number;
   expenses: number;
   pensionContribution?: number;
+  /** Age, for the pension relief age limit. Optional: without it only the 40% / €115,000 ceiling applies. */
+  age?: number;
   taxYear: number;
   maritalStatus: 'single' | 'married';
   previousYearTax?: number;
@@ -61,6 +63,8 @@ export interface ContractorBreakdown {
   monthly: number;
   weekly: number;
   daily: number;
+  /** Pension relief: age % × profit (net relevant earnings, capped at €115,000). */
+  pension: PensionRelief;
 }
 
 /**
@@ -86,12 +90,14 @@ function formatClassSRate(config: ReturnType<typeof getTaxYearConfig>): string {
 
 export function calculateContractorTax(input: ContractorInput): ContractorBreakdown {
   const config = getTaxYearConfig(input.taxYear);
-  const { grossIncome, expenses, pensionContribution = 0, maritalStatus } = input;
+  const { grossIncome, expenses, pensionContribution = 0, maritalStatus, age } = input;
 
   // Profit = income less allowable expenses. This is the base for USC and Class S PRSI.
   const profit = Math.max(0, grossIncome - expenses);
-  // Pension contributions reduce income tax only.
-  const taxableIncome = Math.max(0, profit - pensionContribution);
+  // Pension contributions reduce income tax only, within the age % of net relevant earnings (profit),
+  // with earnings capped at €115,000 (Revenue Pensions Manual ch. 21 RACs / ch. 24 PRSAs).
+  const pension = calculatePensionRelief(profit, pensionContribution, age);
+  const taxableIncome = Math.max(0, profit - pension.relieved);
 
   const payeBreakdown = calculatePAYE(taxableIncome, config, maritalStatus);
   const uscBreakdown = calculateUSC(profit, config);
@@ -118,7 +124,8 @@ export function calculateContractorTax(input: ContractorInput): ContractorBreakd
   const totalCredits = personalCredit + earnedIncomeCredit;
   const incomeTaxAfterCredits = Math.max(0, totalIncomeTax - totalCredits);
   const totalTaxAndPrsi = incomeTaxAfterCredits + totalUsc + totalPrsi;
-  const netIncome = grossIncome - expenses - totalTaxAndPrsi;
+  // Take-home after tax and after the full pension contribution (same basis as the take-home calculator).
+  const netIncome = grossIncome - expenses - pension.contribution - totalTaxAndPrsi;
   const effectiveTaxRate = grossIncome > 0 ? (totalTaxAndPrsi / grossIncome) * 100 : 0;
 
   let preliminaryTax: ContractorBreakdown['preliminaryTax'];
@@ -173,6 +180,7 @@ export function calculateContractorTax(input: ContractorInput): ContractorBreakd
     monthly: netIncome / 12,
     weekly: netIncome / 52,
     daily: netIncome / 365,
+    pension,
   };
 }
 
