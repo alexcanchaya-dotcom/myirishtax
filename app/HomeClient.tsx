@@ -133,20 +133,33 @@ export default function HomePage() {
       </PageHeader>
 
       {result && (
-        <div className="mb-6 flex items-baseline justify-between gap-4 rounded-2xl border border-line bg-white px-5 py-4 lg:hidden">
-          <span className="text-sm text-ink-muted">
-            {result.household ? 'Household take-home' : 'Take-home'}
-            <span className="mt-0.5 block text-xs font-medium text-ink-muted">
-              {formatTaxYearLabel(taxYear)}
-              {isCurrent ? ' · current estimate' : ' · out of date — click Calculate'}
+        <div className="mb-6 rounded-2xl border border-line bg-white px-5 py-4 lg:hidden" data-testid="mobile-result">
+          <div className="flex items-baseline justify-between gap-4">
+            <span className="text-sm text-ink-muted">
+              {result.household ? 'Household take-home' : 'Take-home'}
+              <span className="mt-0.5 block text-xs font-medium text-ink-muted">
+                {formatTaxYearLabel(taxYear)}
+                {isCurrent ? ' · current estimate' : ' · out of date — click Calculate'}
+              </span>
             </span>
-          </span>
-          <span
-            className={`font-serif text-2xl text-brand-700 ${isCurrent ? '' : 'opacity-50'}`}
-            aria-live="polite"
-          >
-            {formatEuro(buildSummaryRows(result).takeHome)}
-          </span>
+            <span
+              className={`text-right font-serif text-2xl text-brand-700 ${isCurrent ? '' : 'opacity-50'}`}
+              aria-live="polite"
+            >
+              {formatEuro(buildSummaryRows(result).takeHome)}
+              <span className="block font-sans text-xs text-ink-muted">a year</span>
+            </span>
+          </div>
+          <dl className={`mt-3 grid grid-cols-2 gap-3 border-t border-line pt-3 ${isCurrent ? '' : 'opacity-50'}`}>
+            <div>
+              <dt className="text-xs text-ink-muted">Per week</dt>
+              <dd className="text-lg font-semibold text-ink">{formatEuro(result.netWeekly)}</dd>
+            </div>
+            <div>
+              <dt className="text-xs text-ink-muted">Per month</dt>
+              <dd className="text-lg font-semibold text-ink">{formatEuro(result.netMonthly)}</dd>
+            </div>
+          </dl>
         </div>
       )}
 
