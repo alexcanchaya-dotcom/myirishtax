@@ -14,7 +14,8 @@ export type MarginalRow = {
   rate: number;
 };
 
-const r2 = (n: number) => Math.round(n * 100) / 100;
+// Round to 3 dp first so float noise (42.374999…) doesn't flip the cent.
+const r2 = (n: number) => Math.round(Math.round(n * 1000) / 10) / 100;
 
 export function marginalOnRaise(income: number, raise = 1000): MarginalRow {
   const run = (pay: number) =>
