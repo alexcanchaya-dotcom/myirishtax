@@ -1,11 +1,13 @@
 import { LegalArticle } from '@/components/LegalArticle';
 import Link from 'next/link';
+import { pageMeta } from '@/lib/pageMeta';
 
-export const metadata = {
+export const metadata = pageMeta({
   title: 'Cookie Policy | MyIrishTax',
-  description: 'Cookies used by MyIrishTax and how to manage them.',
-  alternates: { canonical: '/cookies' },
-};
+  description:
+    'Cookies used by MyIrishTax and how to manage them.',
+  path: '/cookies',
+});
 
 export default function CookiesPage() {
   return (
