@@ -33,6 +33,7 @@ const URL_DEFAULTS: HomeUrlState = {
   period: 'annual',
   maritalStatus: 'single',
   spouseIncome: 0,
+  singleParent: false,
   pension: 0,
   pensionAge: '',
   credits: 0,
@@ -42,6 +43,8 @@ const URL_DEFAULTS: HomeUrlState = {
 const MARRIED_HINT =
   'Married or civil partners are taxed together (joint assessment). Add your spouse or partner’s pay, or leave it at 0 if only you earn.';
 const SPOUSE_HINT = 'We assume you are both PAYE employees and share the tax band and credits in the way that saves most tax.';
+const SINGLE_PARENT_HINT =
+  'Tick if a child lives with you for most of the year and you are not married or living with a partner. Adds the Single Person Child Carer Credit (€1,900 in 2026) and €4,000 more taxed at 20%. Only one parent can claim it.';
 const CREDITS_HINT =
   'Only credits not already counted, e.g. rent tax credit (up to €1,000 in 2026, €2,000 for a couple) or age tax credit if you are 65 or over (€245, €490 for a couple). Your personal and Employee (PAYE) credits are already included.';
 
@@ -54,6 +57,7 @@ export default function HomePage() {
   const [pensionAge, setPensionAge] = useState('');
   const [credits, setCredits] = useState(0);
   const [spouseIncome, setSpouseIncome] = useState(0);
+  const [singleParent, setSingleParent] = useState(false);
   const [urlLoaded, setUrlLoaded] = useState(false);
   const [taxYear, setTaxYear] = useState<number>(getDefaultTaxYear());
   const [result, setResult] = useState<TaxBreakdown | null>(null);
@@ -70,9 +74,10 @@ export default function HomePage() {
       ...(pensionAge !== '' ? { age: Number(pensionAge) } : {}),
       additionalCredits: credits,
       ...(maritalStatus === 'married' && spouseIncome > 0 ? { spouseIncome } : {}),
+      ...(maritalStatus === 'single' && singleParent ? { singleParent: true } : {}),
       taxYear,
     }),
-    [credits, income, maritalStatus, pension, pensionAge, period, spouseIncome, taxYear],
+    [credits, income, maritalStatus, pension, pensionAge, period, singleParent, spouseIncome, taxYear],
   );
   // Inputs live in the URL (?income=…&year=…) so an estimate can be reloaded or shared.
   useEffect(() => {
@@ -81,6 +86,7 @@ export default function HomePage() {
     setPeriod(s.period);
     setMaritalStatus(s.maritalStatus);
     setSpouseIncome(s.spouseIncome);
+    setSingleParent(s.singleParent);
     setPension(s.pension);
     setPensionAge(s.pensionAge);
     setCredits(s.credits);
@@ -91,13 +97,13 @@ export default function HomePage() {
   useEffect(() => {
     if (!urlLoaded) return;
     const search = toSearch(
-      { income, period, maritalStatus, spouseIncome, pension, pensionAge, credits, taxYear },
+      { income, period, maritalStatus, spouseIncome, singleParent, pension, pensionAge, credits, taxYear },
       URL_DEFAULTS,
     );
     if (search !== window.location.search) {
       window.history.replaceState(window.history.state, '', `${window.location.pathname}${search}${window.location.hash}`);
     }
-  }, [credits, income, maritalStatus, pension, pensionAge, period, spouseIncome, taxYear, urlLoaded]);
+  }, [credits, income, maritalStatus, pension, pensionAge, period, singleParent, spouseIncome, taxYear, urlLoaded]);
 
   const inputKey = JSON.stringify(input);
   const isCurrent = result !== null && resultKey === inputKey;
@@ -200,6 +206,23 @@ export default function HomePage() {
               >
                 {MARRIED_HINT}
               </p>
+              {maritalStatus === 'single' && (
+                <div className="flex flex-col gap-1">
+                  <label className="flex min-h-11 items-center gap-3 text-sm font-medium text-ink">
+                    <input
+                      type="checkbox"
+                      className="h-5 w-5"
+                      checked={singleParent}
+                      onChange={(e) => setSingleParent(e.target.checked)}
+                      aria-describedby="single-parent-hint"
+                    />
+                    I’m a single parent
+                  </label>
+                  <p id="single-parent-hint" className="text-xs font-normal leading-snug text-ink-muted">
+                    {SINGLE_PARENT_HINT}
+                  </p>
+                </div>
+              )}
               {maritalStatus === 'married' && (
                 <CalculatorInput
                   label="Spouse or partner’s pay (per year)"
