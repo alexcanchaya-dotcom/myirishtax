@@ -79,6 +79,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                     <li><Link href="/" className="hover:text-brand-700">PAYE take-home</Link></li>
                     <li><Link href="/contractor-calculator" className="hover:text-brand-700">Contractor</Link></li>
                     <li><Link href="/rent-tax-credit" className="hover:text-brand-700">Rent tax credit</Link></li>
+                    <li><Link href="/rent-a-room-relief" className="hover:text-brand-700">Rent-a-Room Relief</Link></li>
                     <li><Link href="/redundancy-calculator" className="hover:text-brand-700">Redundancy</Link></li>
                     <li><Link href="/auto-enrolment-calculator" className="hover:text-brand-700">Auto-enrolment</Link></li>
                     <li><Link href="/rental-calculator" className="text-ink-muted hover:text-brand-700">Rental (coming soon)</Link></li>
