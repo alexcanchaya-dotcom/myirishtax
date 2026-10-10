@@ -14,10 +14,9 @@ const headline = marginalOnRaise(MARGINAL_HEADLINE_INCOME);
 const keptRounded = Math.round(headline.kept);
 
 export const metadata = pageMeta({
-  title:
-    "Why a pay rise adds so little: Ireland's marginal tax rate | MyIrishTax",
+  title: "Why a pay rise adds so little: Ireland's marginal tax rate | MyIrishTax",
   description: `On €${MARGINAL_HEADLINE_INCOME.toLocaleString('en-IE')} a year, a €1,000 pay rise adds about €${keptRounded} to take-home pay in 2026. See how 40% income tax, 8% USC and PRSI add up, with the marginal rate at €30k to €120k. Estimate only; not financial or tax advice.`,
-  path: '/marginal-tax-rate-ireland'
+  path: '/marginal-tax-rate-ireland',
 });
 
 const REVENUE_BANDS =
