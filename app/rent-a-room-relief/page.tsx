@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { RelatedCalculators } from '@/components/RelatedCalculators';
 import { PageHeader } from '@/components/PageHeader';
 import { TaxDisclaimer } from '@/components/TaxDisclaimer';
 import { TrustStrip } from '@/components/TrustStrip';
@@ -92,6 +93,7 @@ export default function RentARoomReliefPage() {
             </li>
           </ul>
         </section>
+        <RelatedCalculators current="rent-a-room" />
       </div>
     </main>
   );

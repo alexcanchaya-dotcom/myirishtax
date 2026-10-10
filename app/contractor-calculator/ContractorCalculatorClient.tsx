@@ -463,9 +463,13 @@ export default function ContractorCalculatorPage() {
       <p className="mt-12 text-sm text-ink-muted">
         Also:{' '}
         <Link href="/" className="text-ink underline decoration-line underline-offset-2 hover:text-brand-700">
-          PAYE take-home
+          Take-home pay calculator
         </Link>
-        ,{' '}
+        {' '}for a PAYE job,{' '}
+        <Link href="/second-income-form-12" className="text-ink underline decoration-line underline-offset-2 hover:text-brand-700">
+          Second income: do I need a Form 12?
+        </Link>
+        {' '}if you also have a salary, and the{' '}
         <Link href="/rent-tax-credit" className="text-ink underline decoration-line underline-offset-2 hover:text-brand-700">
           rent tax credit
         </Link>

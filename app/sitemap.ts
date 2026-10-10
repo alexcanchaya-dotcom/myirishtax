@@ -20,6 +20,7 @@ export const SITEMAP_LASTMOD: Record<string, string> = {
   '/second-income-form-12': '2026-10-10',
   '/payslip-october-prsi': '2026-10-07',
   '/exit-tax-ireland': '2026-10-07',
+  '/marginal-tax-rate-ireland': '2026-10-10',
 };
 export const SITEMAP_PATHS = Object.keys(SITEMAP_LASTMOD);
 

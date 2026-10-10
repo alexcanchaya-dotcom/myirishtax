@@ -1,7 +1,16 @@
 import Link from 'next/link';
 import { BUDGET_2027 } from '@/lib/config/taxYear2027';
 
-export type CalculatorKey = 'take-home' | 'auto-enrolment' | 'rent-credit' | 'contractor' | 'redundancy' | 'payslip-october-prsi' | 'budget-2027';
+export type CalculatorKey =
+  | 'take-home'
+  | 'auto-enrolment'
+  | 'rent-credit'
+  | 'contractor'
+  | 'redundancy'
+  | 'payslip-october-prsi'
+  | 'rent-a-room'
+  | 'marginal-rate'
+  | 'budget-2027';
 
 const CALCULATORS: { key: CalculatorKey; href: string; label: string; blurb: string }[] = [
   { key: 'take-home', href: '/', label: 'Take-home pay', blurb: 'PAYE, USC and PRSI on your salary.' },
@@ -32,6 +41,18 @@ const CALCULATORS: { key: CalculatorKey; href: string; label: string; blurb: str
     href: '/payslip-october-prsi',
     label: 'Why October pay dropped',
     blurb: 'Employee PRSI went from 4.2% to 4.35% on 1 Oct 2026.',
+  },
+  {
+    key: 'rent-a-room',
+    href: '/rent-a-room-relief',
+    label: 'Rent-a-room relief',
+    blurb: 'Tax-free rent from a room in your home, up to €14,000.',
+  },
+  {
+    key: 'marginal-rate',
+    href: '/marginal-tax-rate-ireland',
+    label: 'Why a pay rise adds so little',
+    blurb: 'Income tax, USC and PRSI on an extra €1,000.',
   },
 ];
 

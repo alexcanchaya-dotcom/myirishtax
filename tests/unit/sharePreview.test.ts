@@ -15,6 +15,7 @@ const PAGES: Array<[string, string]> = [
   ['app/cookies/page.tsx', '/cookies'],
   ['app/disclaimer/page.tsx', '/disclaimer'],
   ['app/exit-tax-ireland/page.tsx', '/exit-tax-ireland'],
+  ['app/marginal-tax-rate-ireland/page.tsx', '/marginal-tax-rate-ireland'],
   ['app/payslip-october-prsi/page.tsx', '/payslip-october-prsi'],
   ['app/privacy/page.tsx', '/privacy'],
   ['app/redundancy-calculator/page.tsx', '/redundancy-calculator'],
