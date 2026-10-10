@@ -233,7 +233,7 @@ export const RENTAL_EXPENSE_CATEGORIES = [
   'Property Insurance',
   'Repairs & Maintenance',
   'Property Management Fees',
-  'Accountant Fees',
+  'Bookkeeping & Tax Return Fees',
   'Legal Fees',
   'Advertising (Letting)',
   'ESB/Gas (if paid by landlord)',
