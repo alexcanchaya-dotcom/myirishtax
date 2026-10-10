@@ -2,13 +2,14 @@ import Link from 'next/link';
 import { PageHeader } from '@/components/PageHeader';
 import { TaxDisclaimer } from '@/components/TaxDisclaimer';
 import { TrustStrip } from '@/components/TrustStrip';
+import { pageMeta } from '@/lib/pageMeta';
 
-export const metadata = {
+export const metadata = pageMeta({
   title: 'Small benefit exemption (2025–2029): €1,500 and 5 vouchers explained | MyIrishTax',
   description:
     'How the Irish small benefit exemption works in 2026: up to 5 non-cash gifts or vouchers a year, worth up to €1,500 in total, tax-free. What counts and what happens if you go over. Not advice.',
-  alternates: { canonical: '/small-benefit-exemption' },
-};
+  path: '/small-benefit-exemption',
+});
 
 const h2 = 'text-xl font-semibold text-ink';
 const list = 'mt-3 list-disc space-y-2 pl-5';

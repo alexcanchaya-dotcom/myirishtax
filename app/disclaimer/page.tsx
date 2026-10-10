@@ -1,11 +1,13 @@
 import { LegalArticle } from '@/components/LegalArticle';
 import { SCOPE_DISCLAIMER } from '@/components/TaxDisclaimer';
+import { pageMeta } from '@/lib/pageMeta';
 
-export const metadata = {
+export const metadata = pageMeta({
   title: 'Disclaimer | MyIrishTax',
-  description: 'MyIrishTax calculators are based on published Irish tax bands and are not advice.',
-  alternates: { canonical: '/disclaimer' },
-};
+  description:
+    'MyIrishTax calculators are based on published Irish tax bands and are not advice.',
+  path: '/disclaimer',
+});
 
 export default function DisclaimerPage() {
   return (

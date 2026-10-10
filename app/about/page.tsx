@@ -1,12 +1,13 @@
 import { PageHeader } from '@/components/PageHeader';
 import Link from 'next/link';
+import { pageMeta } from '@/lib/pageMeta';
 
-export const metadata = {
+export const metadata = pageMeta({
   title: 'About MyIrishTax',
   description:
     'MyIrishTax is a free Irish take-home pay calculator built by Aleksander Canchaya. Estimates from published Revenue and gov.ie rates; not financial or tax advice.',
-  alternates: { canonical: '/about' },
-};
+  path: '/about',
+});
 
 export default function AboutPage() {
   return (

@@ -3,13 +3,14 @@ import { PageHeader } from '@/components/PageHeader';
 import { TaxDisclaimer } from '@/components/TaxDisclaimer';
 import { TrustStrip } from '@/components/TrustStrip';
 import { RentARoomClient } from './RentARoomClient';
+import { pageMeta } from '@/lib/pageMeta';
 
-export const metadata = {
+export const metadata = pageMeta({
   title: 'Rent-a-Room Relief checker: is your lodger income tax-free? | MyIrishTax',
   description:
     'Check whether income from letting a room in your home is tax-free under Rent-a-Room Relief: the €14,000 limit, what counts, who is excluded and how to claim. Estimate only; not financial or tax advice.',
-  alternates: { canonical: '/rent-a-room-relief' },
-};
+  path: '/rent-a-room-relief',
+});
 
 const h2 = 'text-xl font-semibold text-ink';
 const list = 'mt-3 list-disc space-y-2 pl-5';

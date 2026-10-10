@@ -1,11 +1,13 @@
 import { LegalArticle } from '@/components/LegalArticle';
 import Link from 'next/link';
+import { pageMeta } from '@/lib/pageMeta';
 
-export const metadata = {
+export const metadata = pageMeta({
   title: 'Terms of Use | MyIrishTax',
-  description: 'Terms for using the MyIrishTax calculators and website.',
-  alternates: { canonical: '/terms' },
-};
+  description:
+    'Terms for using the MyIrishTax calculators and website.',
+  path: '/terms',
+});
 
 export default function TermsPage() {
   return (

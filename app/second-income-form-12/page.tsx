@@ -2,13 +2,14 @@ import Link from 'next/link';
 import { PageHeader } from '@/components/PageHeader';
 import { TaxDisclaimer } from '@/components/TaxDisclaimer';
 import { TrustStrip } from '@/components/TrustStrip';
+import { pageMeta } from '@/lib/pageMeta';
 
-export const metadata = {
+export const metadata = pageMeta({
   title: 'Second income in Ireland: do I need to file a Form 12 or Form 11? | MyIrishTax',
   description:
     'PAYE worker with rental, side-gig or share income? See when a Form 12 in myAccount is enough, when the €5,000 rule means Form 11, how to file, and the deadlines. Not advice.',
-  alternates: { canonical: '/second-income-form-12' },
-};
+  path: '/second-income-form-12',
+});
 
 const h2 = 'text-xl font-semibold text-ink';
 const list = 'mt-3 list-disc space-y-2 pl-5';
