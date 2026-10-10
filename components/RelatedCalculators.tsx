@@ -1,6 +1,6 @@
 import Link from 'next/link';
 
-export type CalculatorKey = 'take-home' | 'auto-enrolment' | 'rent-credit' | 'contractor' | 'redundancy' | 'payslip-october-prsi' | 'rent-a-room';
+export type CalculatorKey = 'take-home' | 'auto-enrolment' | 'rent-credit' | 'contractor' | 'redundancy' | 'payslip-october-prsi' | 'rent-a-room' | 'marginal-rate';
 
 const CALCULATORS: { key: CalculatorKey; href: string; label: string; blurb: string }[] = [
   { key: 'take-home', href: '/', label: 'Take-home pay', blurb: 'PAYE, USC and PRSI on your salary.' },
@@ -34,6 +34,12 @@ const CALCULATORS: { key: CalculatorKey; href: string; label: string; blurb: str
     href: '/rent-a-room-relief',
     label: 'Rent-a-room relief',
     blurb: 'Tax-free rent from a room in your home, up to €14,000.',
+  },
+  {
+    key: 'marginal-rate',
+    href: '/marginal-tax-rate-ireland',
+    label: 'Why a pay rise adds so little',
+    blurb: 'Income tax, USC and PRSI on an extra €1,000.',
   },
 ];
 
