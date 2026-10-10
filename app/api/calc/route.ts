@@ -15,6 +15,7 @@ const schema = z.object({
   spouseIncome: z.number().finite().min(0, 'Spouse income cannot be negative').optional(),
   singleParent: z.boolean().optional(),
   homeCarer: z.boolean().optional(),
+  over65: z.boolean().optional(),
   taxYear: z
     .number()
     .int()

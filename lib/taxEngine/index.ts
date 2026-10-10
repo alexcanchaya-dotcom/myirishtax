@@ -25,6 +25,11 @@ export type CalculationInput = {
    * second-earner band increase, whichever saves more tax (they can't both be claimed).
    */
   homeCarer?: boolean;
+  /**
+   * You (or, if married, either of you) are 65 or over at some point in the year: Age Tax Credit, plus the income tax
+   * exemption limit and marginal relief when they give less tax. Income tax only; USC and PRSI are unchanged here.
+   */
+  over65?: boolean;
   taxYear: number;
 };
 
@@ -79,6 +84,9 @@ export type TaxBreakdown = {
   netWeekly: number;
   netDaily: number;
   pension: PensionRelief;
+  /** 65 or over: Age Tax Credit included in `credits`, and which rule set the income tax. */
+  ageCredit?: number;
+  ageRelief?: 'credits' | 'exempt' | 'marginal';
   /** Home Carer Tax Credit included in `credits`, when claimed and better than the band increase. */
   homeCarerCredit?: number;
   /** Present only for a jointly assessed couple with two incomes. Totals above are for the household. */
@@ -195,6 +203,43 @@ export function calculateCredits(
 }
 
 export function calculateNetIncome(input: CalculationInput): TaxBreakdown {
+  if (input.over65 !== true) return calculateNetIncomeCore(input);
+  const config = getTaxYearConfig(input.taxYear);
+  const married = input.maritalStatus === 'married';
+  const ageCredit = married ? config.over65.creditMarried : config.over65.creditSingle;
+  const r = calculateNetIncomeCore({ ...input, additionalCredits: (input.additionalCredits ?? 0) + ageCredit });
+  // Exemption / marginal relief on total income (after pension relief, both spouses if jointly assessed).
+  const limit = married ? config.over65.exemptionMarried : config.over65.exemptionSingle;
+  const spouse = married ? Math.max(0, input.spouseIncome ?? 0) : 0;
+  const totalIncome = Math.max(0, convertToAnnual(input.income, input.period) - r.pension.relieved) + spouse;
+  let incomeTax = r.payeAfterCredits;
+  let ageRelief: 'credits' | 'exempt' | 'marginal' = 'credits';
+  if (totalIncome <= limit) {
+    incomeTax = 0;
+    ageRelief = 'exempt';
+  } else if (totalIncome < 2 * limit) {
+    const marginal = 0.4 * (totalIncome - limit);
+    if (marginal < incomeTax) {
+      incomeTax = marginal;
+      ageRelief = 'marginal';
+    }
+  }
+  const saved = r.payeAfterCredits - incomeTax;
+  const netAnnual = r.netAnnual + saved;
+  return {
+    ...r,
+    payeAfterCredits: incomeTax,
+    totalTax: r.totalTax - saved,
+    netAnnual,
+    netMonthly: netAnnual / 12,
+    netWeekly: netAnnual / 52,
+    netDaily: netAnnual / 365,
+    ageCredit,
+    ageRelief,
+  };
+}
+
+function calculateNetIncomeCore(input: CalculationInput): TaxBreakdown {
   const config = getTaxYearConfig(input.taxYear);
   const annualIncome = convertToAnnual(input.income, input.period);
   // Employee pension contributions get income tax relief only, within the age % and €115,000 earnings limits.
