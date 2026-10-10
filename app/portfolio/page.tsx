@@ -340,7 +340,7 @@ export default function PortfolioPage() {
             <Calculator className="h-8 w-8 text-green-600 mb-3" />
             <h3 className="font-semibold text-gray-900 mb-2">Tax Report</h3>
             <p className="text-sm text-gray-600">
-              Generate CGT report for accountant
+              Generate a CGT summary for your records
             </p>
           </Link>
 

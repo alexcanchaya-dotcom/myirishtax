@@ -1,5 +1,5 @@
 export const SCOPE_DISCLAIMER =
-  'Estimate based on published Revenue and DSP rates for the selected year. Covers employees, sole traders and common credits. Not advice. Check complex cases with Revenue or an accountant.';
+  'Estimate based on published Revenue and DSP rates for the selected year. Covers employees, sole traders and common credits. Estimate only, not financial or tax advice. Check complex cases with Revenue.';
 
 export function TaxDisclaimer({ className = '' }: { className?: string }) {
   return (
