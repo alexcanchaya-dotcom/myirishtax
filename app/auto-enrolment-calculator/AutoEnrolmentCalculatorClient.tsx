@@ -433,11 +433,11 @@ export default function AutoEnrolmentCalculatorPage() {
       <section className="mt-10 space-y-6">
         <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-6">
           <h2 className="text-xl font-bold text-emerald-900 mb-2">
-            What is MyFutureFund? Ireland's Auto-Enrolment Explained
+            What is MyFutureFund? Ireland&apos;s Auto-Enrolment Explained
           </h2>
           <p className="text-emerald-800 text-sm leading-relaxed">
-            MyFutureFund is Ireland's mandatory workplace pension scheme that launched on{" "}
-            <strong>1 January 2026</strong>. It automatically enrols eligible employees who don't
+            MyFutureFund is Ireland&apos;s mandatory workplace pension scheme that launched on{" "}
+            <strong>1 January 2026</strong>. It automatically enrols eligible employees who don&apos;t
             already have a workplace pension, covering an estimated{" "}
             <strong>760,000–800,000 workers</strong>. For the first time, private-sector employees
             who were previously saving nothing for retirement are now being helped to build a

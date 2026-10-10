@@ -178,7 +178,7 @@ export default function RentTaxCreditPage() {
               Unclaimed credits across all years
             </h2>
             <p className="text-sm text-gray-600 mb-4">
-              If you haven't claimed for 2022–2026, here's what you could still recover.
+              If you haven&apos;t claimed for 2022–2026, here&apos;s what you could still recover.
             </p>
             <div className="grid grid-cols-5 gap-2 mb-4">
               {TAX_YEARS.map((year) => {
@@ -270,7 +270,7 @@ export default function RentTaxCreditPage() {
               <p>
                 The Rent Tax Credit is an income tax credit for people who pay rent on their private
                 residential accommodation. It was introduced from 1 January 2022 as part of the
-                Government's housing cost relief measures and extended through to 2028 in Budget 2026.
+                Government&apos;s housing cost relief measures and extended through to 2028 in Budget 2026.
                 It is worth up to €1,000 per year for a single person, or €2,000 for a jointly
                 assessed couple (for 2024 onwards).
               </p>
