@@ -41,7 +41,7 @@ describe('One-parent: Single Person Child Carer Credit + €4,000 wider band (Re
 
   it('URL: ?parent=1 round-trips for single only; UI has the checkbox and Revenue-based hint', () => {
     const d: HomeUrlState = {
-      income: 60000, period: 'annual', maritalStatus: 'single', spouseIncome: 0, singleParent: false,
+      income: 60000, period: 'annual', maritalStatus: 'single', spouseIncome: 0, singleParent: false, homeCarer: false, over65: false, reducedUsc: false,
       pension: 0, pensionAge: '', credits: 0, taxYear: 2026,
     };
     const s = fromSearch('?income=40000&parent=1', d);

@@ -19,6 +19,22 @@ export type CalculationInput = {
    * Adds the credit and the €4,000 wider standard rate band (Revenue SPCCC). Ignored when married.
    */
   singleParent?: boolean;
+  /**
+   * Married only: your spouse or partner is a home carer (cares for a child you get Child Benefit for, someone 65+ or
+   * someone permanently incapacitated). Adds the Home Carer Tax Credit, tapered on the spouse's own pay, or the
+   * second-earner band increase, whichever saves more tax (they can't both be claimed).
+   */
+  homeCarer?: boolean;
+  /**
+   * You (or, if married, either of you) are 65 or over at some point in the year: Age Tax Credit, plus the income tax
+   * exemption limit and marginal relief when they give less tax. Income tax only; USC and PRSI are unchanged here.
+   */
+  over65?: boolean;
+  /**
+   * You hold a full medical card (not a GP visit card) or are 70 or over: reduced USC (0.5% / 2%) when your own income
+   * is €60,000 or less. Applies to your pay only, not your spouse's.
+   */
+  reducedUsc?: boolean;
   taxYear: number;
 };
 
@@ -73,6 +89,11 @@ export type TaxBreakdown = {
   netWeekly: number;
   netDaily: number;
   pension: PensionRelief;
+  /** 65 or over: Age Tax Credit included in `credits`, and which rule set the income tax. */
+  ageCredit?: number;
+  ageRelief?: 'credits' | 'exempt' | 'marginal';
+  /** Home Carer Tax Credit included in `credits`, when claimed and better than the band increase. */
+  homeCarerCredit?: number;
   /** Present only for a jointly assessed couple with two incomes. Totals above are for the household. */
   household?: HouseholdBreakdown;
 };
@@ -123,10 +144,12 @@ export function calculatePAYE(income: number, config: TaxYearConfig, maritalStat
 
 // No USC at all when total income for the year is at or below the exemption threshold (€13,000).
 // Above it, USC is charged on the full income, not just the excess (s.531AM(2) TCA 1997).
-export function calculateUSC(income: number, config: TaxYearConfig): BandBreakdown[] {
+// Reduced rates (medical card / 70+) only when income is €60,000 or less; above that the standard rates apply.
+export function calculateUSC(income: number, config: TaxYearConfig, reduced = false): BandBreakdown[] {
   if (income <= config.uscExemptionThreshold) {
     return [{ band: `exempt (income €${String(config.uscExemptionThreshold).replace(/\B(?=(\d{3})+(?!\d))/g, ',')} or less)`, amount: 0, rate: 0 }];
   }
+  if (reduced && income <= config.reducedUsc.incomeLimit) return calculateBands(income, config.reducedUsc.bands);
   return calculateBands(income, config.uscBands);
 }
 
@@ -168,6 +191,12 @@ export function calculatePRSI(income: number, config: TaxYearConfig): number {
   return total;
 }
 
+/** Home Carer Tax Credit for the carer's own income: full up to the limit, then reduced by half the excess. */
+export function homeCarerCredit(config: TaxYearConfig, carerIncome: number): number {
+  const { max, incomeLimit } = config.homeCarer;
+  return Math.max(0, max - Math.max(0, carerIncome - incomeLimit) / 2);
+}
+
 export function calculateCredits(
   config: TaxYearConfig,
   additionalCredits = 0,
@@ -181,6 +210,43 @@ export function calculateCredits(
 }
 
 export function calculateNetIncome(input: CalculationInput): TaxBreakdown {
+  if (input.over65 !== true) return calculateNetIncomeCore(input);
+  const config = getTaxYearConfig(input.taxYear);
+  const married = input.maritalStatus === 'married';
+  const ageCredit = married ? config.over65.creditMarried : config.over65.creditSingle;
+  const r = calculateNetIncomeCore({ ...input, additionalCredits: (input.additionalCredits ?? 0) + ageCredit });
+  // Exemption / marginal relief on total income (after pension relief, both spouses if jointly assessed).
+  const limit = married ? config.over65.exemptionMarried : config.over65.exemptionSingle;
+  const spouse = married ? Math.max(0, input.spouseIncome ?? 0) : 0;
+  const totalIncome = Math.max(0, convertToAnnual(input.income, input.period) - r.pension.relieved) + spouse;
+  let incomeTax = r.payeAfterCredits;
+  let ageRelief: 'credits' | 'exempt' | 'marginal' = 'credits';
+  if (totalIncome <= limit) {
+    incomeTax = 0;
+    ageRelief = 'exempt';
+  } else if (totalIncome < 2 * limit) {
+    const marginal = 0.4 * (totalIncome - limit);
+    if (marginal < incomeTax) {
+      incomeTax = marginal;
+      ageRelief = 'marginal';
+    }
+  }
+  const saved = r.payeAfterCredits - incomeTax;
+  const netAnnual = r.netAnnual + saved;
+  return {
+    ...r,
+    payeAfterCredits: incomeTax,
+    totalTax: r.totalTax - saved,
+    netAnnual,
+    netMonthly: netAnnual / 12,
+    netWeekly: netAnnual / 52,
+    netDaily: netAnnual / 365,
+    ageCredit,
+    ageRelief,
+  };
+}
+
+function calculateNetIncomeCore(input: CalculationInput): TaxBreakdown {
   const config = getTaxYearConfig(input.taxYear);
   const annualIncome = convertToAnnual(input.income, input.period);
   // Employee pension contributions get income tax relief only, within the age % and €115,000 earnings limits.
@@ -198,14 +264,16 @@ export function calculateNetIncome(input: CalculationInput): TaxBreakdown {
         { upTo: null, rate: config.incomeTaxBandsSingle[config.incomeTaxBandsSingle.length - 1].rate },
       ])
     : calculatePAYE(taxableIncome, config, input.maritalStatus);
-  const uscBreakdown = calculateUSC(annualIncome, config);
+  const uscBreakdown = calculateUSC(annualIncome, config, input.reducedUsc === true);
   const prsi = calculateClassAPRSI(annualIncome, config);
 
   const payeBeforeCredits = sumBands(payeBreakdown);
   const uscTotal = sumBands(uscBreakdown);
+  const homeCarer = input.maritalStatus === 'married' && input.homeCarer === true ? homeCarerCredit(config, 0) : 0;
   const totalCredits =
     calculateCredits(config, input.additionalCredits, input.maritalStatus) +
-    (singleParent ? config.singlePersonChildCarer.credit : 0);
+    (singleParent ? config.singlePersonChildCarer.credit : 0) +
+    homeCarer;
 
   // Tax credits reduce income tax (PAYE) only. They cannot reduce USC or PRSI.
   const payeAfterCredits = Math.max(0, payeBeforeCredits - totalCredits);
@@ -227,6 +295,7 @@ export function calculateNetIncome(input: CalculationInput): TaxBreakdown {
     netWeekly: netAnnual / 52,
     netDaily: netAnnual / 365,
     pension,
+    ...(homeCarer > 0 ? { homeCarerCredit: homeCarer } : {}),
   };
 }
 
@@ -245,22 +314,32 @@ function calculateTwoEarnerCouple(
   taxableIncome: number,
 ): TaxBreakdown {
   const married = config.incomeTaxBandsMarried[0].upTo ?? 0;
-  const bandIncrease = Math.min(config.marriedSecondEarnerIncrease, Math.min(taxableIncome, spouseIncome));
-  const standardRateBand = married + bandIncrease;
   const higherRate = config.incomeTaxBandsMarried[config.incomeTaxBandsMarried.length - 1].rate;
-  const payeBreakdown = calculateBands(taxableIncome + spouseIncome, [
-    { upTo: standardRateBand, rate: config.incomeTaxBandsMarried[0].rate },
-    { upTo: null, rate: higherRate },
-  ]);
   const employeeCredit = (pay: number) => Math.min(config.creditsMarried.paye, pay * 0.2);
-  const credits =
+  const baseCredits =
     config.creditsMarried.personal +
     employeeCredit(annualIncome) +
     employeeCredit(spouseIncome) +
     (config.creditsMarried.additional ?? 0) +
     (input.additionalCredits ?? 0);
+  const option = (bandIncrease: number, homeCarer: number) => {
+    const standardRateBand = married + bandIncrease;
+    const payeBreakdown = calculateBands(taxableIncome + spouseIncome, [
+      { upTo: standardRateBand, rate: config.incomeTaxBandsMarried[0].rate },
+      { upTo: null, rate: higherRate },
+    ]);
+    const credits = baseCredits + homeCarer;
+    const tax = Math.max(0, sumBands(payeBreakdown) - credits);
+    return { bandIncrease, homeCarer, standardRateBand, payeBreakdown, credits, tax };
+  };
+  const withBand = option(Math.min(config.marriedSecondEarnerIncrease, Math.min(taxableIncome, spouseIncome)), 0);
+  // Home carer: the credit OR the band increase, whichever gives less income tax (Revenue TDM 15-01-29).
+  const hctc = input.homeCarer === true ? homeCarerCredit(config, spouseIncome) : 0;
+  const withCredit = hctc > 0 ? option(0, hctc) : null;
+  const chosen = withCredit && withCredit.tax < withBand.tax ? withCredit : withBand;
+  const { bandIncrease, standardRateBand, payeBreakdown, credits } = chosen;
 
-  const yourUscBands = calculateUSC(annualIncome, config);
+  const yourUscBands = calculateUSC(annualIncome, config, input.reducedUsc === true);
   const spouseUscBands = calculateUSC(spouseIncome, config);
   const yourUsc = sumBands(yourUscBands);
   const spouseUsc = sumBands(spouseUscBands);
@@ -291,6 +370,7 @@ function calculateTwoEarnerCouple(
     netWeekly: netAnnual / 52,
     netDaily: netAnnual / 365,
     pension,
+    ...(chosen.homeCarer > 0 ? { homeCarerCredit: chosen.homeCarer } : {}),
     household: { yourIncome: annualIncome, spouseIncome, standardRateBand, bandIncrease, yourUsc, spouseUsc, yourPrsi, spousePrsi },
   };
 }

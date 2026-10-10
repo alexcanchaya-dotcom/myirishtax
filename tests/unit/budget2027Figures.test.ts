@@ -119,6 +119,19 @@ describe('Budget 2027 figures (confirmed)', () => {
   });
 });
 
+// TPC p.18 Table 3: married couple, one income, two children (home carer credit), PAYE, Class A — "proposed" columns.
+describe('TPC Table 3 (married, one income, home carer)', () => {
+  it.each([
+    [55000, 2575, 2413, 1167],
+    [100000, 20475, 4388, 4015],
+  ])('€%i → income tax €%i, PRSI €%i, USC €%i', (gross, it_, prsi, usc) => {
+    const r = calculateNetIncome({ income: gross, period: 'annual', maritalStatus: 'married', homeCarer: true, taxYear: 2027 });
+    expect(Math.round(r.payeAfterCredits)).toBe(it_);
+    expect(Math.round(r.prsi)).toBe(prsi);
+    expect(Math.round(r.uscTotal)).toBe(usc);
+  });
+});
+
 describe('/budget-2027 confirmed', () => {
   const html = renderToStaticMarkup(Budget2027Page());
 

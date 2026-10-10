@@ -3,13 +3,14 @@ import { PageHeader } from '@/components/PageHeader';
 import { TaxDisclaimer } from '@/components/TaxDisclaimer';
 import { TrustStrip } from '@/components/TrustStrip';
 import { EXIT_TAX, deemedDisposalExample, exitTaxExampleRows } from '@/lib/exitTax';
+import { pageMeta } from '@/lib/pageMeta';
 
-export const metadata = {
+export const metadata = pageMeta({
   title: 'Exit tax in Ireland: 38% now, 35% announced in Budget 2027 | MyIrishTax',
   description:
     'Exit tax on Irish funds, ETFs and life assurance policies is 38%. Budget 2027 announced a cut to 35%, due in 2027; the start date will be set in the Finance Bill. Deemed disposal is unchanged. Worked examples. Not advice.',
-  alternates: { canonical: '/exit-tax-ireland' },
-};
+  path: '/exit-tax-ireland',
+});
 
 const h2 = 'text-xl font-semibold text-ink';
 const list = 'mt-3 list-disc space-y-2 pl-5';

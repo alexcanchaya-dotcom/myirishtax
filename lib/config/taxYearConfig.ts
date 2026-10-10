@@ -49,6 +49,23 @@ export type TaxYearConfig = {
    * Revenue tax relief charts; Revenue SPCCC page: "If you are due the SPCCC, then you are automatically due the increased rate band."
    */
   singlePersonChildCarer: { credit: number; band: number };
+  /**
+   * Home Carer Tax Credit (married / civil partners, jointly assessed, one cares for a dependant). Full credit when the
+   * carer's income is at or below incomeLimit; reduced by half the excess above it. Revenue "Home Carer Tax Credit rates"
+   * and TDM 15-01-29. Can't be combined with the second-earner band increase in the same year (whichever is better).
+   */
+  homeCarer: { max: number; incomeLimit: number };
+  /**
+   * 65 or over (you, or your spouse if jointly assessed) at any time in the year. Age Tax Credit (Revenue tax relief
+   * charts; TDM 15-01-26) and the income tax exemption limits with 40% marginal relief up to twice the limit
+   * (Revenue "Exemption limits", "Marginal relief"; TDM 07-01-18). Child increases to the limits are not modelled.
+   */
+  over65: { creditSingle: number; creditMarried: number; exemptionSingle: number; exemptionMarried: number };
+  /**
+   * Reduced USC for a full medical card holder or anyone 70 or over, with income of €60,000 or less
+   * (Revenue "Reduced rates of USC": 0.5% on the first €12,012 and 2% on the balance, 2022–2026).
+   */
+  reducedUsc: { incomeLimit: number; bands: TaxBand[] };
   /** Married / civil partners, both with income: maximum increase in the standard rate band (Revenue tax relief charts). */
   marriedSecondEarnerIncrease: number;
   /** Earned Income Tax Credit (self-employed): lower of this or 20% of earned income. Revenue tax relief charts. */
@@ -75,6 +92,17 @@ const CLASS_A_PRSI_2016_ON: ClassAPrsiRules = { weeklyNilUpTo: 352, creditMax: 1
 /** USC exemption threshold €13,000 for 2016 onwards (Revenue USC manual 18D-00-01; "Payments and income exempt from USC"). */
 const USC_EXEMPTION_2016_ON = 13000;
 
+/** Age Tax Credit €245 / €490 and exemption limits €18,000 / €36,000, unchanged since 2020 (Revenue). */
+const OVER_65_2020_ON = { creditSingle: 245, creditMarried: 490, exemptionSingle: 18000, exemptionMarried: 36000 };
+
+const REDUCED_USC_2022_ON = {
+  incomeLimit: 60000,
+  bands: [
+    { upTo: 12012, rate: 0.005 },
+    { upTo: null, rate: 0.02 },
+  ],
+};
+
 const baseConfigs: Record<number, TaxYearConfig> = {
   2023: {
     year: 2023,
@@ -96,6 +124,9 @@ const baseConfigs: Record<number, TaxYearConfig> = {
     credits: { personal: 1775, paye: 1775 },
     creditsMarried: { personal: 3550, paye: 1775 },
     singlePersonChildCarer: { credit: 1650, band: 44000 },
+    homeCarer: { max: 1700, incomeLimit: 7200 },
+    over65: OVER_65_2020_ON,
+    reducedUsc: REDUCED_USC_2022_ON,
     marriedSecondEarnerIncrease: 31000,
     earnedIncomeCredit: 1775,
     classSMinimum: 500,
@@ -125,6 +156,9 @@ const baseConfigs: Record<number, TaxYearConfig> = {
     credits: { personal: 1875, paye: 1875 },
     creditsMarried: { personal: 3750, paye: 1875 },
     singlePersonChildCarer: { credit: 1750, band: 46000 },
+    homeCarer: { max: 1800, incomeLimit: 7200 },
+    over65: OVER_65_2020_ON,
+    reducedUsc: REDUCED_USC_2022_ON,
     marriedSecondEarnerIncrease: 33000,
     earnedIncomeCredit: 1875,
     classSMinimum: 537.5, // €500 to 30 Sep 2024, €650 from 1 Oct 2024: blended €537.50 for 2024 self-assessment
@@ -154,6 +188,9 @@ const baseConfigs: Record<number, TaxYearConfig> = {
     credits: { personal: 2000, paye: 2000 },
     creditsMarried: { personal: 4000, paye: 2000 },
     singlePersonChildCarer: { credit: 1900, band: 48000 },
+    homeCarer: { max: 1950, incomeLimit: 7200 },
+    over65: OVER_65_2020_ON,
+    reducedUsc: REDUCED_USC_2022_ON,
     marriedSecondEarnerIncrease: 35000,
     earnedIncomeCredit: 2000,
     classSMinimum: 650,
@@ -187,6 +224,9 @@ const baseConfigs: Record<number, TaxYearConfig> = {
     credits: { personal: 2000, paye: 2000 },
     creditsMarried: { personal: 4000, paye: 2000 },
     singlePersonChildCarer: { credit: 1900, band: 48000 },
+    homeCarer: { max: 1950, incomeLimit: 7200 },
+    over65: OVER_65_2020_ON,
+    reducedUsc: REDUCED_USC_2022_ON,
     marriedSecondEarnerIncrease: 35000,
     earnedIncomeCredit: 2000,
     classSMinimum: 650,
@@ -219,6 +259,7 @@ export function toTaxYearConfig(b: Budget2027): TaxYearConfig {
   const secondEarner = need(b.incomeTax.twoEarnerMaxIncrease, '2027_TWO_EARNER_MAX_INCREASE');
   const uscExemption = need(b.usc.exemptionThreshold, '2027_USC_EXEMPTION_THRESHOLD');
   const classSMinimum = need(b.prsi.classSMinimum, '2027_CLASS_S_MINIMUM');
+  const homeCarerMax = need(b.credits.homeCarer, '2027_HOME_CARER_CREDIT');
   const spccCredit = need(b.credits.singlePersonChildCarer, '2027_SINGLE_PERSON_CHILD_CARER_CREDIT');
   const spccBand = need(b.incomeTax.bandOneParent, '2027_STANDARD_RATE_BAND_ONE_PARENT');
   const weeklyNilUpTo = need(b.prsi.weeklyNilThreshold, '2027_PRSI_WEEKLY_NIL_THRESHOLD');
@@ -255,6 +296,12 @@ export function toTaxYearConfig(b: Budget2027): TaxYearConfig {
     credits: { personal: personalSingle, paye: employeePaye },
     creditsMarried: { personal: personalMarried, paye: employeePaye },
     singlePersonChildCarer: { credit: spccCredit, band: spccBand },
+    // Home Carer: max from TPC p.4 (€2,050); the €7,200 income limit is unchanged in law (s.466A TCA; TPC lists no change).
+    homeCarer: { max: homeCarerMax, incomeLimit: 7200 },
+    // 65+: Age Tax Credit and exemption limits unchanged (Revenue: limits "apply since 2020"; not in TPC's 2027 changes).
+    over65: OVER_65_2020_ON,
+    // Reduced USC: in law for 2027 (Revenue TDM 18D-00-01: medical card rule "until the end of the 2027 tax year"; 70+ rule ongoing).
+    reducedUsc: REDUCED_USC_2022_ON,
     marriedSecondEarnerIncrease: secondEarner,
     earnedIncomeCredit: earnedIncome,
     classSMinimum,

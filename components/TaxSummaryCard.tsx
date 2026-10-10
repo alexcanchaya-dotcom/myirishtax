@@ -38,6 +38,19 @@ export function TaxSummaryCard({
           {money(data.household.bandIncrease)} second-earner increase).
         </p>
       )}
+      {data.ageRelief === 'exempt' || data.ageRelief === 'marginal' ? (
+        <p className="mt-2 text-xs text-ink-muted">
+          {data.ageRelief === 'exempt'
+            ? 'No income tax: total income is within the exemption limit for people aged 65 or over.'
+            : 'Income tax is capped by marginal relief (40% of income above the 65+ exemption limit), which is lower than using your tax credits.'}
+        </p>
+      ) : null}
+      {data.homeCarerCredit ? (
+        <p className="mt-2 text-xs text-ink-muted">
+          Includes the Home Carer Tax Credit of {money(data.homeCarerCredit)}
+          {data.household ? ', which saves more than the second-earner band increase here' : ''}.
+        </p>
+      ) : null}
       <dl className="mt-6 space-y-2 border-t border-line pt-4 text-sm">
         <Row label={data.household ? 'Gross pay (both of you)' : 'Gross pay'} value={money(rows.gross)} />
         <Row label="Income tax before credits" value={money(rows.incomeTaxBeforeCredits)} />

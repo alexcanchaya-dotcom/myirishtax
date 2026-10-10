@@ -59,7 +59,7 @@ function calcAllYearsTotal(
 // ─── Component ──────────────────────────────────────────────────────────────────
 export default function RentTaxCreditPage() {
   const [annualRent, setAnnualRent] = useState<number>(18000);
-  const [taxYear, setTaxYear] = useState<number>(2025);
+  const [taxYear, setTaxYear] = useState<number>(2026);
   const [filingStatus, setFilingStatus] = useState<FilingStatus>('single');
 
   const result = useMemo(
@@ -104,7 +104,7 @@ export default function RentTaxCreditPage() {
                 label="Tax Year"
                 value={taxYear}
                 onChange={(v) => setTaxYear(Number(v))}
-                options={TAX_YEARS.map((y) => ({ label: y.toString(), value: y }))}
+                options={TAX_YEARS.map((y) => ({ label: `${y} tax year`, value: y }))}
               />
               <SelectField
                 label="Filing Status"
@@ -180,25 +180,25 @@ export default function RentTaxCreditPage() {
             <p className="text-sm text-gray-600 mb-4">
               If you haven&apos;t claimed for 2022–2026, here&apos;s what you could still recover.
             </p>
-            <div className="grid grid-cols-5 gap-2 mb-4">
+            <div className="grid grid-cols-3 gap-2 mb-4 sm:grid-cols-5">
               {TAX_YEARS.map((year) => {
                 const { creditClaimed } = calcRentCredit(annualRent, year, filingStatus);
                 return (
                   <div
                     key={year}
-                    className={`rounded-lg p-3 text-center border ${
+                    className={`rounded-lg p-2 text-center border sm:p-3 ${
                       year === taxYear
                         ? 'border-orange-400 bg-orange-100'
                         : 'border-orange-200 bg-white'
                     }`}
                   >
-                    <div className="text-xs font-semibold text-gray-500 mb-1">{year}</div>
+                    <div className="text-xs font-semibold text-gray-700 mb-1">{year}</div>
                     <div className="text-sm font-bold text-orange-700">{fmt(creditClaimed)}</div>
                   </div>
                 );
               })}
             </div>
-            <div className="rounded-lg bg-orange-500 text-white px-4 py-3 flex items-center justify-between">
+            <div className="rounded-lg bg-orange-700 text-white px-4 py-3 flex items-center justify-between">
               <span className="font-semibold">You could claim up to</span>
               <span className="text-2xl font-bold">{fmt(allYearsTotal)}</span>
             </div>
