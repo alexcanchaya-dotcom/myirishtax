@@ -433,16 +433,20 @@ export default function HomePage() {
 
       <p className="mt-12 text-sm text-ink-muted">
         Other tools:{' '}
+        <Link href="/redundancy-calculator" className="text-ink underline decoration-line underline-offset-2 hover:text-brand-700">
+          How much of a redundancy package is tax-free?
+        </Link>
+        ,{' '}
+        <Link href="/second-income-form-12" className="text-ink underline decoration-line underline-offset-2 hover:text-brand-700">
+          Second income: do I need a Form 12?
+        </Link>
+        ,{' '}
         <Link href="/contractor-calculator" className="text-ink underline decoration-line underline-offset-2 hover:text-brand-700">
           contractor
         </Link>
         ,{' '}
         <Link href="/rent-tax-credit" className="text-ink underline decoration-line underline-offset-2 hover:text-brand-700">
           rent tax credit
-        </Link>
-        ,{' '}
-        <Link href="/redundancy-calculator" className="text-ink underline decoration-line underline-offset-2 hover:text-brand-700">
-          redundancy
         </Link>
         ,{' '}
         <Link href="/auto-enrolment-calculator" className="text-ink underline decoration-line underline-offset-2 hover:text-brand-700">

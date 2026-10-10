@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { calculateRedundancy, RedundancyInputs, RedundancyResults } from "@/lib/redundancy2025";
 import { TaxFreeSection } from "@/components/redundancy/TaxFreeSection";
 import { SCOPE_DISCLAIMER } from "@/components/TaxDisclaimer";
+import Link from "next/link";
 import { RelatedCalculators } from "@/components/RelatedCalculators";
 import { CalculatorInput } from "@/components/CalculatorInput";
 import { TrustStrip } from '@/components/TrustStrip';
@@ -258,6 +259,18 @@ export default function RedundancyCalculatorPage() {
         description="Estimate your statutory redundancy, the tax-free part of any extra payment, and the tax on the rest."
       />
       <RelatedCalculators current="redundancy" />
+
+      <p className="mt-12 text-sm text-ink-muted">
+        Also: the{' '}
+        <Link href="/" className="text-ink underline decoration-line underline-offset-2 hover:text-brand-700">
+          Take-home pay calculator
+        </Link>
+        {' '}for your regular salary, and{' '}
+        <Link href="/second-income-form-12" className="text-ink underline decoration-line underline-offset-2 hover:text-brand-700">
+          Second income: do I need a Form 12?
+        </Link>
+        {' '}if you start other work after redundancy.
+      </p>
     </div>
   );
 }
