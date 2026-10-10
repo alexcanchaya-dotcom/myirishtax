@@ -1,12 +1,13 @@
 import { LegalArticle } from '@/components/LegalArticle';
 import Link from 'next/link';
+import { pageMeta } from '@/lib/pageMeta';
 
-export const metadata = {
+export const metadata = pageMeta({
   title: 'Privacy Policy | MyIrishTax',
   description:
     'How MyIrishTax handles calculator figures, accounts, and contact email. We do not sell your data.',
-  alternates: { canonical: '/privacy' },
-};
+  path: '/privacy',
+});
 
 export default function PrivacyPage() {
   return (

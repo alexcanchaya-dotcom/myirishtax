@@ -4,13 +4,14 @@ import { TaxDisclaimer } from '@/components/TaxDisclaimer';
 import { TrustStrip } from '@/components/TrustStrip';
 import { RelatedCalculators } from '@/components/RelatedCalculators';
 import { OCTOBER_EXAMPLE_SALARIES, octoberPrsiExample } from '@/lib/payslipPrsi';
+import { pageMeta } from '@/lib/pageMeta';
 
-export const metadata = {
+export const metadata = pageMeta({
   title: 'Why is my October 2026 pay lower? Employee PRSI 4.2% to 4.35% | MyIrishTax',
   description:
     'From 1 October 2026 employee PRSI went up from 4.2% to 4.35%. What it means per week and per month, with worked examples. Estimate only; not financial or tax advice.',
-  alternates: { canonical: '/payslip-october-prsi' },
-};
+  path: '/payslip-october-prsi',
+});
 
 const DSP_CLASS_A = 'https://www.gov.ie/en/department-of-social-protection/publications/prsi-class-a-rates/';
 const h2 = 'text-xl font-semibold text-ink';

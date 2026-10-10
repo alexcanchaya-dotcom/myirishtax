@@ -1,13 +1,14 @@
 import Link from 'next/link';
 import { TaxDisclaimer } from '@/components/TaxDisclaimer';
 import { PageHeader } from '@/components/PageHeader';
+import { pageMeta } from '@/lib/pageMeta';
 
-export const metadata = {
+export const metadata = pageMeta({
   title: 'Rental Income Calculator | Coming soon | MyIrishTax',
   description:
     'Irish rental income calculator is coming soon. The previous version used an expired 75% mortgage-interest rule.',
-  alternates: { canonical: '/rental-calculator' },
-};
+  path: '/rental-calculator',
+});
 
 export default function RentalCalculatorComingSoonPage() {
   return (
