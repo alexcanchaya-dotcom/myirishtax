@@ -64,8 +64,9 @@ export default function RentARoomReliefPage() {
         <section>
           <h2 className={h2}>Budget 2027</h2>
           <p className="mt-3">
-            Budget 2027 announced a higher limit from 2027. We&apos;ll add the 2027 year here once the 2027 figures are
-            signed off.
+            Budget 2027 raises the limit from €14,000 to €16,000 from 1 January 2027 (Department of Finance, Budget
+            2027 Tax Policy Changes, section 3.2). Pick 2027 above to check against it. It becomes law with the Finance
+            Bill later this year.
           </p>
         </section>
 

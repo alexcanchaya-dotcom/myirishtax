@@ -17,7 +17,7 @@ const PAGES = [
 
 describe('trust strip', () => {
   it('rates label is one config value (switches to Budget 2027 when #39 ships)', () => {
-    expect(RATES_LABEL).toBe('2026 rates');
+    expect(RATES_LABEL).toBe('Budget 2027 rates');
     expect(RATES_CHECKED).toMatch(/^\d{1,2} [A-Z][a-z]{2} 20\d\d$/);
     const strip = read('components/TrustStrip.tsx');
     expect(strip).toContain('{RATES_LABEL}');

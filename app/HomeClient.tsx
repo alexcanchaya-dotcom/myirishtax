@@ -11,11 +11,13 @@ import { fromSearch, toSearch, type HomeUrlState } from '../lib/homeUrlState';
 import { OwedTaxBack } from '../components/OwedTaxBack';
 import { ComparisonView } from '../components/ComparisonView';
 import { TaxBreakdown, calculateNetIncome, compareScenarios } from '../lib/taxEngine';
-import { formatTaxYearLabel, getDefaultTaxYear, listSupportedYears } from '../lib/config/taxYearConfig';
+import { formatTaxYearLabel, getDefaultTaxYear, isTaxYearAvailable, listSupportedYears } from '../lib/config/taxYearConfig';
+import { BUDGET_2027 } from '../lib/config/taxYear2027';
 import Link from 'next/link';
 import { PageHeader } from '../components/PageHeader';
 import { FireHandoff } from '../components/FireHandoff';
 import { RelatedCalculators } from '../components/RelatedCalculators';
+import { Budget2027Link } from '@/components/Budget2027Link';
 import { TaxDisclaimer } from '../components/TaxDisclaimer';
 import { PENSION_AGE_HINT, PENSION_AGE_OPTIONS } from '../lib/pensionAgeOptions';
 import { TrustStrip } from '@/components/TrustStrip';
@@ -156,8 +158,19 @@ export default function HomePage() {
         <p className="font-medium text-brand-700">{formatTaxYearLabel(taxYear)}</p>
         <p>
           Estimate PAYE, USC and PRSI from published bands. The {formatTaxYearLabel(getDefaultTaxYear())}{' '}
-          is the default; 2025 is still available. Free to use — no account needed.
+          is the default; 2025 is still available
+          {isTaxYearAvailable(2027)
+            ? `, and 2027 uses the Budget 2027 figures, checked ${BUDGET_2027.figuresCheckedOn ?? ''}`
+            : ''}
+          . Free to use — no account needed.
         </p>
+        {BUDGET_2027.status === 'confirmed' ? (
+          <p>
+            <Link href="/budget-2027" className="font-semibold text-brand-700 underline decoration-line underline-offset-2">
+              New: Budget 2027 — how much better off per week?
+            </Link>
+          </p>
+        ) : null}
         <TrustStrip />
       </PageHeader>
 
@@ -416,7 +429,15 @@ export default function HomePage() {
               Class A employee rate: 4.1% to 30 September 2025, then 4.2%, rising to 4.35% from
               1 October 2026. The estimate weights the rate by month. No PRSI if you earn €352 a
               week or less. Between €352.01 and €424 a week, a PRSI credit of up to €12 a week
-              reduces it. Tax credits do not reduce PRSI.
+              reduces it.
+              {BUDGET_2027.status === 'confirmed' && BUDGET_2027.prsi.rateFrom1Jan !== null
+                ? ` 2027: ${Number((BUDGET_2027.prsi.rateFrom1Jan * 100).toFixed(3))}% from January${
+                    BUDGET_2027.prsi.rateAfterChange !== null && BUDGET_2027.prsi.changeMonth !== null
+                      ? `, ${Number((BUDGET_2027.prsi.rateAfterChange * 100).toFixed(3))}% from 1 ${new Date(2027, BUDGET_2027.prsi.changeMonth - 1, 1).toLocaleString('en-IE', { month: 'long' })}`
+                      : ''
+                  } (Budget 2027).`
+                : ''}{' '}
+              Tax credits do not reduce PRSI.
             </p>
           </div>
         </div>
@@ -432,6 +453,7 @@ export default function HomePage() {
       <RelatedCalculators current="take-home" />
 
       <p className="mt-12 text-sm text-ink-muted">
+        <Budget2027Link after=". " />
         Other tools:{' '}
         <Link href="/redundancy-calculator" className="text-ink underline decoration-line underline-offset-2 hover:text-brand-700">
           How much of a redundancy package is tax-free?

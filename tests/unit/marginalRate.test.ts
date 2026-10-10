@@ -43,8 +43,6 @@ describe('marginal rate on a €1,000 rise (2026, single)', () => {
     expect(read('components/RelatedCalculators.tsx')).toContain(
       "href: '/marginal-tax-rate-ireland'"
     );
-    expect(read('public/sitemap.xml')).toContain(
-      '<loc>https://myirishtax.com/marginal-tax-rate-ireland</loc>'
-    );
+    expect(read('app/sitemap.ts')).toContain("'/marginal-tax-rate-ireland': '2026-10-10'");
   });
 });

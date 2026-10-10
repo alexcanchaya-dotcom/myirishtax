@@ -3,6 +3,7 @@ import { PageHeader } from '@/components/PageHeader';
 import { TaxDisclaimer } from '@/components/TaxDisclaimer';
 import { TrustStrip } from '@/components/TrustStrip';
 import { RelatedCalculators } from '@/components/RelatedCalculators';
+import { Budget2027Link } from '@/components/Budget2027Link';
 import { pageMeta } from '@/lib/pageMeta';
 import {
   MARGINAL_HEADLINE_INCOME,
@@ -151,6 +152,7 @@ export default function MarginalTaxRatePage() {
             <Link href="/redundancy-calculator" className={link}>
               How much of a redundancy package is tax-free?
             </Link>
+            <Budget2027Link before=" To see what changes in 2027: " after="." />
           </p>
         </section>
 

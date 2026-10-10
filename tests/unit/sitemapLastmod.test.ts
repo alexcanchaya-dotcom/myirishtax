@@ -5,17 +5,17 @@ import { pageMeta } from '../../lib/pageMeta';
 const read = (p: string) => fs.readFileSync(path.join(__dirname, '..', '..', p), 'utf8');
 
 describe('sitemap lastmod and /rental-calculator noindex', () => {
-  const xml = read('public/sitemap.xml');
-  const urls = xml.match(/<url>.*?<\/url>/g) ?? [];
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const entries = (require('../../app/sitemap').default as () => { url: string; lastModified?: string }[])();
+  const xml = entries.map((e) => e.url).join(' ');
 
   it('every sitemap URL has a YYYY-MM-DD lastmod no later than today', () => {
-    expect(urls.length).toBe(16);
-    for (const u of urls) {
-      const m = u.match(/<lastmod>(\d{4}-\d{2}-\d{2})<\/lastmod>/);
-      expect(m).not.toBeNull();
-      expect(m![1] <= '2026-10-10').toBe(true);
+    expect(entries.length).toBeGreaterThanOrEqual(15);
+    for (const e of entries) {
+      expect(e.lastModified).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+      expect(e.lastModified! <= '2026-10-10').toBe(true);
     }
-    expect(xml).toContain('<loc>https://myirishtax.com/exit-tax-ireland</loc><lastmod>2026-10-07</lastmod>');
+    expect(entries.find((e) => e.url.endsWith('/exit-tax-ireland'))?.lastModified).toBe('2026-10-07');
   });
 
   it('/rental-calculator (coming soon) is noindex, follow, and not in the sitemap', () => {

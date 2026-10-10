@@ -10,6 +10,8 @@
  * config/tax_years/*.yml is an older draft and is not used by these calculators.
  */
 
+import { BUDGET_2027, type Budget2027 } from './taxYear2027';
+
 export const CURRENT_TAX_YEAR = 2026;
 
 export function formatTaxYearLabel(year: number): string {
@@ -232,6 +234,90 @@ const baseConfigs: Record<number, TaxYearConfig> = {
     classAPrsi: CLASS_A_PRSI_2016_ON,
   },
 };
+
+/**
+ * Maps the Budget 2027 config to a TaxYearConfig.
+ * Throws if any field the engine needs is still blank, so a half-filled config fails the build.
+ */
+export function toTaxYearConfig(b: Budget2027): TaxYearConfig {
+  const missing: string[] = [];
+  const need = (value: number | null, blank: string): number => {
+    if (value === null || value === undefined || Number.isNaN(value)) {
+      missing.push(blank);
+      return 0;
+    }
+    return value;
+  };
+  const standardRate = need(b.incomeTax.standardRate, '2027_STANDARD_RATE');
+  const higherRate = need(b.incomeTax.higherRate, '2027_HIGHER_RATE');
+  const bandSingle = need(b.incomeTax.bandSingle, '2027_STANDARD_RATE_BAND_SINGLE');
+  const bandMarried = need(b.incomeTax.bandMarriedOneEarner, '2027_STANDARD_RATE_BAND_MARRIED_ONE_EARNER');
+  const personalSingle = need(b.credits.personalSingle, '2027_PERSONAL_CREDIT_SINGLE');
+  const personalMarried = need(b.credits.personalMarried, '2027_PERSONAL_CREDIT_MARRIED');
+  const employeePaye = need(b.credits.employeePaye, '2027_EMPLOYEE_PAYE_CREDIT');
+  const earnedIncome = need(b.credits.earnedIncome, '2027_EARNED_INCOME_CREDIT');
+  const secondEarner = need(b.incomeTax.twoEarnerMaxIncrease, '2027_TWO_EARNER_MAX_INCREASE');
+  const uscExemption = need(b.usc.exemptionThreshold, '2027_USC_EXEMPTION_THRESHOLD');
+  const classSMinimum = need(b.prsi.classSMinimum, '2027_CLASS_S_MINIMUM');
+  const homeCarerMax = need(b.credits.homeCarer, '2027_HOME_CARER_CREDIT');
+  const spccCredit = need(b.credits.singlePersonChildCarer, '2027_SINGLE_PERSON_CHILD_CARER_CREDIT');
+  const spccBand = need(b.incomeTax.bandOneParent, '2027_STANDARD_RATE_BAND_ONE_PARENT');
+  const weeklyNilUpTo = need(b.prsi.weeklyNilThreshold, '2027_PRSI_WEEKLY_NIL_THRESHOLD');
+  const creditMax = need(b.prsi.creditMaxWeekly, '2027_PRSI_CREDIT_MAX_WEEKLY');
+  const creditTaperTo = need(b.prsi.creditTopWeekly, '2027_PRSI_CREDIT_TOP');
+  const uscBands: TaxBand[] = b.usc.bands.map((band, i) => ({
+    upTo: band.upTo === 'balance' ? null : need(band.upTo, `2027_USC_BAND_${i + 1}_TOP`),
+    rate: need(band.rate, `2027_USC_RATE_${i + 1}`),
+  }));
+  const prsiRate = need(b.prsi.rateFrom1Jan, '2027_PRSI_RATE_FROM_1_JAN');
+  let prsiRateChanges: TaxYearConfig['prsiRateChanges'];
+  if (b.prsi.changeMonth !== null || b.prsi.rateAfterChange !== null) {
+    const fromMonth = need(b.prsi.changeMonth, '2027_PRSI_CHANGE_DATE');
+    const rate = need(b.prsi.rateAfterChange, '2027_PRSI_RATE_AFTER_CHANGE');
+    if (fromMonth < 1 || fromMonth > 12) missing.push('2027_PRSI_CHANGE_DATE (month must be 1–12)');
+    prsiRateChanges = [{ fromMonth, rate }];
+  }
+  if (missing.length > 0) {
+    throw new Error(`Budget 2027 config is marked confirmed but these blanks are empty: ${missing.join(', ')}`);
+  }
+  return {
+    year: 2027,
+    incomeTaxBandsSingle: [
+      { upTo: bandSingle, rate: standardRate },
+      { upTo: null, rate: higherRate },
+    ],
+    incomeTaxBandsMarried: [
+      { upTo: bandMarried, rate: standardRate },
+      { upTo: null, rate: higherRate },
+    ],
+    uscBands,
+    prsiRate,
+    ...(prsiRateChanges ? { prsiRateChanges } : {}),
+    credits: { personal: personalSingle, paye: employeePaye },
+    creditsMarried: { personal: personalMarried, paye: employeePaye },
+    singlePersonChildCarer: { credit: spccCredit, band: spccBand },
+    // Home Carer: max from TPC p.4 (€2,050); the €7,200 income limit is unchanged in law (s.466A TCA; TPC lists no change).
+    homeCarer: { max: homeCarerMax, incomeLimit: 7200 },
+    // 65+: Age Tax Credit and exemption limits unchanged (Revenue: limits "apply since 2020"; not in TPC's 2027 changes).
+    over65: OVER_65_2020_ON,
+    // Reduced USC: in law for 2027 (Revenue TDM 18D-00-01: medical card rule "until the end of the 2027 tax year"; 70+ rule ongoing).
+    reducedUsc: REDUCED_USC_2022_ON,
+    marriedSecondEarnerIncrease: secondEarner,
+    earnedIncomeCredit: earnedIncome,
+    classSMinimum,
+    uscExemptionThreshold: uscExemption,
+    classAPrsi: { weeklyNilUpTo, creditMax, creditTaperTo },
+  };
+}
+
+// 2027 only exists once the official figures are filled in and marked confirmed.
+if (BUDGET_2027.status === 'confirmed') {
+  baseConfigs[2027] = toTaxYearConfig(BUDGET_2027);
+}
+
+export function isTaxYearAvailable(year: number): boolean {
+  return year in baseConfigs;
+}
 
 export function getTaxYearConfig(year: number): TaxYearConfig {
   return baseConfigs[year] ?? baseConfigs[2026];

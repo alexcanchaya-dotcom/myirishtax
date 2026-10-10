@@ -21,12 +21,14 @@ import Link from "next/link";
 import { TaxDisclaimer } from "@/components/TaxDisclaimer";
 import { PageHeader } from "@/components/PageHeader";
 import { RelatedCalculators } from "@/components/RelatedCalculators";
+import { Budget2027Link } from '@/components/Budget2027Link';
 import { TrustStrip } from '@/components/TrustStrip';
 import { GOV_PRSI_CLASS_S, REVENUE_RATES } from '@/lib/config/siteRates';
 import { Faq, WebAppJsonLd } from '@/components/Faq';
 import { CONTRACTOR_FAQ } from '@/lib/faq/calculatorFaqs';
 
-const years = listSupportedYears();
+// Class S logic isn't part of the Budget 2027 work, so the contractor tool stays on 2026 and earlier.
+const years = listSupportedYears().filter((y) => y <= 2026);
 
 interface Expense {
   id: string;
@@ -460,6 +462,7 @@ export default function ContractorCalculatorPage() {
       <RelatedCalculators current="contractor" />
 
       <p className="mt-12 text-sm text-ink-muted">
+        <Budget2027Link after=". " />
         Also:{' '}
         <Link href="/" className="text-ink underline decoration-line underline-offset-2 hover:text-brand-700">
           Take-home pay calculator

@@ -41,7 +41,7 @@ describe('/exit-tax-ireland', () => {
     expect(read('app/portfolio/page.tsx')).toContain('href="/exit-tax-ireland"');
     expect(read('components/NavBar.tsx')).toContain("href: '/exit-tax-ireland'");
     expect(read('app/layout.tsx')).toContain('href="/exit-tax-ireland"');
-    expect(read('public/sitemap.xml')).toContain('https://myirishtax.com/exit-tax-ireland');
+    expect(read('app/sitemap.ts')).toContain("'/exit-tax-ireland'");
   });
 
   it('no words the team bans', () => {
