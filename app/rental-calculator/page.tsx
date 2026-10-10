@@ -8,6 +8,7 @@ export const metadata = pageMeta({
   description:
     'Irish rental income calculator is coming soon. The previous version used an expired 75% mortgage-interest rule.',
   path: '/rental-calculator',
+  noindex: true,
 });
 
 export default function RentalCalculatorComingSoonPage() {
