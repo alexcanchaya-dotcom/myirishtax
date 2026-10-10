@@ -6,6 +6,9 @@ import { SelectField } from '../components/SelectField';
 import { BreakdownTable } from '../components/BreakdownTable';
 import { TaxSummaryCard } from '../components/TaxSummaryCard';
 import { buildSummaryRows } from '../lib/summaryRows';
+import { CopyEstimateLink } from '../components/CopyEstimateLink';
+import { fromSearch, toSearch, type HomeUrlState } from '../lib/homeUrlState';
+import { OwedTaxBack } from '../components/OwedTaxBack';
 import { ComparisonView } from '../components/ComparisonView';
 import { TaxBreakdown, calculateNetIncome, compareScenarios } from '../lib/taxEngine';
 import { formatTaxYearLabel, getDefaultTaxYear, isTaxYearAvailable, listSupportedYears } from '../lib/config/taxYearConfig';
@@ -15,8 +18,10 @@ import { PageHeader } from '../components/PageHeader';
 import { FireHandoff } from '../components/FireHandoff';
 import { RelatedCalculators } from '../components/RelatedCalculators';
 import { TaxDisclaimer } from '../components/TaxDisclaimer';
-import { PENSION_AGE_OPTIONS } from '../lib/pensionAgeOptions';
+import { PENSION_AGE_HINT, PENSION_AGE_OPTIONS } from '../lib/pensionAgeOptions';
 import { TrustStrip } from '@/components/TrustStrip';
+import { Faq, WebAppJsonLd } from '@/components/Faq';
+import { TAKE_HOME_FAQ } from '@/lib/faq/calculatorFaqs';
 
 const years = listSupportedYears();
 
@@ -24,8 +29,25 @@ function formatEuro(n: number): string {
   return `€${Math.round(n).toLocaleString('en-IE')}`;
 }
 
+const URL_DEFAULTS: HomeUrlState = {
+  income: 60000,
+  period: 'annual',
+  maritalStatus: 'single',
+  spouseIncome: 0,
+  singleParent: false,
+  pension: 0,
+  pensionAge: '',
+  credits: 0,
+  taxYear: getDefaultTaxYear(),
+};
+
 const MARRIED_HINT =
-  'Joint assessment. Enter your own pay above and your spouse or partner’s pay below. Leave their pay at 0 if only one of you earns. We assume both of you are PAYE employees and the band and credits are shared in the way that saves most tax.';
+  'Married or civil partners are taxed together (joint assessment). Add your spouse or partner’s pay, or leave it at 0 if only you earn.';
+const SPOUSE_HINT = 'We assume you are both PAYE employees and share the tax band and credits in the way that saves most tax.';
+const SINGLE_PARENT_HINT =
+  'Tick if a child lives with you for most of the year and you are not married or living with a partner. Adds the Single Person Child Carer Credit (€1,900 in 2026) and €4,000 more taxed at 20%. Only one parent can claim it.';
+const CREDITS_HINT =
+  'Only credits not already counted, e.g. rent tax credit (up to €1,000 in 2026, €2,000 for a couple) or age tax credit if you are 65 or over (€245, €490 for a couple). Your personal and Employee (PAYE) credits are already included.';
 
 export default function HomePage() {
   const { data: session } = useSession();
@@ -36,6 +58,8 @@ export default function HomePage() {
   const [pensionAge, setPensionAge] = useState('');
   const [credits, setCredits] = useState(0);
   const [spouseIncome, setSpouseIncome] = useState(0);
+  const [singleParent, setSingleParent] = useState(false);
+  const [urlLoaded, setUrlLoaded] = useState(false);
   const [taxYear, setTaxYear] = useState<number>(getDefaultTaxYear());
   const [result, setResult] = useState<TaxBreakdown | null>(null);
   const [resultKey, setResultKey] = useState<string | null>(null);
@@ -51,15 +75,36 @@ export default function HomePage() {
       ...(pensionAge !== '' ? { age: Number(pensionAge) } : {}),
       additionalCredits: credits,
       ...(maritalStatus === 'married' && spouseIncome > 0 ? { spouseIncome } : {}),
+      ...(maritalStatus === 'single' && singleParent ? { singleParent: true } : {}),
       taxYear,
     }),
-    [credits, income, maritalStatus, pension, pensionAge, period, spouseIncome, taxYear],
+    [credits, income, maritalStatus, pension, pensionAge, period, singleParent, spouseIncome, taxYear],
   );
-  // ?year=2027 (from /budget-2027) picks the year on load, only if that year is available.
+  // Inputs live in the URL (?income=…&year=…) so an estimate can be reloaded or shared.
   useEffect(() => {
-    const year = Number(new URLSearchParams(window.location.search).get('year'));
-    if (year && isTaxYearAvailable(year)) setTaxYear(year);
+    const s = fromSearch(window.location.search, URL_DEFAULTS);
+    setIncome(s.income);
+    setPeriod(s.period);
+    setMaritalStatus(s.maritalStatus);
+    setSpouseIncome(s.spouseIncome);
+    setSingleParent(s.singleParent);
+    setPension(s.pension);
+    setPensionAge(s.pensionAge);
+    setCredits(s.credits);
+    setTaxYear(s.taxYear);
+    setUrlLoaded(true);
   }, []);
+
+  useEffect(() => {
+    if (!urlLoaded) return;
+    const search = toSearch(
+      { income, period, maritalStatus, spouseIncome, singleParent, pension, pensionAge, credits, taxYear },
+      URL_DEFAULTS,
+    );
+    if (search !== window.location.search) {
+      window.history.replaceState(window.history.state, '', `${window.location.pathname}${search}${window.location.hash}`);
+    }
+  }, [credits, income, maritalStatus, pension, pensionAge, period, singleParent, spouseIncome, taxYear, urlLoaded]);
 
   const inputKey = JSON.stringify(input);
   const isCurrent = result !== null && resultKey === inputKey;
@@ -111,20 +156,33 @@ export default function HomePage() {
       </PageHeader>
 
       {result && (
-        <div className="mb-6 flex items-baseline justify-between gap-4 rounded-2xl border border-line bg-white px-5 py-4 lg:hidden">
-          <span className="text-sm text-ink-muted">
-            {result.household ? 'Household take-home' : 'Take-home'}
-            <span className="mt-0.5 block text-xs font-medium text-ink-muted">
-              {formatTaxYearLabel(taxYear)}
-              {isCurrent ? ' · current estimate' : ' · out of date — click Calculate'}
+        <div className="mb-6 rounded-2xl border border-line bg-white px-5 py-4 lg:hidden" data-testid="mobile-result">
+          <div className="flex items-baseline justify-between gap-4">
+            <span className="text-sm text-ink-muted">
+              {result.household ? 'Household take-home' : 'Take-home'}
+              <span className="mt-0.5 block text-xs font-medium text-ink-muted">
+                {formatTaxYearLabel(taxYear)}
+                {isCurrent ? ' · current estimate' : ' · out of date — click Calculate'}
+              </span>
             </span>
-          </span>
-          <span
-            className={`font-serif text-2xl text-brand-700 ${isCurrent ? '' : 'opacity-50'}`}
-            aria-live="polite"
-          >
-            {formatEuro(buildSummaryRows(result).takeHome)}
-          </span>
+            <span
+              className={`text-right font-serif text-2xl text-brand-700 ${isCurrent ? '' : 'opacity-50'}`}
+              aria-live="polite"
+            >
+              {formatEuro(buildSummaryRows(result).takeHome)}
+              <span className="block font-sans text-xs text-ink-muted">a year</span>
+            </span>
+          </div>
+          <dl className={`mt-3 grid grid-cols-2 gap-3 border-t border-line pt-3 ${isCurrent ? '' : 'opacity-50'}`}>
+            <div>
+              <dt className="text-xs text-ink-muted">Per week</dt>
+              <dd className="text-lg font-semibold text-ink">{formatEuro(result.netWeekly)}</dd>
+            </div>
+            <div>
+              <dt className="text-xs text-ink-muted">Per month</dt>
+              <dd className="text-lg font-semibold text-ink">{formatEuro(result.netMonthly)}</dd>
+            </div>
+          </dl>
         </div>
       )}
 
@@ -145,7 +203,7 @@ export default function HomePage() {
             />
             <div className="grid gap-5 sm:col-span-2 sm:grid-cols-2">
               <SelectField
-                label="Marital status"
+                label="Single or married?"
                 value={maritalStatus}
                 onChange={(v) => setMaritalStatus(v as 'single' | 'married')}
                 options={[
@@ -160,12 +218,30 @@ export default function HomePage() {
               >
                 {MARRIED_HINT}
               </p>
+              {maritalStatus === 'single' && (
+                <div className="flex flex-col gap-1">
+                  <label className="flex min-h-11 items-center gap-3 text-sm font-medium text-ink">
+                    <input
+                      type="checkbox"
+                      className="h-5 w-5"
+                      checked={singleParent}
+                      onChange={(e) => setSingleParent(e.target.checked)}
+                      aria-describedby="single-parent-hint"
+                    />
+                    I’m a single parent
+                  </label>
+                  <p id="single-parent-hint" className="text-xs font-normal leading-snug text-ink-muted">
+                    {SINGLE_PARENT_HINT}
+                  </p>
+                </div>
+              )}
               {maritalStatus === 'married' && (
                 <CalculatorInput
                   label="Spouse or partner’s pay (per year)"
                   value={spouseIncome}
                   onChange={setSpouseIncome}
                   prefix="€"
+                  hint={SPOUSE_HINT}
                 />
               )}
               <SelectField
@@ -177,10 +253,11 @@ export default function HomePage() {
             </div>
             <CalculatorInput label="Pension contributions (per year)" value={pension} onChange={setPension} prefix="€" />
             <SelectField
-              label="Age (pension relief limit)"
+              label="Your age"
               value={pensionAge}
               onChange={setPensionAge}
               options={PENSION_AGE_OPTIONS}
+              hint={PENSION_AGE_HINT}
             />
             {result && pension > 0 && result.pension.overLimit > 0 && (
               <p role="alert" className="text-xs font-normal leading-snug text-amber-800 sm:col-span-2">
@@ -197,10 +274,11 @@ export default function HomePage() {
               </p>
             )}
             <CalculatorInput
-              label="Extra credits"
+              label="Other tax credits (per year)"
               value={credits}
               onChange={setCredits}
               prefix="€"
+              hint={CREDITS_HINT}
             />
           </div>
           <div className="sticky bottom-[calc(var(--site-footer-offset)+0.5rem)] z-10 mt-6 -mx-6 border-t border-line bg-white/95 px-6 py-2.5 backdrop-blur lg:static lg:mx-0 lg:border-0 lg:bg-transparent lg:px-0 lg:py-0 lg:backdrop-blur-none">
@@ -216,7 +294,6 @@ export default function HomePage() {
             </div>
           </div>
           <p className="mt-4 text-xs text-ink-muted">
-            Extra credits sit on top of the standard personal and PAYE credits for your status.
             The estimate is worked out in your browser as you change a figure, or when you click
             Calculate.{' '}
             <Link href="/privacy" className="underline decoration-line underline-offset-2 hover:text-ink">
@@ -227,6 +304,8 @@ export default function HomePage() {
 
         <div id="take-home-result" className="space-y-6 lg:col-span-5">
           {result && <TaxSummaryCard data={result} isCurrent={isCurrent} taxYear={taxYear} />}
+          {result && <CopyEstimateLink />}
+          {result && <OwedTaxBack />}
           {result && (
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-1">
               <BreakdownTable title="PAYE" rows={result.paye} />
@@ -299,6 +378,12 @@ export default function HomePage() {
         <TaxDisclaimer className="mt-8" />
       </section>
 
+      <Faq items={TAKE_HOME_FAQ} />
+      <WebAppJsonLd
+        name="Irish take-home pay calculator"
+        path="/"
+        description="Estimate PAYE, USC and PRSI from published bands. Free to use, no account needed."
+      />
       <RelatedCalculators current="take-home" />
 
       <p className="mt-12 text-sm text-ink-muted">

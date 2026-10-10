@@ -1,9 +1,13 @@
 import Link from 'next/link';
+import { BUDGET_2027 } from '@/lib/config/taxYear2027';
 
-export type CalculatorKey = 'take-home' | 'auto-enrolment' | 'rent-credit' | 'contractor' | 'redundancy';
+export type CalculatorKey = 'take-home' | 'auto-enrolment' | 'rent-credit' | 'contractor' | 'redundancy' | 'payslip-october-prsi' | 'budget-2027';
 
 const CALCULATORS: { key: CalculatorKey; href: string; label: string; blurb: string }[] = [
   { key: 'take-home', href: '/', label: 'Take-home pay', blurb: 'PAYE, USC and PRSI on your salary.' },
+  ...(BUDGET_2027.status === 'confirmed'
+    ? [{ key: 'budget-2027' as const, href: '/budget-2027', label: 'Budget 2027', blurb: 'How much better off a week in 2027.' }]
+    : []),
   {
     key: 'auto-enrolment',
     href: '/auto-enrolment-calculator',
@@ -22,6 +26,12 @@ const CALCULATORS: { key: CalculatorKey; href: string; label: string; blurb: str
     href: '/redundancy-calculator',
     label: 'Redundancy',
     blurb: 'Tax-free amount and tax on a package.',
+  },
+  {
+    key: 'payslip-october-prsi',
+    href: '/payslip-october-prsi',
+    label: 'Why October pay dropped',
+    blurb: 'Employee PRSI went from 4.2% to 4.35% on 1 Oct 2026.',
   },
 ];
 

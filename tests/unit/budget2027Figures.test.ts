@@ -2,7 +2,8 @@ import fs from 'fs';
 import path from 'path';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { BUDGET_2027 } from '../../lib/config/taxYear2027';
-import { isTaxYearAvailable, listSupportedYears, toTaxYearConfig } from '../../lib/config/taxYearConfig';
+import { getTaxYearConfig, isTaxYearAvailable, listSupportedYears, toTaxYearConfig } from '../../lib/config/taxYearConfig';
+import { calculateNetIncome } from '../../lib/taxEngine';
 import Budget2027Page, { metadata } from '../../app/budget-2027/page';
 
 const TPC =
@@ -41,26 +42,31 @@ const CONFIRMED: Array<[string, unknown, unknown]> = [
     BUDGET_2027.sources.speech,
     'https://www.gov.ie/en/department-of-finance/speeches/statement-by-minister-harris-on-budget-2027/',
   ],
+  // Resolved 10 Oct 2026 (Finance Bill for Budget 2027 not published yet; Revenue charts still 2026):
+  ['credits.personalMarried (TPC p.18 Table 3: €100k IT 20,475 = 28,900 − 2,125 − 2,050 − 4,250)', BUDGET_2027.credits.personalMarried, 4250],
+  ['credits.singlePersonChildCarer (not among TPC §2.1.1 credit changes; Revenue 2026 €1,900)', BUDGET_2027.credits.singlePersonChildCarer, 1900],
+  ['usc.bands[2].upTo (TPC Table 1 no change; Tables 2–5 and Example 8 only fit €70,044)', BUDGET_2027.usc.bands[2].upTo, 70044],
+  ['prsi.rateFrom1Jan (SW(MP)A 2024 s.3; TPC note 2)', BUDGET_2027.prsi.rateFrom1Jan, 0.0435],
+  ['prsi.changeMonth (SW(MP)A 2024 s.3(4): 1 October 2027)', BUDGET_2027.prsi.changeMonth, 10],
+  ['prsi.rateAfterChange (SW(MP)A 2024 s.3: 4.5 per cent)', BUDGET_2027.prsi.rateAfterChange, 0.045],
+  ['prsi.weeklyNilThreshold (unchanged, DSP Class A page)', BUDGET_2027.prsi.weeklyNilThreshold, 352],
+  ['prsi.creditMaxWeekly (unchanged, DSP Class A page)', BUDGET_2027.prsi.creditMaxWeekly, 12],
+  ['prsi.creditTopWeekly (unchanged, DSP Class A page)', BUDGET_2027.prsi.creditTopWeekly, 424],
+  ['prsi.classSMinimum (unchanged, DSP PRSI page)', BUDGET_2027.prsi.classSMinimum, 650],
+  ['sources.prsi', BUDGET_2027.sources.prsi, 'https://www.irishstatutebook.ie/eli/2024/act/24/section/3/enacted/en/html'],
+  ['figuresCheckedOn', BUDGET_2027.figuresCheckedOn, '10 Oct 2026'],
+  ['figuresCheckedOnIso', BUDGET_2027.figuresCheckedOnIso, '2026-10-10'],
+  ['status', BUDGET_2027.status, 'confirmed'],
 ];
 
-// Left null on purpose: Al decides on Wed 7 Oct 2026 (see PR #39).
 const STILL_NULL: Array<[string, unknown]> = [
-  ['credits.personalMarried (not stated; TPC examples imply €4,250)', BUDGET_2027.credits.personalMarried],
-  ['credits.singlePersonChildCarer (not stated)', BUDGET_2027.credits.singlePersonChildCarer],
-  ['usc.bands[2].upTo (TPC p.4 €70,444 vs worked tables €70,044)', BUDGET_2027.usc.bands[2].upTo],
-  ['prsi.rateFrom1Jan (TPC table notes only; no DSP notice)', BUDGET_2027.prsi.rateFrom1Jan],
-  ['prsi.changeMonth', BUDGET_2027.prsi.changeMonth],
-  ['prsi.rateAfterChange', BUDGET_2027.prsi.rateAfterChange],
-  ['prsi.weeklyNilThreshold', BUDGET_2027.prsi.weeklyNilThreshold],
-  ['prsi.creditMaxWeekly', BUDGET_2027.prsi.creditMaxWeekly],
-  ['prsi.creditTopWeekly', BUDGET_2027.prsi.creditTopWeekly],
   ['autoEnrolmentEmployeeRate (unchanged)', BUDGET_2027.autoEnrolmentEmployeeRate],
   ['sources.revenueSummary (Revenue PDF still says 2026)', BUDGET_2027.sources.revenueSummary],
-  ['sources.prsi (no DSP notice)', BUDGET_2027.sources.prsi],
-  ['figuresCheckedOn (set when Al signs off)', BUDGET_2027.figuresCheckedOn],
 ];
 
-describe('Budget 2027 figures (draft, pending)', () => {
+const round = (n: number) => Math.round(n);
+
+describe('Budget 2027 figures (confirmed)', () => {
   it.each(CONFIRMED)('%s matches the source', (_label, actual, expected) => {
     expect(actual).toBe(expected);
   });
@@ -83,57 +89,61 @@ describe('Budget 2027 figures (draft, pending)', () => {
     }
   });
 
-  it('status is pending', () => {
-    expect(BUDGET_2027.status).toBe('pending');
+  it('2027 is offered in the calculators; USC exemption is "€13,000 or less"', () => {
+    expect(isTaxYearAvailable(2027)).toBe(true);
+    expect(listSupportedYears()).toContain(2027);
+    const c = getTaxYearConfig(2027);
+    expect(c.uscBands.map((b) => b.upTo)).toEqual([12012, 30300, 70044, null]);
+    expect(c.prsiRateChanges).toEqual([{ fromMonth: 10, rate: 0.045 }]);
+    expect(c.singlePersonChildCarer).toEqual({ credit: 1900, band: 50500 });
+    expect(calculateNetIncome({ income: 13000, period: 'annual', maritalStatus: 'single', taxYear: 2027 }).uscTotal).toBe(0);
   });
 
-  it('2027 is not offered in any calculator while pending', () => {
-    expect(isTaxYearAvailable(2027)).toBe(false);
-    expect(listSupportedYears()).not.toContain(2027);
-  });
-
-  it('marking it confirmed with today\'s nulls would fail loudly, naming the open blanks', () => {
+  it('a blank figure still fails loudly', () => {
     const clone = JSON.parse(JSON.stringify(BUDGET_2027)) as typeof BUDGET_2027;
-    clone.status = 'confirmed';
-    let message = '';
-    try {
-      toTaxYearConfig(clone);
-    } catch (e) {
-      message = (e as Error).message;
-    }
-    expect(message).toMatch(/2027_PERSONAL_CREDIT_MARRIED/);
-    expect(message).toMatch(/2027_USC_BAND_3_TOP/);
-    expect(message).toMatch(/2027_PRSI_RATE_FROM_1_JAN/);
-    expect(message).not.toMatch(/2027_STANDARD_RATE[^_]/);
+    clone.credits.personalMarried = null;
+    expect(() => toTaxYearConfig(clone)).toThrow(/2027_PERSONAL_CREDIT_MARRIED/);
+  });
+
+  // Department of Finance, Budget 2027 Tax Policy Changes, p.18 Table 2 (single PAYE employee, Class A), "proposed" columns.
+  it.each([
+    [30000, 1750, 1316, 420],
+    [50000, 6450, 2194, 1017],
+    [75000, 16450, 3291, 2015],
+    [100000, 26450, 4388, 4015],
+  ])('TPC Table 2: single €%i → income tax €%i, PRSI €%i, USC €%i', (gross, it_, prsi, usc) => {
+    const r = calculateNetIncome({ income: gross, period: 'annual', maritalStatus: 'single', taxYear: 2027 });
+    expect(round(r.payeAfterCredits)).toBe(it_);
+    expect(round(r.prsi)).toBe(prsi);
+    expect(round(r.uscTotal)).toBe(usc);
   });
 });
 
-describe('/budget-2027 while pending', () => {
+describe('/budget-2027 confirmed', () => {
   const html = renderToStaticMarkup(Budget2027Page());
 
-  it('shows the H1 and the figures-coming line', () => {
+  it('shows the headline, both years and the tables', () => {
     expect(html).toContain('Budget 2027: how much better off will I be?');
-    expect(html).toContain('The figures are coming');
+    expect(html).toMatch(/a week better off/);
+    expect(html).toContain('Difference a week');
+    expect(html).toMatch(/<table/);
+    expect(html).toContain('Figures checked: 10 Oct 2026.');
+    expect(html).not.toContain('The figures are coming');
+    expect(html).toContain('4.5% from 1 October 2027');
+    expect(html).toContain('€70,044');
+    expect(html).toContain('Rent-a-Room limit goes up from €14,000 to €16,000');
+    expect(html).toContain('Estimate only, not financial or tax advice');
+    expect(html).not.toMatch(/accurate|precise|guaranteed|accountant|ACCA/i);
   });
 
-  it('renders no figures', () => {
-    expect(html).not.toMatch(/€/);
-    expect(html).not.toMatch(/%/);
-    expect(html).not.toMatch(/<table/);
-    for (const n of ['46,500', '55,500', '37,500', '50,500', '2,125', '2,050', '1,150', '2,300', '30,300', '14.94', '16,000', '70,444', '70,044']) {
-      expect(html).not.toContain(n);
-    }
-    expect(html).not.toContain('What changed');
-    expect(html).not.toContain('year=2027');
+  it('is indexable', () => {
+    expect(metadata.robots).toBeUndefined();
   });
 
-  it('is noindex', () => {
-    expect(metadata.robots).toEqual({ index: false, follow: true });
-  });
-
-  it('is not in the sitemap while pending', () => {
+  it('is in the sitemap with the checked date', () => {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const sitemap = require('../../app/sitemap').default as () => { url: string }[];
-    expect(sitemap().map((e) => e.url).join(' ')).not.toContain('budget-2027');
+    const sitemap = require('../../app/sitemap').default as () => { url: string; lastModified?: string }[];
+    const e = sitemap().find((x) => x.url.endsWith('/budget-2027'));
+    expect(e?.lastModified).toBe('2026-10-10');
   });
 });

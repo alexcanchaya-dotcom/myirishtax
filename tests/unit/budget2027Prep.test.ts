@@ -8,9 +8,9 @@ import sitemap from '../../app/sitemap';
 
 const read = (p: string) => fs.readFileSync(path.join(__dirname, '..', '..', p), 'utf8');
 
-describe('#39 prep (all behind the pending status)', () => {
-  it('status is still pending', () => {
-    expect(BUDGET_2027.status).toBe('pending');
+describe('#39 Budget 2027 (confirmed)', () => {
+  it('status is confirmed', () => {
+    expect(BUDGET_2027.status).toBe('confirmed');
   });
 
   it('compareYears: weekly headline with month and year, IT/USC/PRSI lines for both years (mechanics on 2025 → 2026)', () => {
@@ -46,12 +46,13 @@ describe('#39 prep (all behind the pending status)', () => {
     expect(page).toContain('<Budget2027Compare />');
   });
 
-  it('homepage link, homepage title, rates label and sitemap entry only switch on when confirmed', () => {
+  it('homepage link, homepage title, rates label, related box and sitemap entry are on', () => {
     expect(read('app/HomeClient.tsx')).toMatch(/BUDGET_2027\.status === 'confirmed' \? \(\s*<p>\s*<Link href="\/budget-2027"/);
     expect(read('app/layout.tsx')).toContain("'Irish take-home pay 2027 and 2026 | Budget 2027 calculator | MyIrishTax'");
-    expect(RATES_LABEL).toBe('2026 rates');
+    expect(RATES_LABEL).toBe('Budget 2027 rates');
     expect(read('lib/config/siteRates.ts')).toContain("'Budget 2027 rates'");
-    expect(sitemap().some((e) => e.url.endsWith('/budget-2027'))).toBe(false);
+    expect(sitemap().some((e) => e.url.endsWith('/budget-2027'))).toBe(true);
+    expect(read('components/RelatedCalculators.tsx')).toContain("href: '/budget-2027'");
     expect(read('app/sitemap.ts')).toContain('lastModified: BUDGET_2027.figuresCheckedOnIso');
   });
 });

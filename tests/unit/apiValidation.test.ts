@@ -19,12 +19,12 @@ describe('/api/calc validation', () => {
     expect((await calcPost(req({ ...ok, income: -100 }))).status).toBe(400);
   });
 
-  it.each([2019, 2027, 2030, 2026.5])('rejects unsupported tax year %p (no silent fall-back to 2026)', async (taxYear) => {
+  it.each([2019, 2028, 2030, 2026.5])('rejects unsupported tax year %p (no silent fall-back to 2026)', async (taxYear) => {
     const res = await calcPost(req({ ...ok, taxYear }));
     expect(res.status).toBe(400);
   });
 
-  it.each([2023, 2024, 2025, 2026])('accepts %i', async (taxYear) => {
+  it.each([2023, 2024, 2025, 2026, 2027])('accepts %i', async (taxYear) => {
     expect((await calcPost(req({ ...ok, taxYear }))).status).toBe(200);
   });
 
@@ -67,6 +67,6 @@ describe('/api/tax/compute: DIRT 33%, dividends and ETFs not supported', () => {
 
   it('route rejects negative income and unknown years', async () => {
     expect((await computePost(req({ ...income, income: -1, transactions: [] }))).status).toBe(400);
-    expect((await computePost(req({ ...income, taxYear: 2027, transactions: [] }))).status).toBe(400);
+    expect((await computePost(req({ ...income, taxYear: 2028, transactions: [] }))).status).toBe(400);
   });
 });

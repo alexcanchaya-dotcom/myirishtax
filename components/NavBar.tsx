@@ -30,6 +30,8 @@ const mobileGroups: { heading: string; links: { href: string; label: string }[] 
     links: [
       { href: '/small-benefit-exemption', label: 'Small benefit exemption' },
       { href: '/second-income-form-12', label: 'Second income / Form 12' },
+      { href: '/payslip-october-prsi', label: 'Why October pay dropped' },
+      { href: '/exit-tax-ireland', label: 'Exit tax (funds and ETFs)' },
     ],
   },
   { heading: 'MyIrishTax', links: [{ href: '/about', label: 'About' }] },
@@ -57,10 +59,10 @@ export function NavBar() {
               {link.label}
             </Link>
           ))}
-          <UserNav />
+          <UserNav signedOutLinks={false} />
         </div>
         <div className="flex items-center gap-3 md:hidden">
-          <UserNav />
+          <UserNav signedOutLinks={false} />
           <button
             onClick={() => setMobileOpen((prev) => !prev)}
             className="rounded-md p-3 text-ink-muted hover:bg-white hover:text-ink"

@@ -5,7 +5,7 @@ import { useSession } from "next-auth/react";
 import { CalculatorInput } from "@/components/CalculatorInput";
 import { buildContractorRows } from "@/lib/contractorRows";
 import { SelectField } from "@/components/SelectField";
-import { PENSION_AGE_OPTIONS } from "@/lib/pensionAgeOptions";
+import { PENSION_AGE_HINT, PENSION_AGE_OPTIONS } from "@/lib/pensionAgeOptions";
 import { ContractorBreakdown, COMMON_EXPENSE_CATEGORIES } from "@/lib/taxEngine/contractorCalculator";
 import { formatTaxYearLabel, getDefaultTaxYear, listSupportedYears } from "@/lib/config/taxYearConfig";
 import {
@@ -23,6 +23,8 @@ import { PageHeader } from "@/components/PageHeader";
 import { RelatedCalculators } from "@/components/RelatedCalculators";
 import { TrustStrip } from '@/components/TrustStrip';
 import { GOV_PRSI_CLASS_S, REVENUE_RATES } from '@/lib/config/siteRates';
+import { Faq, WebAppJsonLd } from '@/components/Faq';
+import { CONTRACTOR_FAQ } from '@/lib/faq/calculatorFaqs';
 
 // Class S logic isn't part of the Budget 2027 work, so the contractor tool stays on 2026 and earlier.
 const years = listSupportedYears().filter((y) => y <= 2026);
@@ -109,10 +111,23 @@ export default function ContractorCalculatorPage() {
 
   return (
     <main className="mx-auto max-w-5xl px-4 py-12 sm:px-6 sm:py-16">
-      <PageHeader title="Contractor tax">
+      <PageHeader title="Sole trader / self-employed tax (Class S)">
         <p>
-          Estimate self-employed income tax, USC, and Class S PRSI for the {formatTaxYearLabel(taxYear)}.
-          Free to use — no account needed.
+          Estimate income tax, USC and Class S PRSI on your profit as a sole trader or self-employed person for
+          the {formatTaxYearLabel(taxYear)}. Not for umbrella or limited company pay. Free to use — no account needed.
+        </p>
+        <p className="rounded-lg border border-line bg-white px-3 py-2 text-sm text-ink">
+          <strong className="font-semibold">Deadline:</strong> your 2025 tax return (Form 11) and 2026 preliminary tax
+          are due by Saturday 31 October 2026. If you both pay and file on ROS, the date is Wednesday 18 November
+          2026.{' '}
+          <a
+            href="https://www.revenue.ie/en/tax-professionals/ebrief/2026/no-0342026.aspx"
+            className="underline decoration-line underline-offset-2"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Revenue eBrief 034/26
+          </a>
         </p>
         <TrustStrip sources={[REVENUE_RATES, GOV_PRSI_CLASS_S]} />
         <TaxDisclaimer />
@@ -141,10 +156,11 @@ export default function ContractorCalculatorPage() {
                 prefix="€"
               />
               <SelectField
-                label="Age (pension relief limit)"
+                label="Your age"
                 value={pensionAge}
                 onChange={setPensionAge}
                 options={PENSION_AGE_OPTIONS}
+                hint={PENSION_AGE_HINT}
               />
               {result?.pension && pensionContribution > 0 && result.pension.overLimit > 0 && (
                 <p role="alert" className="text-xs font-normal leading-snug text-amber-800 md:col-span-2">
@@ -431,6 +447,12 @@ export default function ContractorCalculatorPage() {
         </div>
       </div>
 
+      <Faq items={CONTRACTOR_FAQ} />
+      <WebAppJsonLd
+        name="Sole trader / self-employed tax calculator (Class S)"
+        path="/contractor-calculator"
+        description="Estimate income tax, USC and Class S PRSI on your profit as a sole trader or self-employed person. Free to use, no account needed."
+      />
       <RelatedCalculators current="contractor" />
 
       <p className="mt-12 text-sm text-ink-muted">

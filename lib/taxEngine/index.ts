@@ -14,6 +14,11 @@ export type CalculationInput = {
    * each spouse gets their own Employee Tax Credit (Revenue "Joint assessment"). 0 or missing = one income.
    */
   spouseIncome?: number;
+  /**
+   * Single only: you care for a child on your own and claim the Single Person Child Carer Credit (SPCCC).
+   * Adds the credit and the €4,000 wider standard rate band (Revenue SPCCC). Ignored when married.
+   */
+  singleParent?: boolean;
   taxYear: number;
 };
 
@@ -134,15 +139,19 @@ function prsiRateForMonth(config: TaxYearConfig, month: number): number {
 // Weekly pay at or below €352: nil. €352.01–€424: the charge is reduced by a tapered credit of
 // €12 less one-sixth of earnings over €352.01. Above €424: the rate on all earnings.
 // The rate is weighted by month when it changes partway through the year.
-export function calculateClassAPRSI(income: number, config: TaxYearConfig): number {
+/** Class A employee PRSI for one week at a given rate: nil up to €352, tapered credit to €424 (DSP Class A rates). */
+export function weeklyClassAPRSI(weekly: number, rate: number, config: TaxYearConfig): number {
   const { weeklyNilUpTo, creditMax, creditTaperTo } = config.classAPrsi;
-  const weekly = income / 52;
   if (weekly <= weeklyNilUpTo) return 0;
   const credit = weekly <= creditTaperTo ? Math.max(0, creditMax - (weekly - (weeklyNilUpTo + 0.01)) / 6) : 0;
+  return Math.max(0, weekly * rate - credit);
+}
+
+export function calculateClassAPRSI(income: number, config: TaxYearConfig): number {
+  const weekly = income / 52;
   let total = 0;
   for (let month = 1; month <= 12; month++) {
-    const weeklyCharge = Math.max(0, weekly * prsiRateForMonth(config, month) - credit);
-    total += (weeklyCharge * 52) / 12;
+    total += (weeklyClassAPRSI(weekly, prsiRateForMonth(config, month), config) * 52) / 12;
   }
   return total;
 }
@@ -182,13 +191,21 @@ export function calculateNetIncome(input: CalculationInput): TaxBreakdown {
   const spouseIncome = input.maritalStatus === 'married' ? Math.max(0, input.spouseIncome ?? 0) : 0;
   if (spouseIncome > 0) return calculateTwoEarnerCouple(input, config, annualIncome, spouseIncome, pension, taxableIncome);
 
-  const payeBreakdown = calculatePAYE(taxableIncome, config, input.maritalStatus);
+  const singleParent = input.maritalStatus === 'single' && input.singleParent === true;
+  const payeBreakdown = singleParent
+    ? calculateBands(taxableIncome, [
+        { upTo: config.singlePersonChildCarer.band, rate: config.incomeTaxBandsSingle[0].rate },
+        { upTo: null, rate: config.incomeTaxBandsSingle[config.incomeTaxBandsSingle.length - 1].rate },
+      ])
+    : calculatePAYE(taxableIncome, config, input.maritalStatus);
   const uscBreakdown = calculateUSC(annualIncome, config);
   const prsi = calculateClassAPRSI(annualIncome, config);
 
   const payeBeforeCredits = sumBands(payeBreakdown);
   const uscTotal = sumBands(uscBreakdown);
-  const totalCredits = calculateCredits(config, input.additionalCredits, input.maritalStatus);
+  const totalCredits =
+    calculateCredits(config, input.additionalCredits, input.maritalStatus) +
+    (singleParent ? config.singlePersonChildCarer.credit : 0);
 
   // Tax credits reduce income tax (PAYE) only. They cannot reduce USC or PRSI.
   const payeAfterCredits = Math.max(0, payeBeforeCredits - totalCredits);

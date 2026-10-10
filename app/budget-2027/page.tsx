@@ -8,9 +8,8 @@ import { headlineWeekly } from '@/lib/budget/compareYears';
 import { Budget2027Compare } from '@/components/budget/Budget2027Compare';
 import { TrustStrip } from '@/components/TrustStrip';
 
-// DRAFT: not in the sitemap or nav. Do not merge until the official Budget 2027 figures are filled in and signed off.
-// Some 2027 figures are filled and some are still null. Nothing from BUDGET_2027 is shown until status is 'confirmed'
-// (PendingPage reads no figures), so partial figures can never reach the page.
+// Live once BUDGET_2027.status is 'confirmed' (Al, 10 Oct 2026). While pending, PendingPage reads no figures,
+// so partial figures can never reach the page.
 const confirmed = BUDGET_2027.status === 'confirmed';
 
 const TITLE = 'Budget 2027 calculator: how much better off? | MyIrishTax';
@@ -263,10 +262,16 @@ export default function Budget2027Page() {
             <li>No pension contributions, including auto-enrolment (MyFutureFund). No benefit-in-kind.</li>
             <li>Standard USC rates (not the reduced rate for medical card holders or people aged 70 and over).</li>
             <li>
-              2026 PRSI is 4.2% for January to September and 4.35% from 1 October. 2027 PRSI uses the rates and dates
-              in the Budget 2027 documents.
+              2026 PRSI is 4.2% for January to September and 4.35% from 1 October. 2027 PRSI is 4.35% for January to
+              September and 4.5% from 1 October 2027 (already set in law by the Social Welfare (Miscellaneous
+              Provisions) Act 2024).
             </li>
             <li>Figures are rounded to the nearest euro, so the differences may be €1 off the columns.</li>
+            <li>
+              The married couple&apos;s personal tax credit (€4,250) isn&apos;t printed in the Budget documents as a
+              sentence; it is the figure the Department of Finance&apos;s own tables use. The 8% USC rate starts above
+              €70,044, as in those tables (one list in the document prints €70,444, which none of its tables use).
+            </li>
             <li>This is an estimate. Your payslip can differ.</li>
           </ul>
           <TaxDisclaimer className="mt-4" />
