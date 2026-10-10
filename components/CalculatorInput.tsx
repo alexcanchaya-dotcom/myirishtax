@@ -13,6 +13,8 @@ type Props = {
   id?: string;
   /** 'decimal' (default) for money; 'numeric' for whole numbers such as age or years. */
   inputMode?: 'decimal' | 'numeric';
+  /** Keep the label for screen readers but hide it visually (e.g. repeated expense rows). */
+  hideLabel?: boolean;
 };
 
 function toRaw(value: number): string {
@@ -21,7 +23,7 @@ function toRaw(value: number): string {
 
 // type="text" (not "number") so the box can be empty and accepts "60,000" or "€60,000";
 // inputMode still brings up the number keypad on phones.
-export function CalculatorInput({ label, value, onChange, prefix, hint, id, inputMode = 'decimal' }: Props) {
+export function CalculatorInput({ label, value, onChange, prefix, hint, id, inputMode = 'decimal', hideLabel = false }: Props) {
   const autoId = useId();
   const inputId = id ?? autoId;
   const hintId = hint ? `${inputId}-hint` : undefined;
@@ -34,7 +36,9 @@ export function CalculatorInput({ label, value, onChange, prefix, hint, id, inpu
 
   return (
     <div className="flex flex-col gap-1.5 text-sm font-medium text-ink">
-      <label htmlFor={inputId}>{label}</label>
+      <label htmlFor={inputId} className={hideLabel ? 'sr-only' : undefined}>
+        {label}
+      </label>
       <div className="flex items-center rounded-lg border border-line bg-paper px-3 focus-within:border-brand-500 focus-within:ring-1 focus-within:ring-brand-500">
         {prefix && <span className="mr-2 text-ink-muted" aria-hidden="true">{prefix}</span>}
         <input
