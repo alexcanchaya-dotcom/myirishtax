@@ -361,7 +361,7 @@ export default function HomePage() {
           {result && <OwedTaxBack />}
           {result && (
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-1">
-              <BreakdownTable title="PAYE" rows={result.paye} />
+              <BreakdownTable title="Income tax (before credits)" rows={result.paye} />
               <BreakdownTable title="USC" rows={result.usc} />
             </div>
           )}
