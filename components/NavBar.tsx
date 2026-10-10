@@ -23,6 +23,7 @@ const mobileGroups: { heading: string; links: { href: string; label: string }[] 
       { href: '/redundancy-calculator', label: 'Redundancy' },
       { href: '/auto-enrolment-calculator', label: 'Auto-enrolment' },
       { href: '/rent-tax-credit', label: 'Rent credit' },
+      { href: '/rent-a-room-relief', label: 'Rent-a-Room Relief' },
     ],
   },
   {

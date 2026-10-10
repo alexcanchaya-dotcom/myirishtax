@@ -19,6 +19,7 @@ export const SITEMAP_PATHS = [
   '/second-income-form-12',
   '/payslip-october-prsi',
   '/exit-tax-ireland',
+  '/rent-a-room-relief',
 ];
 
 // /budget-2027 is listed (with a lastmod date) only once Budget 2027 is confirmed (#39 sign-off).

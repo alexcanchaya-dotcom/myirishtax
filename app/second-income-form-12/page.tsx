@@ -156,7 +156,11 @@ export default function SecondIncomeForm12Page() {
             <div>
               <p className="font-semibold text-ink">Renting a room in your home.</p>
               <p>
-                Rent-a-Room Relief can make this income tax-free if it is €14,000 or less a year. Go over and the whole
+                Rent-a-Room Relief can make this income tax-free if it is €14,000 or less a year (
+                <Link href="/rent-a-room-relief" className={link}>
+                  check yours
+                </Link>
+                ). Go over and the whole
                 amount is taxed, not just the excess. You still declare it, in the Rent-a-Room section of your return.
               </p>
             </div>
