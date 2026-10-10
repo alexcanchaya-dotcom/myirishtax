@@ -124,7 +124,7 @@ export default function ImportPage() {
                 <li>Export your transaction history as CSV from your exchange/broker</li>
                 <li>Select the exchange below</li>
                 <li>Upload the CSV file</li>
-                <li>We'll automatically calculate your capital gains and tax liability</li>
+                <li>We&apos;ll automatically calculate your capital gains and tax liability</li>
               </ol>
             </div>
           </div>
@@ -297,7 +297,7 @@ export default function ImportPage() {
             </ul>
             <p className="mt-4">
               <strong>Having trouble?</strong> Contact support@myirishtax.com with your exchange
-              name and we'll help you get set up.
+              name and we&apos;ll help you get set up.
             </p>
           </div>
         </div>
