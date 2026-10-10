@@ -59,6 +59,11 @@ export type TaxYearConfig = {
    * (Revenue "Exemption limits", "Marginal relief"; TDM 07-01-18). Child increases to the limits are not modelled.
    */
   over65: { creditSingle: number; creditMarried: number; exemptionSingle: number; exemptionMarried: number };
+  /**
+   * Reduced USC for a full medical card holder or anyone 70 or over, with income of €60,000 or less
+   * (Revenue "Reduced rates of USC": 0.5% on the first €12,012 and 2% on the balance, 2022–2026).
+   */
+  reducedUsc: { incomeLimit: number; bands: TaxBand[] };
   /** Married / civil partners, both with income: maximum increase in the standard rate band (Revenue tax relief charts). */
   marriedSecondEarnerIncrease: number;
   /** Earned Income Tax Credit (self-employed): lower of this or 20% of earned income. Revenue tax relief charts. */
@@ -88,6 +93,14 @@ const USC_EXEMPTION_2016_ON = 13000;
 /** Age Tax Credit €245 / €490 and exemption limits €18,000 / €36,000, unchanged since 2020 (Revenue). */
 const OVER_65_2020_ON = { creditSingle: 245, creditMarried: 490, exemptionSingle: 18000, exemptionMarried: 36000 };
 
+const REDUCED_USC_2022_ON = {
+  incomeLimit: 60000,
+  bands: [
+    { upTo: 12012, rate: 0.005 },
+    { upTo: null, rate: 0.02 },
+  ],
+};
+
 const baseConfigs: Record<number, TaxYearConfig> = {
   2023: {
     year: 2023,
@@ -111,6 +124,7 @@ const baseConfigs: Record<number, TaxYearConfig> = {
     singlePersonChildCarer: { credit: 1650, band: 44000 },
     homeCarer: { max: 1700, incomeLimit: 7200 },
     over65: OVER_65_2020_ON,
+    reducedUsc: REDUCED_USC_2022_ON,
     marriedSecondEarnerIncrease: 31000,
     earnedIncomeCredit: 1775,
     classSMinimum: 500,
@@ -142,6 +156,7 @@ const baseConfigs: Record<number, TaxYearConfig> = {
     singlePersonChildCarer: { credit: 1750, band: 46000 },
     homeCarer: { max: 1800, incomeLimit: 7200 },
     over65: OVER_65_2020_ON,
+    reducedUsc: REDUCED_USC_2022_ON,
     marriedSecondEarnerIncrease: 33000,
     earnedIncomeCredit: 1875,
     classSMinimum: 537.5, // €500 to 30 Sep 2024, €650 from 1 Oct 2024: blended €537.50 for 2024 self-assessment
@@ -173,6 +188,7 @@ const baseConfigs: Record<number, TaxYearConfig> = {
     singlePersonChildCarer: { credit: 1900, band: 48000 },
     homeCarer: { max: 1950, incomeLimit: 7200 },
     over65: OVER_65_2020_ON,
+    reducedUsc: REDUCED_USC_2022_ON,
     marriedSecondEarnerIncrease: 35000,
     earnedIncomeCredit: 2000,
     classSMinimum: 650,
@@ -208,6 +224,7 @@ const baseConfigs: Record<number, TaxYearConfig> = {
     singlePersonChildCarer: { credit: 1900, band: 48000 },
     homeCarer: { max: 1950, incomeLimit: 7200 },
     over65: OVER_65_2020_ON,
+    reducedUsc: REDUCED_USC_2022_ON,
     marriedSecondEarnerIncrease: 35000,
     earnedIncomeCredit: 2000,
     classSMinimum: 650,

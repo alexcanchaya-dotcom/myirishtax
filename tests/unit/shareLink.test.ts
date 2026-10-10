@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { fromSearch, toSearch, type HomeUrlState } from '../../lib/homeUrlState';
 
-const D: HomeUrlState = { income: 60000, period: 'annual', maritalStatus: 'single', spouseIncome: 0, singleParent: false, homeCarer: false, over65: false, pension: 0, pensionAge: '', credits: 0, taxYear: 2026 };
+const D: HomeUrlState = { income: 60000, period: 'annual', maritalStatus: 'single', spouseIncome: 0, singleParent: false, homeCarer: false, over65: false, reducedUsc: false, pension: 0, pensionAge: '', credits: 0, taxYear: 2026 };
 
 describe('estimate in the URL + copy link (UX 5)', () => {
   it('defaults give a clean "/" (no query)', () => {
@@ -10,7 +10,7 @@ describe('estimate in the URL + copy link (UX 5)', () => {
   });
 
   it('round-trips a couple with pension, age, credits and 2025', () => {
-    const s: HomeUrlState = { income: 4200, period: 'monthly', maritalStatus: 'married', spouseIncome: 40000, singleParent: false, homeCarer: false, over65: false, pension: 3000, pensionAge: '45', credits: 500, taxYear: 2025 };
+    const s: HomeUrlState = { income: 4200, period: 'monthly', maritalStatus: 'married', spouseIncome: 40000, singleParent: false, homeCarer: false, over65: false, reducedUsc: false, pension: 3000, pensionAge: '45', credits: 500, taxYear: 2025 };
     const q = toSearch(s, D);
     expect(q).toBe('?income=4200&period=monthly&status=married&spouse=40000&pension=3000&age=45&credits=500&year=2025');
     expect(fromSearch(q, D)).toEqual(s);

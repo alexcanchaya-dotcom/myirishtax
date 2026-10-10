@@ -30,6 +30,11 @@ export type CalculationInput = {
    * exemption limit and marginal relief when they give less tax. Income tax only; USC and PRSI are unchanged here.
    */
   over65?: boolean;
+  /**
+   * You hold a full medical card (not a GP visit card) or are 70 or over: reduced USC (0.5% / 2%) when your own income
+   * is €60,000 or less. Applies to your pay only, not your spouse's.
+   */
+  reducedUsc?: boolean;
   taxYear: number;
 };
 
@@ -139,10 +144,12 @@ export function calculatePAYE(income: number, config: TaxYearConfig, maritalStat
 
 // No USC at all when total income for the year is at or below the exemption threshold (€13,000).
 // Above it, USC is charged on the full income, not just the excess (s.531AM(2) TCA 1997).
-export function calculateUSC(income: number, config: TaxYearConfig): BandBreakdown[] {
+// Reduced rates (medical card / 70+) only when income is €60,000 or less; above that the standard rates apply.
+export function calculateUSC(income: number, config: TaxYearConfig, reduced = false): BandBreakdown[] {
   if (income <= config.uscExemptionThreshold) {
     return [{ band: `exempt (income €${String(config.uscExemptionThreshold).replace(/\B(?=(\d{3})+(?!\d))/g, ',')} or less)`, amount: 0, rate: 0 }];
   }
+  if (reduced && income <= config.reducedUsc.incomeLimit) return calculateBands(income, config.reducedUsc.bands);
   return calculateBands(income, config.uscBands);
 }
 
@@ -257,7 +264,7 @@ function calculateNetIncomeCore(input: CalculationInput): TaxBreakdown {
         { upTo: null, rate: config.incomeTaxBandsSingle[config.incomeTaxBandsSingle.length - 1].rate },
       ])
     : calculatePAYE(taxableIncome, config, input.maritalStatus);
-  const uscBreakdown = calculateUSC(annualIncome, config);
+  const uscBreakdown = calculateUSC(annualIncome, config, input.reducedUsc === true);
   const prsi = calculateClassAPRSI(annualIncome, config);
 
   const payeBeforeCredits = sumBands(payeBreakdown);
@@ -332,7 +339,7 @@ function calculateTwoEarnerCouple(
   const chosen = withCredit && withCredit.tax < withBand.tax ? withCredit : withBand;
   const { bandIncrease, standardRateBand, payeBreakdown, credits } = chosen;
 
-  const yourUscBands = calculateUSC(annualIncome, config);
+  const yourUscBands = calculateUSC(annualIncome, config, input.reducedUsc === true);
   const spouseUscBands = calculateUSC(spouseIncome, config);
   const yourUsc = sumBands(yourUscBands);
   const spouseUsc = sumBands(spouseUscBands);
