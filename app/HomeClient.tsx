@@ -17,6 +17,7 @@ import Link from 'next/link';
 import { PageHeader } from '../components/PageHeader';
 import { FireHandoff } from '../components/FireHandoff';
 import { RelatedCalculators } from '../components/RelatedCalculators';
+import { Budget2027Link } from '@/components/Budget2027Link';
 import { TaxDisclaimer } from '../components/TaxDisclaimer';
 import { PENSION_AGE_HINT, PENSION_AGE_OPTIONS } from '../lib/pensionAgeOptions';
 import { TrustStrip } from '@/components/TrustStrip';
@@ -452,6 +453,7 @@ export default function HomePage() {
       <RelatedCalculators current="take-home" />
 
       <p className="mt-12 text-sm text-ink-muted">
+        <Budget2027Link after=". " />
         Other tools:{' '}
         <Link href="/redundancy-calculator" className="text-ink underline decoration-line underline-offset-2 hover:text-brand-700">
           How much of a redundancy package is tax-free?

@@ -313,8 +313,15 @@ export default function Budget2027Page() {
           <p className="mt-1">The take-home calculator opens with 2027 already picked. You can switch back to 2026 to compare.</p>
           <p className="mt-3">
             Other tools:{' '}
+            <Link href="/small-benefit-exemption" className={link}>
+              Small benefit exemption: tax-free vouchers from your employer
+            </Link>
+            ,{' '}
+            <Link href="/rent-tax-credit" className={link}>
+              Rent tax credit: what you can claim back
+            </Link>
+            ,{' '}
             <Link href="/auto-enrolment-calculator" className={link}>auto-enrolment</Link>,{' '}
-            <Link href="/rent-tax-credit" className={link}>rent tax credit</Link>,{' '}
             <Link href="/redundancy-calculator" className={link}>redundancy</Link>.
           </p>
         </section>
