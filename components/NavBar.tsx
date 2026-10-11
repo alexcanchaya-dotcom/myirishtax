@@ -4,7 +4,6 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Menu, X } from 'lucide-react';
-import { UserNav } from '@/components/auth/UserNav';
 
 const navLinks = [
   { href: '/', label: 'PAYE' },
@@ -60,10 +59,8 @@ export function NavBar() {
               {link.label}
             </Link>
           ))}
-          <UserNav signedOutLinks={false} />
         </div>
         <div className="flex items-center gap-3 md:hidden">
-          <UserNav signedOutLinks={false} />
           <button
             onClick={() => setMobileOpen((prev) => !prev)}
             className="rounded-md p-3 text-ink-muted hover:bg-white hover:text-ink"

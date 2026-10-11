@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useSession } from "next-auth/react";
 import { CalculatorInput } from "@/components/CalculatorInput";
 import { buildContractorRows } from "@/lib/contractorRows";
 import { SelectField } from "@/components/SelectField";
@@ -14,8 +13,6 @@ import {
   Calendar,
   Plus,
   X,
-  Download,
-  Save,
 } from "lucide-react";
 import Link from "next/link";
 import { TaxDisclaimer } from "@/components/TaxDisclaimer";
@@ -37,7 +34,6 @@ interface Expense {
 }
 
 export default function ContractorCalculatorPage() {
-  const { data: session, status } = useSession();
 
   const [grossIncome, setGrossIncome] = useState(80000);
   const [expenses, setExpenses] = useState<Expense[]>([
@@ -383,26 +379,6 @@ export default function ContractorCalculatorPage() {
                 </div>
               )}
 
-              {/* Actions */}
-              <div className="card space-y-2">
-                {/* The calculator renders straight away; only the account actions wait for the session. */}
-                {status === "loading" ? null : session?.user ? (
-                  <>
-                    <button className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700 text-sm font-medium">
-                      <Save className="h-4 w-4" />
-                      Save Calculation
-                    </button>
-                    <button className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-800 text-sm font-medium">
-                      <Download className="h-4 w-4" />
-                      Export PDF
-                    </button>
-                  </>
-                ) : (
-                  <p className="text-xs text-gray-500 text-center">
-                    <Link href="/auth/login" className="text-brand-600 hover:underline font-medium">Sign in</Link> to save calculations and export PDFs.
-                  </p>
-                )}
-              </div>
             </>
           )}
         </div>
