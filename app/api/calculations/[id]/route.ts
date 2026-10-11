@@ -7,7 +7,7 @@ const prisma = new PrismaClient();
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -17,7 +17,7 @@ export async function GET(
 
     const calculation = await prisma.savedCalculation.findFirst({
       where: {
-        id: params.id,
+        id: (await params).id,
         userId: session.user.id,
       },
     });
@@ -48,7 +48,7 @@ export async function GET(
 
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -58,7 +58,7 @@ export async function DELETE(
 
     const calculation = await prisma.savedCalculation.findFirst({
       where: {
-        id: params.id,
+        id: (await params).id,
         userId: session.user.id,
       },
     });
@@ -71,7 +71,7 @@ export async function DELETE(
     }
 
     await prisma.savedCalculation.delete({
-      where: { id: params.id },
+      where: { id: (await params).id },
     });
 
     return NextResponse.json({ success: true });
