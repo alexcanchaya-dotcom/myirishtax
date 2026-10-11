@@ -4,7 +4,7 @@ import { Source_Sans_3, Source_Serif_4 } from 'next/font/google';
 import { SessionProvider } from '@/components/auth/SessionProvider';
 import { NavBar } from '@/components/NavBar';
 import Link from 'next/link';
-import { Analytics } from '@vercel/analytics/next';
+import { CloudflareAnalytics } from '@/components/CloudflareAnalytics';
 
 const sans = Source_Sans_3({
   subsets: ['latin'],
@@ -124,7 +124,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </div>
           </footer>
         </SessionProvider>
-        <Analytics />
+        <CloudflareAnalytics />
       </body>
     </html>
   );

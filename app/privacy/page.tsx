@@ -38,9 +38,10 @@ export default function PrivacyPage() {
 
       <h2 className="text-lg font-semibold text-gray-900">Analytics</h2>
       <p>
-        We use Vercel Web Analytics to count page views. It is cookieless and anonymous: it does
-        not set cookies, does not identify you, and only gives us aggregated numbers such as page
-        views, referring sites, country, and device type. We do not run advertising trackers.
+        We use Cloudflare Web Analytics to count page views. It does not use cookies or local
+        storage, does not identify you or track you across sites, and only gives us aggregated
+        numbers such as page views, referring sites, country, and device type. We do not run
+        advertising trackers.
       </p>
 
       <h2 className="text-lg font-semibold text-gray-900">Cookies</h2>
