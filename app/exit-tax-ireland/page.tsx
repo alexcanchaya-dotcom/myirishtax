@@ -118,11 +118,7 @@ export default function ExitTaxIrelandPage() {
             <li>Not covered: personal portfolio funds and policies (PPIU / PPLAP), and companies.</li>
           </ul>
           <p className="mt-3">
-            Shares and other assets taxed under capital gains tax are separate. You can track those in the{' '}
-            <Link href="/portfolio" className={link}>
-              CGT portfolio tool
-            </Link>
-            .
+            Shares and other assets taxed under capital gains tax are separate.
           </p>
         </section>
 
