@@ -2,18 +2,15 @@ import { calculateNetIncome } from '../taxEngine';
 import { BUDGET_2027 } from '../config/taxYear2027';
 
 /** Rent Tax Credit maximum by year (Revenue tax relief charts; 2027 from Budget 2027 TPC p.6). */
-export const RENT_CREDIT: Record<number, { single: number; couple: number } | undefined> = {
-  2025: { single: 1000, couple: 2000 },
-  2026: { single: 1000, couple: 2000 },
-  ...(BUDGET_2027.credits.rentSingle !== null && BUDGET_2027.credits.rentCouple !== null
-    ? { 2027: { single: BUDGET_2027.credits.rentSingle, couple: BUDGET_2027.credits.rentCouple } }
-    : {}),
+export const RENT_CREDIT: Record<number, { single: number } | undefined> = {
+  2025: { single: 1000 },
+  2026: { single: 1000 },
+  ...(BUDGET_2027.credits.rentSingle !== null ? { 2027: { single: BUDGET_2027.credits.rentSingle } } : {}),
 };
 
+/** Single people only while Budget 2027 is single-only (PM, 11 Oct 2026). */
 export type CompareInput = {
   income: number;
-  maritalStatus: 'single' | 'married';
-  spouseIncome?: number;
   /** Claim the full Rent Tax Credit in both years (rent of at least 5 × the credit). */
   rent?: boolean;
 };
@@ -29,12 +26,11 @@ export type YearCompare = {
 
 function lines(input: CompareInput, year: number, rentTable: typeof RENT_CREDIT): YearLines {
   const rentRow = rentTable[year];
-  const rentCredit = input.rent && rentRow ? (input.maritalStatus === 'married' ? rentRow.couple : rentRow.single) : 0;
+  const rentCredit = input.rent && rentRow ? rentRow.single : 0;
   const r = calculateNetIncome({
     income: input.income,
     period: 'annual',
-    maritalStatus: input.maritalStatus,
-    ...(input.maritalStatus === 'married' && (input.spouseIncome ?? 0) > 0 ? { spouseIncome: input.spouseIncome } : {}),
+    maritalStatus: 'single',
     additionalCredits: rentCredit,
     taxYear: year,
   });

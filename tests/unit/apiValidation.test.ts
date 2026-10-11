@@ -28,6 +28,18 @@ describe('/api/calc validation', () => {
     expect((await calcPost(req({ ...ok, taxYear }))).status).toBe(200);
   });
 
+  it.each([
+    { maritalStatus: 'married' },
+    { maritalStatus: 'married', spouseIncome: 30000 },
+    { maritalStatus: 'single', singleParent: true },
+    { maritalStatus: 'married', homeCarer: true },
+  ])('2027 is single-only: rejects %p with a 400', async (extra) => {
+    const res = await calcPost(req({ ...ok, taxYear: 2027, ...extra }));
+    expect(res.status).toBe(400);
+    expect(JSON.stringify(await res.json())).toContain('Couples and single parents: added once the Finance Bill confirms the figures.');
+    expect((await calcPost(req({ ...ok, taxYear: 2026, ...extra }))).status).toBe(200);
+  });
+
   it('rejects a negative pension contribution', async () => {
     expect((await calcPost(req({ ...ok, pensionContribution: -5 }))).status).toBe(400);
   });

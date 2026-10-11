@@ -6,7 +6,6 @@ import { buildBudgetTable } from '../../lib/budget/budgetTable';
 // Appendix A of budget-2027-spec.md (2026, PRSI month-weighted), rounded to the euro.
 const APPENDIX_A_2026 = {
   single: { 30000: 26296, 45000: 37010, 60000: 44925, 80000: 54979, 100000: 64532 },
-  couple: { 30000: 28296, 45000: 39210, 60000: 48725, 80000: 58779, 100000: 68332 },
 } as const;
 
 describe('Budget 2027 table', () => {
@@ -14,9 +13,6 @@ describe('Budget 2027 table', () => {
     const table = buildBudgetTable(2026, 2026);
     for (const row of table.single) {
       expect(Math.round(row.takeHomeBefore)).toBe(APPENDIX_A_2026.single[row.income as keyof typeof APPENDIX_A_2026.single]);
-    }
-    for (const row of table.couple) {
-      expect(Math.round(row.takeHomeBefore)).toBe(APPENDIX_A_2026.couple[row.income as keyof typeof APPENDIX_A_2026.couple]);
     }
   });
 
@@ -42,9 +38,28 @@ describe('Budget 2027 table', () => {
       const direct = calculateNetIncome({ income: row.income, period: 'annual', maritalStatus: 'single', taxYear: 2027 });
       expect(row.takeHomeAfter).toBeCloseTo(direct.netAnnual, 6);
     }
-    for (const row of table.couple) {
-      const direct = calculateNetIncome({ income: row.income, period: 'annual', maritalStatus: 'married', taxYear: 2027 });
-      expect(row.takeHomeAfter).toBeCloseTo(direct.netAnnual, 6);
-    }
+  });
+
+  it('2027 is single-only: married, civil partners, single parents and home carers are refused; 2026 still allows them', () => {
+    const base = { income: 50000, period: 'annual' as const, taxYear: 2027 };
+    expect(() => calculateNetIncome({ ...base, maritalStatus: 'married' })).toThrow(/single people only/);
+    expect(() => calculateNetIncome({ ...base, maritalStatus: 'married', spouseIncome: 30000 })).toThrow(/single people only/);
+    expect(() => calculateNetIncome({ ...base, maritalStatus: 'single', singleParent: true })).toThrow(/single people only/);
+    expect(() => calculateNetIncome({ ...base, maritalStatus: 'married', homeCarer: true })).toThrow(/single people only/);
+    expect(() => calculateNetIncome({ ...base, maritalStatus: 'single' })).not.toThrow();
+    expect(() => calculateNetIncome({ ...base, taxYear: 2026, maritalStatus: 'married', spouseIncome: 30000 })).not.toThrow();
+    expect(() => calculateNetIncome({ ...base, taxYear: 2026, maritalStatus: 'single', singleParent: true })).not.toThrow();
+  });
+
+  it('the one-parent band (€50,500) does not leak into single 2027: 20% band is €46,500', () => {
+    const r = calculateNetIncome({ income: 50000, period: 'annual', maritalStatus: 'single', taxYear: 2027 });
+    expect(r.paye[0].amount).toBeCloseTo(46500 * 0.2, 6); // 20% on €46,500, not €50,500
+    expect(r.paye[1].amount).toBeCloseTo(3500 * 0.4, 6);
+    expect(r.payeAfterCredits).toBeCloseTo(46500 * 0.2 + 3500 * 0.4 - 4250, 6);
+  });
+
+  it('2026 single €50k is unchanged (39,648.43)', () => {
+    const r = calculateNetIncome({ income: 50000, period: 'annual', maritalStatus: 'single', taxYear: 2026 });
+    expect(r.netAnnual).toBeCloseTo(39648.43, 2);
   });
 });

@@ -14,20 +14,18 @@ describe('#39 Budget 2027 (confirmed)', () => {
   });
 
   it('compareYears: weekly headline with month and year, IT/USC/PRSI lines for both years (mechanics on 2025 → 2026)', () => {
-    const rentTable = { 2025: { single: 1000, couple: 2000 }, 2026: { single: 1150, couple: 2300 } };
-    const c = compareYears({ income: 60000, maritalStatus: 'single' }, 2025, 2026, rentTable);
+    const rentTable = { 2025: { single: 1000 }, 2026: { single: 1150 } };
+    const c = compareYears({ income: 60000 }, 2025, 2026, rentTable);
     // 2025 → 2026 at €60k single: income tax same (11,200); USC 1,332.82 vs 1,358.88 (2025: 3% from €27,382); PRSI 2,542.50 vs 2,475
     expect(c.before.incomeTax).toBeCloseTo(11200, 2);
     expect(c.after.incomeTax).toBeCloseTo(11200, 2);
     expect(c.after.prsi).toBeCloseTo(2542.5, 2);
     expect(c.diff.week).toBeCloseTo(c.diff.year / 52, 10);
     expect(c.diff.month).toBeCloseTo(c.diff.year / 12, 10);
-    const rent = compareYears({ income: 60000, maritalStatus: 'single', rent: true }, 2025, 2026, rentTable);
+    const rent = compareYears({ income: 60000, rent: true }, 2025, 2026, rentTable);
     expect(rent.before.rentCredit).toBe(1000);
     expect(rent.after.rentCredit).toBe(1150);
     expect(rent.diff.year - c.diff.year).toBeCloseTo(150, 6);
-    const couple = compareYears({ income: 50000, spouseIncome: 40000, maritalStatus: 'married', rent: true }, 2025, 2026, rentTable);
-    expect(couple.after.rentCredit).toBe(2300);
   });
 
   it('headline wording', () => {
@@ -36,14 +34,20 @@ describe('#39 Budget 2027 (confirmed)', () => {
     expect(headlineWeekly(0.2)).toBe('about the same each week');
   });
 
-  it('tables have week, month and year differences for singles, one-earner and two-earner couples', () => {
+  it('table has week, month and year differences for single people only (couples and single parents hidden)', () => {
     const t = buildBudgetTable(2025, 2026);
+    expect(Object.keys(t)).toEqual(['single']);
     expect(t.single[0].diffWeek).toBeCloseTo(t.single[0].diffYear / 52, 10);
-    expect(t.coupleTwoEarners.map((r) => [r.income, r.spouseIncome])).toEqual([[30000, 30000], [50000, 40000], [70000, 15000], [60000, 60000]]);
     const page = read('app/budget-2027/page.tsx');
     expect(page).toContain('Difference a week');
-    expect(page).toContain('<Table rows={table.coupleTwoEarners} />');
+    expect(page).not.toContain('table.couple');
     expect(page).toContain('<Budget2027Compare />');
+    const compare = read('components/budget/Budget2027Compare.tsx');
+    expect(compare).not.toMatch(/married|spouse/i);
+    expect(compare).toContain('COUPLES_PENDING_LINE');
+    const home = read('app/HomeClient.tsx');
+    expect(home).toMatch(/singleOnly\s*\?\s*\[\{ label: 'Single', value: 'single' \}\]/);
+    expect(home).toContain('{singleOnly ? COUPLES_PENDING_LINE : MARRIED_HINT}');
   });
 
   it('homepage link, homepage title, rates label, related box and sitemap entry are on', () => {

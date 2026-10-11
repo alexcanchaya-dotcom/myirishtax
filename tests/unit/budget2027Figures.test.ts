@@ -119,16 +119,12 @@ describe('Budget 2027 figures (confirmed)', () => {
   });
 });
 
-// TPC p.18 Table 3: married couple, one income, two children (home carer credit), PAYE, Class A — "proposed" columns.
-describe('TPC Table 3 (married, one income, home carer)', () => {
-  it.each([
-    [55000, 2575, 2413, 1167],
-    [100000, 20475, 4388, 4015],
-  ])('€%i → income tax €%i, PRSI €%i, USC €%i', (gross, it_, prsi, usc) => {
-    const r = calculateNetIncome({ income: gross, period: 'annual', maritalStatus: 'married', homeCarer: true, taxYear: 2027 });
-    expect(Math.round(r.payeAfterCredits)).toBe(it_);
-    expect(Math.round(r.prsi)).toBe(prsi);
-    expect(Math.round(r.uscTotal)).toBe(usc);
+// Couples and single parents are hidden for 2027 (PM, 11 Oct 2026) until the Finance Bill confirms the figures.
+describe('2027 couples and single parents', () => {
+  it('the engine refuses them', () => {
+    expect(() => calculateNetIncome({ income: 55000, period: 'annual', maritalStatus: 'married', homeCarer: true, taxYear: 2027 })).toThrow(
+      /single people only/,
+    );
   });
 });
 
@@ -147,6 +143,20 @@ describe('/budget-2027 confirmed', () => {
     expect(html).toContain('Rent-a-Room limit goes up from €14,000 to €16,000');
     expect(html).toContain('Estimate only, not financial or tax advice');
     expect(html).not.toMatch(/accurate|precise|guaranteed|accountant|ACCA/i);
+  });
+
+  it('is single-only: no married, civil partner or single-parent rows or lines, plus the plain line', () => {
+    expect(html).toContain('Couples and single parents: added once the Finance Bill confirms the figures.');
+    const rest = html.split('Couples and single parents: added once the Finance Bill confirms the figures.').join('');
+    expect(rest).not.toMatch(/married|civil partner|single parent|couple|one-earner|both earning|home carer|Child Carer/i);
+    expect(html).not.toMatch(/4,250|55,500|50,500|37,500|2,300|2,050/);
+    expect(html).toContain('€46,500');
+    expect(html).toContain('€2,125');
+    expect(html).toContain('€1,150');
+    expect(html).toContain('€30,300');
+    expect(html).toContain('Table 2');
+    expect(html).toContain('Example 8');
+    expect(String(metadata.description)).not.toMatch(/married/i);
   });
 
   it('is indexable', () => {

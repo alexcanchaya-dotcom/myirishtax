@@ -323,6 +323,25 @@ export function getTaxYearConfig(year: number): TaxYearConfig {
   return baseConfigs[year] ?? baseConfigs[2026];
 }
 
+/** True for a year that is live for single people only (2027 while BUDGET_2027.singleOnly). */
+export function isSingleOnlyYear(year: number): boolean {
+  return year === 2027 && year in baseConfigs && BUDGET_2027.singleOnly === true;
+}
+
+/** Throws for a married, civil partner or single-parent calculation in a single-only year. */
+export function assertHouseholdSupported(input: {
+  taxYear: number;
+  maritalStatus: string;
+  singleParent?: boolean;
+  homeCarer?: boolean;
+  spouseIncome?: number;
+}): void {
+  if (!isSingleOnlyYear(input.taxYear)) return;
+  if (input.maritalStatus !== 'single' || input.singleParent === true || input.homeCarer === true || (input.spouseIncome ?? 0) > 0) {
+    throw new Error(`${input.taxYear} is available for single people only (couples and single parents are added once the Finance Bill confirms the figures).`);
+  }
+}
+
 export function listSupportedYears(): number[] {
   return Object.keys(baseConfigs).map(Number).sort();
 }

@@ -11,8 +11,8 @@ import { fromSearch, toSearch, type HomeUrlState } from '../lib/homeUrlState';
 import { OwedTaxBack } from '../components/OwedTaxBack';
 import { ComparisonView } from '../components/ComparisonView';
 import { TaxBreakdown, calculateNetIncome, compareScenarios } from '../lib/taxEngine';
-import { formatTaxYearLabel, getDefaultTaxYear, isTaxYearAvailable, listSupportedYears } from '../lib/config/taxYearConfig';
-import { BUDGET_2027 } from '../lib/config/taxYear2027';
+import { formatTaxYearLabel, getDefaultTaxYear, isSingleOnlyYear, isTaxYearAvailable, listSupportedYears } from '../lib/config/taxYearConfig';
+import { BUDGET_2027, COUPLES_PENDING_LINE } from '../lib/config/taxYear2027';
 import Link from 'next/link';
 import { PageHeader } from '../components/PageHeader';
 import { FireHandoff } from '../components/FireHandoff';
@@ -79,22 +79,30 @@ export default function HomePage() {
   const [scenarioBIncome, setScenarioBIncome] = useState(65000);
   const [showCompare, setShowCompare] = useState(false);
 
+  // 2027 is live for single people only (PM, 11 Oct 2026): no married, civil partner or single-parent options.
+  const singleOnly = isSingleOnlyYear(taxYear);
+  useEffect(() => {
+    if (!singleOnly) return;
+    setMaritalStatus('single');
+    setSingleParent(false);
+    setHomeCarer(false);
+  }, [singleOnly]);
   const input = useMemo(
     () => ({
       income,
       period,
-      maritalStatus,
+      maritalStatus: singleOnly ? ('single' as const) : maritalStatus,
       pensionContribution: pension,
       ...(pensionAge !== '' ? { age: Number(pensionAge) } : {}),
       additionalCredits: credits,
-      ...(maritalStatus === 'married' && spouseIncome > 0 ? { spouseIncome } : {}),
-      ...(maritalStatus === 'single' && singleParent ? { singleParent: true } : {}),
-      ...(maritalStatus === 'married' && homeCarer ? { homeCarer: true } : {}),
+      ...(!singleOnly && maritalStatus === 'married' && spouseIncome > 0 ? { spouseIncome } : {}),
+      ...(!singleOnly && maritalStatus === 'single' && singleParent ? { singleParent: true } : {}),
+      ...(!singleOnly && maritalStatus === 'married' && homeCarer ? { homeCarer: true } : {}),
       ...(over65 ? { over65: true } : {}),
       ...(reducedUsc ? { reducedUsc: true } : {}),
       taxYear,
     }),
-    [credits, homeCarer, income, over65, reducedUsc, maritalStatus, pension, pensionAge, period, singleParent, spouseIncome, taxYear],
+    [credits, homeCarer, income, over65, reducedUsc, maritalStatus, pension, pensionAge, period, singleOnly, singleParent, spouseIncome, taxYear],
   );
   // Inputs live in the URL (?income=…&year=…) so an estimate can be reloaded or shared.
   useEffect(() => {
@@ -160,7 +168,7 @@ export default function HomePage() {
           Estimate PAYE, USC and PRSI from published bands. The {formatTaxYearLabel(getDefaultTaxYear())}{' '}
           is the default; 2025 is still available
           {isTaxYearAvailable(2027)
-            ? `, and 2027 uses the Budget 2027 figures, checked ${BUDGET_2027.figuresCheckedOn ?? ''}`
+            ? `, and 2027 uses the Budget 2027 figures for single people, checked ${BUDGET_2027.figuresCheckedOn ?? ''}`
             : ''}
           . Free to use — no account needed.
         </p>
@@ -225,19 +233,23 @@ export default function HomePage() {
                 label="Single or married?"
                 value={maritalStatus}
                 onChange={(v) => setMaritalStatus(v as 'single' | 'married')}
-                options={[
-                  { label: 'Single', value: 'single' },
-                  { label: 'Married or civil partners', value: 'married' },
-                ]}
+                options={
+                  singleOnly
+                    ? [{ label: 'Single', value: 'single' }]
+                    : [
+                        { label: 'Single', value: 'single' },
+                        { label: 'Married or civil partners', value: 'married' },
+                      ]
+                }
                 describedBy="married-one-income-hint"
               />
               <p
                 id="married-one-income-hint"
                 className="scroll-mb-[calc(var(--site-footer-offset)+5.75rem)] text-xs font-normal leading-snug text-ink-muted sm:order-last sm:col-span-2"
               >
-                {MARRIED_HINT}
+                {singleOnly ? COUPLES_PENDING_LINE : MARRIED_HINT}
               </p>
-              {maritalStatus === 'single' && (
+              {!singleOnly && maritalStatus === 'single' && (
                 <div className="flex flex-col gap-1">
                   <label className="flex min-h-11 items-center gap-3 text-sm font-medium text-ink">
                     <input
@@ -254,7 +266,7 @@ export default function HomePage() {
                   </p>
                 </div>
               )}
-              {maritalStatus === 'married' && (
+              {!singleOnly && maritalStatus === 'married' && (
                 <CalculatorInput
                   label="Spouse or partner’s pay (per year)"
                   value={spouseIncome}
@@ -263,7 +275,7 @@ export default function HomePage() {
                   hint={SPOUSE_HINT}
                 />
               )}
-              {maritalStatus === 'married' && (
+              {!singleOnly && maritalStatus === 'married' && (
                 <div className="flex flex-col gap-1">
                   <label className="flex min-h-11 items-center gap-3 text-sm font-medium text-ink">
                     <input

@@ -6,7 +6,10 @@
 export type Pending<T> = T | null;
 
 export const BUDGET_2027 = {
-  status: 'confirmed' as 'pending' | 'confirmed', // Al: 'go ahead with all' (10 Oct 2026)
+  status: 'confirmed' as 'pending' | 'confirmed', // Al: 'go ahead with all' (10 Oct 2026); PM 11 Oct 2026: ship for single people only
+  // PM decision 11 Oct 2026: 2027 is live for SINGLE people only (no single parent, no married / civil partners).
+  // Couple and one-parent figures below stay in the file for later, but the engine, API and UI refuse them for 2027.
+  singleOnly: true as boolean,
   figuresCheckedOn: '10 Oct 2026' as Pending<string>, // [[FIGURES_CHECKED_DATE]] shown as text
   figuresCheckedOnIso: '2026-10-10' as Pending<string>, // same date as YYYY-MM-DD, used for the sitemap lastmod of /budget-2027
   startDate: '1 January 2027' as Pending<string>, // [[2027_START_DATE]] TPC p.4 (most changes)
@@ -41,7 +44,7 @@ export const BUDGET_2027 = {
     bands: [
       { upTo: 12012 as Pending<number>, rate: 0.005 as Pending<number> }, // TPC p.4 [[2027_USC_BAND_1_TOP]] / [[2027_USC_RATE_1]]
       { upTo: 30300 as Pending<number>, rate: 0.02 as Pending<number> }, // TPC p.4 [[2027_USC_BAND_2_TOP]] / [[2027_USC_RATE_2]]
-      { upTo: 70044 as Pending<number>, rate: 0.03 as Pending<number> }, // TPC p.4 rate 3%. [[2027_USC_BAND_3_TOP]] €70,044: TPC Table 1 lists no change to this band; TPC p.18 Table 3 USC at €75k = €2,015 and Example 8 (€90k + €37.5k) = €3,856 only fit €70,044 (€70,444 gives €1,995 / €3,836). The '€70,444' in the p.4 list is a misprint.
+      { upTo: 70044 as Pending<number>, rate: 0.03 as Pending<number> }, // TPC p.4 rate 3%. [[2027_USC_BAND_3_TOP]] €70,044: TPC Table 2 (single, p.18) USC at €75k proposed = €2,015 and Example 8 (p.34, €90k + €37.5k) 2027 USC = €3,856 only fit €70,044 (€70,444 gives €1,995 / €3,836). The '€70,444' in the p.4 list is a misprint.
       { upTo: 'balance' as Pending<number> | 'balance', rate: 0.08 as Pending<number> }, // TPC p.4 [[2027_USC_RATE_4]] 8% on the balance
     ],
   },
@@ -70,3 +73,7 @@ export const BUDGET_2027 = {
 };
 
 export type Budget2027 = typeof BUDGET_2027;
+
+/** Shown wherever 2027 can be picked while BUDGET_2027.singleOnly is true. */
+export const COUPLES_PENDING_LINE = 'Couples and single parents: added once the Finance Bill confirms the figures.';
+

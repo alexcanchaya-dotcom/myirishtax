@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { computeFullTaxReturn } from '../../../../lib/taxEngine/fullReturn';
 import { NormalisedTransaction } from '../../../../lib/normalisers/types';
-import { listSupportedYears } from '../../../../lib/config/taxYearConfig';
+import { isSingleOnlyYear, listSupportedYears } from '../../../../lib/config/taxYearConfig';
 
 const SUPPORTED_YEARS = listSupportedYears();
 
@@ -34,6 +34,15 @@ export async function POST(request: Request) {
   const parsed = schema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
+  }
+  if (isSingleOnlyYear(parsed.data.taxYear)) {
+    const d = parsed.data as { maritalStatus: string; singleParent?: boolean; homeCarer?: boolean; spouseIncome?: number };
+    if (d.maritalStatus !== 'single' || d.singleParent === true || d.homeCarer === true || (d.spouseIncome ?? 0) > 0) {
+      return NextResponse.json(
+        { error: `${parsed.data.taxYear} is available for single people only. Couples and single parents: added once the Finance Bill confirms the figures.` },
+        { status: 400 },
+      );
+    }
   }
 
   const result = computeFullTaxReturn(
