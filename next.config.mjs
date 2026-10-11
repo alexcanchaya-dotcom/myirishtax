@@ -93,6 +93,12 @@ const nextConfig = {
         permanent: true,
       },
       {
+        // Old static refund policy (unlinked; described a paid service the site doesn't offer). Terms covers payments.
+        source: '/refunds.html',
+        destination: '/terms',
+        permanent: true,
+      },
+      {
         // Internal design page (shows 'PRSI 4%'); not for visitors.
         source: '/styleguide.html',
         destination: '/',
