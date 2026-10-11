@@ -1,8 +1,14 @@
 import { readFileSync, readdirSync, statSync } from 'fs';
 import { join } from 'path';
 
-// Every old static .html page in /public must either redirect (308, next.config.mjs) or be on the keep list.
-const KEEP = new Set(['/refunds.html']); // only refund policy on the site; business/legal call, not a tax page
+// The old static .html pages were removed from /public; each old URL keeps a 308 redirect in next.config.mjs.
+// (Static files would otherwise be served before the redirect on Cloudflare Workers static assets.)
+const OLD_PAGES = [
+  '/methodology.html', '/guides/prsi.html', '/contractor-calculator-landing.html', '/index.html', '/guides/usc.html',
+  '/about.html', '/data-sources.html', '/cookies.html', '/privacy.html', '/terms.html', '/disclaimer.html',
+  '/rental-calculator-landing.html', '/guides/bik.html', '/guides/pension-tax-relief.html',
+  '/guides/rental-expenses.html', '/styleguide.html', '/refunds.html',
+];
 
 function htmlFiles(dir: string, base = ''): string[] {
   return readdirSync(dir).flatMap((name) => {
@@ -17,8 +23,12 @@ const sources = new Map<string, string>();
 for (const m of config.matchAll(/source:\s*'([^']+)',\s*destination:\s*'([^']+)',\s*permanent:\s*true/g)) sources.set(m[1], m[2]);
 
 describe('old static .html pages', () => {
-  it.each(htmlFiles(join(__dirname, '../../public')))('%s redirects permanently or is kept on purpose', (page) => {
-    expect(sources.has(page) || KEEP.has(page)).toBe(true);
+  it('no static .html pages remain in /public', () => {
+    expect(htmlFiles(join(__dirname, '../../public'))).toEqual([]);
+  });
+
+  it.each(OLD_PAGES)('%s still redirects permanently', (page) => {
+    expect(sources.has(page)).toBe(true);
   });
 
   it('redirect targets are live app routes', () => {
