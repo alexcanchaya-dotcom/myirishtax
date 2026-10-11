@@ -7,13 +7,17 @@
  * - The room must be in your home (sole or main residence). One limit if jointly assessed (shared).
  * Source: https://www.revenue.ie/en/personal-tax-credits-reliefs-and-exemptions/land-and-property/rent-a-room-relief/qualifying-conditions.aspx
  *
- * Budget 2027 announced a higher limit from 2027. That year is added only on the Budget 2027 branch (#39), once signed off.
+ * 2027: €16,000 from 1 January 2027 (Department of Finance, Budget 2027 Tax Policy Changes §3.2, p.6), only while
+ * BUDGET_2027.status is 'confirmed'. It still needs the Finance Bill to become law.
  */
+import { BUDGET_2027 } from './config/taxYear2027';
+
 export const RENT_A_ROOM_LIMIT: Record<number, number> = {
   2024: 14000,
   2025: 14000,
   2026: 14000,
 };
+if (BUDGET_2027.status === 'confirmed') RENT_A_ROOM_LIMIT[2027] = 16000; // TPC §3.2, p.6
 
 export const RENT_A_ROOM_YEARS = Object.keys(RENT_A_ROOM_LIMIT).map(Number);
 
