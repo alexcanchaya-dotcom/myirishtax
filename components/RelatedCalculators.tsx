@@ -10,7 +10,8 @@ export type CalculatorKey =
   | 'payslip-october-prsi'
   | 'rent-a-room'
   | 'marginal-rate'
-  | 'budget-2027';
+  | 'budget-2027'
+  | 'emergency-tax';
 
 const CALCULATORS: { key: CalculatorKey; href: string; label: string; blurb: string }[] = [
   { key: 'take-home', href: '/', label: 'Take-home pay', blurb: 'PAYE, USC and PRSI on your salary.' },
@@ -53,6 +54,12 @@ const CALCULATORS: { key: CalculatorKey; href: string; label: string; blurb: str
     href: '/marginal-tax-rate-ireland',
     label: 'Why a pay rise adds so little',
     blurb: 'Income tax, USC and PRSI on an extra €1,000.',
+  },
+  {
+    key: 'emergency-tax',
+    href: '/emergency-tax-ireland',
+    label: 'Emergency tax',
+    blurb: 'Why a new job took 40% and how to get it back.',
   },
 ];
 

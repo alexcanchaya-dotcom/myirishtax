@@ -32,6 +32,7 @@ const mobileGroups: { heading: string; links: { href: string; label: string }[] 
       { href: '/second-income-form-12', label: 'Second income / Form 12' },
       { href: '/payslip-october-prsi', label: 'Why October pay dropped' },
       { href: '/exit-tax-ireland', label: 'Exit tax (funds and ETFs)' },
+      { href: '/emergency-tax-ireland', label: 'Emergency tax' },
     ],
   },
   { heading: 'MyIrishTax', links: [{ href: '/about', label: 'About' }] },
