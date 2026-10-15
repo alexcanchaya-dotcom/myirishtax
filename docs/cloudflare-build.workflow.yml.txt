@@ -1,0 +1,38 @@
+# DO NOT MERGE (draft): builds the Cloudflare Workers bundle with OpenNext and runs it locally
+# in workerd (wrangler dev, no Cloudflare account or login), then compares it with production.
+name: Cloudflare build check
+
+on:
+  push:
+    branches: [draft/cf-workers]
+  workflow_dispatch:
+
+jobs:
+  cf-build-check:
+    runs-on: ubuntu-latest
+    env:
+      NEXT_TELEMETRY_DISABLED: 1
+      WRANGLER_SEND_METRICS: false
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci
+      - run: npx opennextjs-cloudflare build
+      - name: Size check (dry run, no upload)
+        run: npx wrangler deploy --dry-run --outdir /tmp/cf-dry 2>&1 | grep -E "Total Upload|Bindings" || true
+      - name: Start local Worker (fills the local cache, then wrangler dev on :8787)
+        run: |
+          printf 'NEXTAUTH_SECRET=%s\nNEXTAUTH_URL=http://localhost:8787\n' "$(openssl rand -hex 24)" > .dev.vars
+          nohup npx opennextjs-cloudflare preview > /tmp/preview.log 2>&1 &
+          for i in $(seq 1 90); do curl -sf -o /dev/null http://localhost:8787/ && break; sleep 2; done
+          tail -20 /tmp/preview.log
+      - name: check.sh (local Worker vs production)
+        run: bash scripts/hostcheck/check.sh http://localhost:8787
+      - name: fullcheck.sh (every sitemap page, 16 redirects, /api/calc)
+        run: |
+          bash scripts/hostcheck/fullcheck.sh http://localhost:8787 | tee /tmp/full.txt
+          grep -q '^FAIL=0$' /tmp/full.txt
+      - if: always()
+        run: grep -iE "error|exception" /tmp/preview.log | head -40 || true
