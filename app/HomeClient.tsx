@@ -11,11 +11,13 @@ import { fromSearch, toSearch, type HomeUrlState } from '../lib/homeUrlState';
 import { OwedTaxBack } from '../components/OwedTaxBack';
 import { ComparisonView } from '../components/ComparisonView';
 import { TaxBreakdown, calculateNetIncome, compareScenarios } from '../lib/taxEngine';
-import { formatTaxYearLabel, getDefaultTaxYear, listSupportedYears } from '../lib/config/taxYearConfig';
+import { formatTaxYearLabel, getDefaultTaxYear, isSingleOnlyYear, isTaxYearAvailable, listSupportedYears } from '../lib/config/taxYearConfig';
+import { BUDGET_2027, COUPLES_PENDING_LINE } from '../lib/config/taxYear2027';
 import Link from 'next/link';
 import { PageHeader } from '../components/PageHeader';
 import { FireHandoff } from '../components/FireHandoff';
 import { RelatedCalculators } from '../components/RelatedCalculators';
+import { Budget2027Link } from '@/components/Budget2027Link';
 import { TaxDisclaimer } from '../components/TaxDisclaimer';
 import { PENSION_AGE_HINT, PENSION_AGE_OPTIONS } from '../lib/pensionAgeOptions';
 import { TrustStrip } from '@/components/TrustStrip';
@@ -77,22 +79,30 @@ export default function HomePage() {
   const [scenarioBIncome, setScenarioBIncome] = useState(65000);
   const [showCompare, setShowCompare] = useState(false);
 
+  // 2027 is live for single people only (PM, 11 Oct 2026): no married, civil partner or single-parent options.
+  const singleOnly = isSingleOnlyYear(taxYear);
+  useEffect(() => {
+    if (!singleOnly) return;
+    setMaritalStatus('single');
+    setSingleParent(false);
+    setHomeCarer(false);
+  }, [singleOnly]);
   const input = useMemo(
     () => ({
       income,
       period,
-      maritalStatus,
+      maritalStatus: singleOnly ? ('single' as const) : maritalStatus,
       pensionContribution: pension,
       ...(pensionAge !== '' ? { age: Number(pensionAge) } : {}),
       additionalCredits: credits,
-      ...(maritalStatus === 'married' && spouseIncome > 0 ? { spouseIncome } : {}),
-      ...(maritalStatus === 'single' && singleParent ? { singleParent: true } : {}),
-      ...(maritalStatus === 'married' && homeCarer ? { homeCarer: true } : {}),
+      ...(!singleOnly && maritalStatus === 'married' && spouseIncome > 0 ? { spouseIncome } : {}),
+      ...(!singleOnly && maritalStatus === 'single' && singleParent ? { singleParent: true } : {}),
+      ...(!singleOnly && maritalStatus === 'married' && homeCarer ? { homeCarer: true } : {}),
       ...(over65 ? { over65: true } : {}),
       ...(reducedUsc ? { reducedUsc: true } : {}),
       taxYear,
     }),
-    [credits, homeCarer, income, over65, reducedUsc, maritalStatus, pension, pensionAge, period, singleParent, spouseIncome, taxYear],
+    [credits, homeCarer, income, over65, reducedUsc, maritalStatus, pension, pensionAge, period, singleOnly, singleParent, spouseIncome, taxYear],
   );
   // Inputs live in the URL (?income=…&year=…) so an estimate can be reloaded or shared.
   useEffect(() => {
@@ -156,8 +166,19 @@ export default function HomePage() {
         <p className="font-medium text-brand-700">{formatTaxYearLabel(taxYear)}</p>
         <p>
           Estimate PAYE, USC and PRSI from published bands. The {formatTaxYearLabel(getDefaultTaxYear())}{' '}
-          is the default; 2025 is still available. Free to use — no account needed.
+          is the default; 2025 is still available
+          {isTaxYearAvailable(2027)
+            ? `, and 2027 uses the Budget 2027 figures for single people, checked ${BUDGET_2027.figuresCheckedOn ?? ''}`
+            : ''}
+          . Free to use — no account needed.
         </p>
+        {BUDGET_2027.status === 'confirmed' ? (
+          <p>
+            <Link href="/budget-2027" className="font-semibold text-brand-700 underline decoration-line underline-offset-2">
+              New: Budget 2027 — how much better off per week?
+            </Link>
+          </p>
+        ) : null}
         <TrustStrip />
       </PageHeader>
 
@@ -212,19 +233,23 @@ export default function HomePage() {
                 label="Single or married?"
                 value={maritalStatus}
                 onChange={(v) => setMaritalStatus(v as 'single' | 'married')}
-                options={[
-                  { label: 'Single', value: 'single' },
-                  { label: 'Married or civil partners', value: 'married' },
-                ]}
+                options={
+                  singleOnly
+                    ? [{ label: 'Single', value: 'single' }]
+                    : [
+                        { label: 'Single', value: 'single' },
+                        { label: 'Married or civil partners', value: 'married' },
+                      ]
+                }
                 describedBy="married-one-income-hint"
               />
               <p
                 id="married-one-income-hint"
                 className="scroll-mb-[calc(var(--site-footer-offset)+5.75rem)] text-xs font-normal leading-snug text-ink-muted sm:order-last sm:col-span-2"
               >
-                {MARRIED_HINT}
+                {singleOnly ? COUPLES_PENDING_LINE : MARRIED_HINT}
               </p>
-              {maritalStatus === 'single' && (
+              {!singleOnly && maritalStatus === 'single' && (
                 <div className="flex flex-col gap-1">
                   <label className="flex min-h-11 items-center gap-3 text-sm font-medium text-ink">
                     <input
@@ -241,7 +266,7 @@ export default function HomePage() {
                   </p>
                 </div>
               )}
-              {maritalStatus === 'married' && (
+              {!singleOnly && maritalStatus === 'married' && (
                 <CalculatorInput
                   label="Spouse or partner’s pay (per year)"
                   value={spouseIncome}
@@ -250,7 +275,7 @@ export default function HomePage() {
                   hint={SPOUSE_HINT}
                 />
               )}
-              {maritalStatus === 'married' && (
+              {!singleOnly && maritalStatus === 'married' && (
                 <div className="flex flex-col gap-1">
                   <label className="flex min-h-11 items-center gap-3 text-sm font-medium text-ink">
                     <input
@@ -416,7 +441,15 @@ export default function HomePage() {
               Class A employee rate: 4.1% to 30 September 2025, then 4.2%, rising to 4.35% from
               1 October 2026. The estimate weights the rate by month. No PRSI if you earn €352 a
               week or less. Between €352.01 and €424 a week, a PRSI credit of up to €12 a week
-              reduces it. Tax credits do not reduce PRSI.
+              reduces it.
+              {BUDGET_2027.status === 'confirmed' && BUDGET_2027.prsi.rateFrom1Jan !== null
+                ? ` 2027: ${Number((BUDGET_2027.prsi.rateFrom1Jan * 100).toFixed(3))}% from January${
+                    BUDGET_2027.prsi.rateAfterChange !== null && BUDGET_2027.prsi.changeMonth !== null
+                      ? `, ${Number((BUDGET_2027.prsi.rateAfterChange * 100).toFixed(3))}% from 1 ${new Date(2027, BUDGET_2027.prsi.changeMonth - 1, 1).toLocaleString('en-IE', { month: 'long' })}`
+                      : ''
+                  } (Budget 2027).`
+                : ''}{' '}
+              Tax credits do not reduce PRSI.
             </p>
           </div>
         </div>
@@ -432,6 +465,7 @@ export default function HomePage() {
       <RelatedCalculators current="take-home" />
 
       <p className="mt-12 text-sm text-ink-muted">
+        <Budget2027Link after=". " />
         Other tools:{' '}
         <Link href="/redundancy-calculator" className="text-ink underline decoration-line underline-offset-2 hover:text-brand-700">
           How much of a redundancy package is tax-free?

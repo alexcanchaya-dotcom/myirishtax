@@ -1,4 +1,4 @@
-import { TaxYearConfig, getTaxYearConfig } from '../config/taxYearConfig';
+import { TaxYearConfig, assertHouseholdSupported, getTaxYearConfig } from '../config/taxYearConfig';
 
 export type CalculationInput = {
   income: number;
@@ -210,6 +210,7 @@ export function calculateCredits(
 }
 
 export function calculateNetIncome(input: CalculationInput): TaxBreakdown {
+  assertHouseholdSupported(input);
   if (input.over65 !== true) return calculateNetIncomeCore(input);
   const config = getTaxYearConfig(input.taxYear);
   const married = input.maritalStatus === 'married';
