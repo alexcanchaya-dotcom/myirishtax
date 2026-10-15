@@ -6,6 +6,7 @@ import { TaxFreeSection } from "@/components/redundancy/TaxFreeSection";
 import { SCOPE_DISCLAIMER } from "@/components/TaxDisclaimer";
 import Link from "next/link";
 import { RelatedCalculators } from "@/components/RelatedCalculators";
+import { Budget2027Link } from '@/components/Budget2027Link';
 import { CalculatorInput } from "@/components/CalculatorInput";
 import { TrustStrip } from '@/components/TrustStrip';
 import { REVENUE_RATES as REVENUE_RATES_CHARTS } from '@/lib/config/siteRates';
@@ -261,6 +262,7 @@ export default function RedundancyCalculatorPage() {
       <RelatedCalculators current="redundancy" />
 
       <p className="mt-12 text-sm text-ink-muted">
+        <Budget2027Link after=". " />
         Also: the{' '}
         <Link href="/" className="text-ink underline decoration-line underline-offset-2 hover:text-brand-700">
           Take-home pay calculator
