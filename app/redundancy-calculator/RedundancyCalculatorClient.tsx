@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { calculateRedundancy, RedundancyInputs, RedundancyResults } from "@/lib/redundancy2025";
 import { TaxFreeSection } from "@/components/redundancy/TaxFreeSection";
 import { SCOPE_DISCLAIMER } from "@/components/TaxDisclaimer";
@@ -49,8 +49,19 @@ export default function RedundancyCalculatorPage() {
     }));
   };
 
-  const handleSubmit = () => {
+  const resultsRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (results) resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [results]);
+
+  const handleSubmit = (e?: React.FormEvent) => {
+    e?.preventDefault();
     setError(null);
+    if (!inputs.annualSalary && !inputs.weeklyPay) {
+      setResults(null);
+      setError("Enter your annual salary or weekly pay to see an estimate.");
+      return;
+    }
     try {
       const res = calculateRedundancy(inputs);
       setResults(res);
@@ -102,7 +113,11 @@ export default function RedundancyCalculatorPage() {
       )}
 
       {/* Form */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-white p-6 rounded-2xl shadow">
+      <form
+        onSubmit={handleSubmit}
+        noValidate
+        className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-white p-6 rounded-2xl shadow"
+      >
         {numberField("annualSalary", "Annual salary (€)", "Your average yearly pay over the last 3 years is used for SCSB.")}
         {numberField("weeklyPay", "Weekly pay (€)", "Leave empty to work it out from the annual salary.")}
         {numberField("yearsService", "Complete years of service")}
@@ -178,18 +193,15 @@ export default function RedundancyCalculatorPage() {
         )}
 
         <div className="col-span-2">
-          <button
-            className="w-full bg-blue-600 text-white py-3 rounded-xl font-semibold hover:bg-blue-700"
-            onClick={handleSubmit}
-          >
+          <button type="submit" className="btn-primary w-full min-h-[44px] py-3 text-base font-semibold">
             Calculate
           </button>
         </div>
-      </div>
+      </form>
 
       {/* RESULTS */}
       {results && (
-        <div className="space-y-6">
+        <div ref={resultsRef} className="space-y-6 scroll-mt-20">
           <div className="bg-green-50 p-6 rounded-2xl shadow" data-testid="redundancy-summary">
             <h2 className="text-2xl font-bold mb-4">Summary</h2>
             <p><strong>Statutory redundancy (tax-free):</strong> <span data-testid="statutory">{euro(results.statutoryRedundancy)}</span></p>
