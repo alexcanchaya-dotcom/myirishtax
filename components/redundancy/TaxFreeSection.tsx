@@ -186,10 +186,10 @@ export function TaxFreeSection() {
       <ul className={`${list} text-sm`}>
         {SOURCES.map((s) => (
           <li key={s.href}>
-            {s.label}:{' '}
-            <a href={s.href} className={`${link} break-all`} rel="noopener noreferrer" target="_blank">
-              {s.href}
-            </a>
+            <a href={s.href} className={link} rel="noopener noreferrer" target="_blank">
+              {s.label}
+            </a>{' '}
+            <span className="text-ink-muted">({new URL(s.href).hostname.replace(/^www\./, '')})</span>
           </li>
         ))}
       </ul>
