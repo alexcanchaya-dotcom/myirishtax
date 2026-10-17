@@ -230,7 +230,7 @@ export default function AutoEnrolmentCalculatorPage() {
             </h3>
             <div className="text-5xl font-bold text-emerald-700 mb-4">
               {fmtEuro(result.projectedMonthlyPension)}
-              <span className="text-2xl text-emerald-600 font-medium">/mo</span>
+              <span className="text-2xl text-emerald-700 font-medium">/mo</span>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
               <div>
@@ -278,19 +278,19 @@ export default function AutoEnrolmentCalculatorPage() {
                 </div>
                 <div className="flex justify-between py-1">
                   <span className="text-gray-600">Employer match — 1.5%</span>
-                  <span className="font-semibold text-emerald-600">
+                  <span className="font-semibold text-emerald-700">
                     {fmtEuro(result.employerContribution)}
                   </span>
                 </div>
                 <div className="flex justify-between py-1">
                   <span className="text-gray-600">State top-up — 0.5%</span>
-                  <span className="font-semibold text-emerald-600">
+                  <span className="font-semibold text-emerald-700">
                     {fmtEuro(result.stateContribution)}
                   </span>
                 </div>
                 <div className="flex justify-between py-1">
                   <span className="text-gray-600">Admin fee (55c/week)</span>
-                  <span className="font-semibold text-red-500">−€28.60</span>
+                  <span className="font-semibold text-red-700">−€28.60</span>
                 </div>
                 <div className="flex justify-between py-2 border-t border-gray-200 font-semibold">
                   <span>Net total into your fund</span>
@@ -310,7 +310,7 @@ export default function AutoEnrolmentCalculatorPage() {
                 </div>
                 <div className="flex justify-between py-1">
                   <span className="text-gray-600">Take-home reduction/year</span>
-                  <span className="font-semibold text-red-500">
+                  <span className="font-semibold text-red-700">
                     −{fmtEuro(result.currentNetReduction)}
                   </span>
                 </div>
@@ -336,13 +336,13 @@ export default function AutoEnrolmentCalculatorPage() {
                 </div>
               </div>
               <div className="rounded-lg bg-emerald-50 border border-emerald-100 p-3 text-center">
-                <div className="text-xs text-emerald-600 mb-1 font-medium">Employer Total</div>
+                <div className="text-xs text-emerald-700 mb-1 font-medium">Employer Total</div>
                 <div className="font-bold text-emerald-800 text-lg">
                   {fmtEuro(result.totalEmployerContributions)}
                 </div>
               </div>
               <div className="rounded-lg bg-green-50 border border-green-100 p-3 text-center">
-                <div className="text-xs text-green-600 mb-1 font-medium">State Total</div>
+                <div className="text-xs text-green-700 mb-1 font-medium">State Total</div>
                 <div className="font-bold text-green-800 text-lg">
                   {fmtEuro(result.totalStateContributions)}
                 </div>
@@ -409,7 +409,7 @@ export default function AutoEnrolmentCalculatorPage() {
                 {result.yearlyBreakdown.length > milestoneRows.length && (
                   <button
                     onClick={() => setShowFullTable((v) => !v)}
-                    className="mt-3 flex items-center gap-1 text-sm text-emerald-600 hover:text-emerald-700 font-medium"
+                    className="mt-3 flex items-center gap-1 text-sm text-emerald-700 hover:text-emerald-800 font-medium"
                   >
                     {showFullTable ? (
                       <>
@@ -599,7 +599,7 @@ export default function AutoEnrolmentCalculatorPage() {
               </p>
             </div>
           </div>
-          <p className="text-xs text-gray-400 mt-4">
+          <p className="text-xs text-gray-500 mt-4">
             Based on published Irish tax bands; not advice. Projections are estimates and can go up or down.
           </p>
         </div>
