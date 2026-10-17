@@ -1,0 +1,17 @@
+// Cloudflare Workers config for OpenNext (https://opennext.js.org/cloudflare/get-started).
+// DO NOT MERGE until the Cloudflare account and zone exist; Vercel ignores this file.
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "myirishtax",
+  "main": ".open-next/worker.js",
+  "compatibility_date": "2025-09-01",
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "assets": { "directory": ".open-next/assets", "binding": "ASSETS" },
+  "services": [{ "binding": "WORKER_SELF_REFERENCE", "service": "myirishtax" }],
+  // Uncomment once myirishtax.com is an active zone in Al's Cloudflare account (nameservers moved):
+  // "routes": [
+  //   { "pattern": "myirishtax.com", "custom_domain": true },
+  //   { "pattern": "www.myirishtax.com", "custom_domain": true }
+  // ],
+  "observability": { "enabled": true }
+}
