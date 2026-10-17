@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { PageHeader } from '@/components/PageHeader';
 import { TaxDisclaimer } from '@/components/TaxDisclaimer';
 import { TrustStrip } from '@/components/TrustStrip';
+import { RelatedCalculators } from '@/components/RelatedCalculators';
 import { EXIT_TAX, deemedDisposalExample, exitTaxExampleRows } from '@/lib/exitTax';
 import { pageMeta } from '@/lib/pageMeta';
 
@@ -156,6 +157,8 @@ export default function ExitTaxIrelandPage() {
           </ul>
         </section>
       </div>
+
+      <RelatedCalculators current="exit-tax" />
     </main>
   );
 }
