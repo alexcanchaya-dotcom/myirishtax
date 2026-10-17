@@ -11,7 +11,10 @@ export type CalculatorKey =
   | 'rent-a-room'
   | 'marginal-rate'
   | 'budget-2027'
-  | 'emergency-tax';
+  | 'emergency-tax'
+  | 'exit-tax'
+  | 'second-income'
+  | 'small-benefit';
 
 const CALCULATORS: { key: CalculatorKey; href: string; label: string; blurb: string }[] = [
   { key: 'take-home', href: '/', label: 'Take-home pay', blurb: 'PAYE, USC and PRSI on your salary.' },
@@ -61,6 +64,24 @@ const CALCULATORS: { key: CalculatorKey; href: string; label: string; blurb: str
     label: 'Emergency tax',
     blurb: 'Why a new job took 40% and how to get it back.',
   },
+  {
+    key: 'second-income',
+    href: '/second-income-form-12',
+    label: 'Second income / Form 12',
+    blurb: 'When extra income means a tax return.',
+  },
+  {
+    key: 'small-benefit',
+    href: '/small-benefit-exemption',
+    label: 'Small benefit exemption',
+    blurb: 'Tax-free vouchers from your employer.',
+  },
+  {
+    key: 'exit-tax',
+    href: '/exit-tax-ireland',
+    label: 'Exit tax (funds and ETFs)',
+    blurb: 'Tax on fund gains and the 8-year rule.',
+  },
 ];
 
 export function RelatedCalculators({ current, className = '' }: { current: CalculatorKey; className?: string }) {
@@ -68,7 +89,7 @@ export function RelatedCalculators({ current, className = '' }: { current: Calcu
   return (
     <nav aria-labelledby="related-calculators-heading" className={`card mt-12 ${className}`}>
       <h2 id="related-calculators-heading" className="text-lg font-semibold text-ink">
-        Related calculators
+        Related calculators and guides
       </h2>
       <ul className={`mt-4 grid gap-4 ${links.length > 3 ? 'sm:grid-cols-2 lg:grid-cols-4' : 'sm:grid-cols-3'}`}>
         {links.map((c) => (

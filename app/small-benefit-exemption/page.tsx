@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { PageHeader } from '@/components/PageHeader';
 import { TaxDisclaimer } from '@/components/TaxDisclaimer';
 import { TrustStrip } from '@/components/TrustStrip';
+import { RelatedCalculators } from '@/components/RelatedCalculators';
 import { pageMeta } from '@/lib/pageMeta';
 
 export const metadata = pageMeta({
@@ -263,6 +264,8 @@ export default function SmallBenefitExemptionPage() {
           </ul>
         </section>
       </div>
+
+      <RelatedCalculators current="small-benefit" />
     </main>
   );
 }
