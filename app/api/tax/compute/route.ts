@@ -39,7 +39,7 @@ export async function POST(request: Request) {
     const d = parsed.data as { maritalStatus: string; singleParent?: boolean; homeCarer?: boolean; spouseIncome?: number };
     if (d.maritalStatus !== 'single' || d.singleParent === true || d.homeCarer === true || (d.spouseIncome ?? 0) > 0) {
       return NextResponse.json(
-        { error: `${parsed.data.taxYear} is available for single people only. Couples and single parents: added once the Finance Bill confirms the figures.` },
+        { error: `${parsed.data.taxYear} is available for single people only for now.` },
         { status: 400 },
       );
     }

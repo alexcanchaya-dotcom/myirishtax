@@ -29,7 +29,7 @@ describe('plain labels with short hints (married, age, other credits)', () => {
   it('other credits: plain label, hint with 2026 Revenue figures, standard credits already included', () => {
     // Revenue tax relief charts 2026: Rent Tax Credit 1,000 / 2,000; Age Tax Credit 245 / 490.
     expect(home).toContain('label="Other tax credits (per year)"');
-    expect(home).toContain('rent tax credit (up to €1,000 in 2026, €2,000 for a couple)');
+    expect(home).toContain('rent tax credit (up to €1,000 in 2026, €2,000 for a couple; €1,150 and €2,300 in 2027)');
     expect(home).toContain('or dependent relative credit (€305)');
     expect(home).toContain('Your personal and Employee (PAYE) credits are already included.');
     expect(home).not.toContain('label="Extra credits"');

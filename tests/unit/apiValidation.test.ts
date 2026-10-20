@@ -2,6 +2,7 @@ import { POST as calcPost } from '../../app/api/calc/route';
 import { POST as computePost } from '../../app/api/tax/compute/route';
 import { computeFullTaxReturn, DIRT_RATE } from '../../lib/taxEngine/fullReturn';
 import type { NormalisedTransaction } from '../../lib/normalisers/types';
+import { BUDGET_2027 } from '../../lib/config/taxYear2027';
 
 const req = (body: unknown) =>
   new Request('http://localhost/api', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) });
@@ -33,11 +34,22 @@ describe('/api/calc validation', () => {
     { maritalStatus: 'married', spouseIncome: 30000 },
     { maritalStatus: 'single', singleParent: true },
     { maritalStatus: 'married', homeCarer: true },
-  ])('2027 is single-only: rejects %p with a 400', async (extra) => {
+  ])('2027 is on for couples and single parents (Finance (No. 2) Bill 2026): accepts %p', async (extra) => {
     const res = await calcPost(req({ ...ok, taxYear: 2027, ...extra }));
-    expect(res.status).toBe(400);
-    expect(JSON.stringify(await res.json())).toContain('Couples and single parents: added once the Finance Bill confirms the figures.');
+    expect(res.status).toBe(200);
     expect((await calcPost(req({ ...ok, taxYear: 2026, ...extra }))).status).toBe(200);
+  });
+
+  it('the single-only switch still works if it is ever turned back on', async () => {
+    BUDGET_2027.singleOnly = true;
+    try {
+      const res = await calcPost(req({ ...ok, taxYear: 2027, maritalStatus: 'married' }));
+      expect(res.status).toBe(400);
+      expect(JSON.stringify(await res.json())).toContain('single people only for now');
+      expect((await calcPost(req({ ...ok, taxYear: 2027 }))).status).toBe(200);
+    } finally {
+      BUDGET_2027.singleOnly = false;
+    }
   });
 
   it('rejects a negative pension contribution', async () => {

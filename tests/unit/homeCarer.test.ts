@@ -62,7 +62,7 @@ describe('Home Carer Tax Credit (Revenue rates page, TDM 15-01-29)', () => {
     expect(toSearch({ ...s, maritalStatus: 'single' }, d)).not.toContain('carer');
     const home = readFileSync(join(__dirname, '../../app/HomeClient.tsx'), 'utf8');
     expect(home).toContain('My spouse or partner is a home carer');
-    expect(home).toContain('Home Carer Tax Credit up to €1,950 in 2026, reduced if their own pay is over €7,200');
+    expect(home).toContain('Home Carer Tax Credit up to €1,950 in 2026 (€2,050 in 2027), reduced if their own pay is over €7,200');
     expect(readFileSync(join(__dirname, '../../components/TaxSummaryCard.tsx'), 'utf8')).toContain('Includes the Home Carer Tax Credit');
   });
 });

@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { PageHeader } from '@/components/PageHeader';
 import { TaxDisclaimer } from '@/components/TaxDisclaimer';
-import { BUDGET_2027, COUPLES_PENDING_LINE } from '@/lib/config/taxYear2027';
+import { BUDGET_2027 } from '@/lib/config/taxYear2027';
 import { buildBudgetTable, type BudgetTableRow } from '@/lib/budget/budgetTable';
 import { headlineWeekly } from '@/lib/budget/compareYears';
 import { Budget2027Compare } from '@/components/budget/Budget2027Compare';
@@ -14,10 +14,10 @@ const confirmed = BUDGET_2027.status === 'confirmed';
 
 const TITLE = 'Budget 2027 calculator: how much better off? | MyIrishTax';
 const DESCRIPTION =
-  'How Budget 2027 changes Irish take-home pay for a single person at €30k to €100k, plus the changes in plain English and a free 2027 calculator. Estimate; not advice.';
+  'How Budget 2027 changes Irish take-home pay at €30k to €100k, single, single parent or married, plus the changes in plain English and a free 2027 calculator. Estimate; not advice.';
 const OG_TITLE = 'Budget 2027: how much better off will I be?';
 const OG_DESCRIPTION =
-  'Take-home pay before and after Budget 2027 for a single person at €30k–€100k, in plain English. A free estimate from MyIrishTax. Not advice.';
+  'Take-home pay before and after Budget 2027 at €30k–€100k, single, single parent or married, in plain English. A free estimate from MyIrishTax. Not advice.';
 
 export const metadata: Metadata = {
   title: TITLE,
@@ -68,23 +68,40 @@ function whatChangedLines(): string[] {
     moved(44000, it.bandSingle, euro,
       "The point where you start paying 40% goes up from {before} to {after} if you're single.",
       "The point where you start paying 40% stays at {before} if you're single."),
+    moved(53000, it.bandMarriedOneEarner, euro,
+      'For a married couple or civil partners with one income, it goes up from {before} to {after}.',
+      'For a married couple or civil partners with one income, it stays at {before}.'),
+    it.bandMarriedTwoEarners !== null && it.twoEarnerMaxIncrease !== null
+      ? `If you both earn, the 20% band can go up to ${euro(it.bandMarriedTwoEarners)} plus up to ${euro(it.twoEarnerMaxIncrease)} for the second earner (it was €53,000 plus up to €35,000).`
+      : null,
+    it.bandOneParent !== null
+      ? `For a single parent getting the Single Person Child Carer Credit, the 40% point goes from €48,000 to ${euro(it.bandOneParent)}.`
+      : null,
     it.standardRate !== null && it.higherRate !== null
       ? it.standardRate === 0.2 && it.higherRate === 0.4
         ? 'The income tax rates stay at 20% and 40%.'
         : `The income tax rates are ${pct(it.standardRate)} and ${pct(it.higherRate)} (20% and 40% in 2026).`
       : null,
-    moved(2000, cr.personalSingle, euro,
-      'The personal tax credit for a single person goes from {before} to {after}.',
-      'The personal tax credit for a single person stays at {before}.'),
+    cr.personalSingle !== null && cr.personalMarried !== null
+      ? cr.personalSingle === 2000 && cr.personalMarried === 4000
+        ? 'The personal tax credit stays at €2,000 (€4,000 for a married couple or civil partners).'
+        : `The personal tax credit goes from €2,000 to ${euro(cr.personalSingle)} (€4,000 to ${euro(cr.personalMarried)} for a married couple or civil partners).`
+      : null,
     moved(2000, cr.employeePaye, euro,
       'The employee (PAYE) tax credit goes from {before} to {after}.',
       'The employee (PAYE) tax credit stays at {before}.'),
     moved(2000, cr.earnedIncome, euro,
       'The earned income credit goes from {before} to {after}.',
       'The earned income credit stays at {before}.'),
-    moved(1000, cr.rentSingle, euro,
-      'The rent tax credit for a single person goes from {before} to {after} a year.',
-      'The rent tax credit for a single person stays at {before} a year.'),
+    moved(1950, cr.homeCarer, euro, 'The home carer credit goes from {before} to {after}.', 'The home carer credit stays at {before}.'),
+    moved(1900, cr.singlePersonChildCarer, euro,
+      'The Single Person Child Carer Credit goes from {before} to {after}.',
+      'The Single Person Child Carer Credit stays at {before}.'),
+    cr.rentSingle !== null && cr.rentCouple !== null
+      ? cr.rentSingle === 1000 && cr.rentCouple === 2000
+        ? 'The rent tax credit stays at €1,000 a year (€2,000 for a couple taxed jointly).'
+        : `The rent tax credit goes from €1,000 to ${euro(cr.rentSingle)} a year (€2,000 to ${euro(cr.rentCouple)} for a couple taxed jointly).`
+      : null,
     b.usc.bands[1].upTo !== null && b.usc.bands[1].upTo !== 'balance'
       ? moved(28700, b.usc.bands[1].upTo, euro,
           'The 2% USC band now ends at {after} (it was {before}).',
@@ -138,7 +155,7 @@ function Table({ rows }: { rows: BudgetTableRow[] }) {
         <tbody>
           {rows.map((r) => (
             <tr key={r.income} className="border-b border-line last:border-0">
-              <td className="py-2 pr-4">{euro(r.income)}</td>
+              <td className="py-2 pr-4">{r.spouseIncome ? `${euro(r.income)} + ${euro(r.spouseIncome)}` : euro(r.income)}</td>
               <td className="py-2 pr-4">{euro(r.takeHomeBefore)}</td>
               <td className="py-2 pr-4">{euro(r.takeHomeAfter)}</td>
               <td className="py-2 pr-4 font-medium text-ink">{signedEuro2(r.diffWeek)}</td>
@@ -203,7 +220,12 @@ export default function Budget2027Page() {
                 /{' '}
                 <a href={b.sources.revenueSummary} className={link} rel="noopener noreferrer">Revenue</a>
               </>
-            ) : null}.{b.sources.speech || b.sources.prsi ? ' Also: ' : ''}
+            ) : null}.{b.sources.financeBill ? ' Confirmed in the ' : ''}
+            {b.sources.financeBill ? (
+              <a href={b.sources.financeBill} className={link} rel="noopener noreferrer">Finance (No. 2) Bill 2026</a>
+            ) : null}
+            {b.sources.financeBill ? ', sections 3 and 4 (published 19 October 2026).' : ''}
+            {b.sources.speech || b.sources.prsi ? ' Also: ' : ''}
             {b.sources.speech ? (
               <a href={b.sources.speech} className={link} rel="noopener noreferrer">Budget speech</a>
             ) : null}
@@ -213,7 +235,10 @@ export default function Budget2027Page() {
             ) : null}
             {b.sources.speech || b.sources.prsi ? '.' : ''}
           </p>
-          <p>These are the Budget day announcements. Most become law later, in the Finance Act.</p>
+          <p>
+            The Finance (No. 2) Bill 2026 puts these figures into law once it is passed, as the Finance Act. The Dáil
+            and Seanad can still change it.
+          </p>
           {headline ? (
             <p className="text-ink">
               On €45,000 as a single person, you&apos;re {headline} in 2027 ({signedEuro(single45!.diffMonth)} a month,{' '}
@@ -228,11 +253,25 @@ export default function Budget2027Page() {
           <h2 className={h2}>How much better off?</h2>
           <p className="mt-4 font-semibold text-ink">Single</p>
           <Table rows={table.single} />
-          <p className="mt-4">{COUPLES_PENDING_LINE}</p>
+          <p className="mt-6 font-semibold text-ink">Single parent (Single Person Child Carer Credit)</p>
+          <Table rows={table.singleParent} />
+          <p className="mt-6 font-semibold text-ink">Couple: married or civil partners, one earner</p>
+          <Table rows={table.couple} />
+          <p className="mt-6 font-semibold text-ink">Couple: married or civil partners, both earning</p>
+          <Table rows={table.coupleTwoEarners} />
+          <p className="mt-4">
+            <strong className="text-ink">What &quot;Couple&quot; means here:</strong> you&apos;re married or in a civil
+            partnership and taxed jointly. In the one-earner table, one of you earns the salary shown and the other has no
+            income. In the both-earning table the figures are for the household, with the second-earner band increase
+            and both Employee Tax Credits.
+          </p>
           <p className="mt-4 font-semibold text-ink">How we worked it out:</p>
           <ul className="mt-2 list-disc space-y-1 pl-5">
             <li>You&apos;re an employee paid through PAYE for the full year, on PRSI Class A.</li>
-            <li>You get the personal tax credit and the employee (PAYE) tax credit only. No other credits or reliefs.</li>
+            <li>
+              You get the personal tax credit and the employee (PAYE) tax credit only (a single parent also gets the
+              Single Person Child Carer Credit). No home carer credit, rent credit or other credits or reliefs.
+            </li>
             <li>No pension contributions, including auto-enrolment (MyFutureFund). No benefit-in-kind.</li>
             <li>Standard USC rates (not the reduced rate for medical card holders or people aged 70 and over).</li>
             <li>
@@ -255,7 +294,7 @@ export default function Budget2027Page() {
           <section>
             <h2 className={h2}>What changed</h2>
             <p className="mt-3">
-              In plain words, here&apos;s what Budget 2027 changes for a single person.
+              In plain words, here&apos;s what Budget 2027 changes for employees.
               {b.startDate ? ` It starts on ${b.startDate}.` : ''}
             </p>
             <ul className="mt-3 list-disc space-y-2 pl-5">
@@ -263,7 +302,6 @@ export default function Budget2027Page() {
                 <li key={l}>{l}</li>
               ))}
             </ul>
-            <p className="mt-3">{COUPLES_PENDING_LINE}</p>
             <p className="mt-3">
               See also the{' '}
               <Link href="/rent-tax-credit" className={link}>

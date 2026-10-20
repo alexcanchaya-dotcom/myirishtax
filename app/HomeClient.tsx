@@ -12,7 +12,7 @@ import { OwedTaxBack } from '../components/OwedTaxBack';
 import { ComparisonView } from '../components/ComparisonView';
 import { TaxBreakdown, calculateNetIncome, compareScenarios } from '../lib/taxEngine';
 import { formatTaxYearLabel, getDefaultTaxYear, isSingleOnlyYear, isTaxYearAvailable, listSupportedYears } from '../lib/config/taxYearConfig';
-import { BUDGET_2027, COUPLES_PENDING_LINE } from '../lib/config/taxYear2027';
+import { BUDGET_2027, SINGLE_ONLY_LINE } from '../lib/config/taxYear2027';
 import Link from 'next/link';
 import { PageHeader } from '../components/PageHeader';
 import { FireHandoff } from '../components/FireHandoff';
@@ -49,15 +49,15 @@ const MARRIED_HINT =
   'Married or civil partners are taxed together (joint assessment). Add your spouse or partner’s pay, or leave it at 0 if only you earn.';
 const SPOUSE_HINT = 'We assume you are both PAYE employees and share the tax band and credits in the way that saves most tax.';
 const SINGLE_PARENT_HINT =
-  'Tick if a child lives with you for most of the year and you are not married or living with a partner. Adds the Single Person Child Carer Credit (€1,900 in 2026) and €4,000 more taxed at 20%. Only one parent can claim it.';
+  'Tick if a child lives with you for most of the year and you are not married or living with a partner. Adds the Single Person Child Carer Credit (€1,900 in 2026 and 2027) and €4,000 more taxed at 20%. Only one parent can claim it.';
 const HOME_CARER_HINT =
-  'Tick if your spouse or partner works in the home caring for a child you get Child Benefit for, someone aged 65 or over, or someone permanently incapacitated. Home Carer Tax Credit up to €1,950 in 2026, reduced if their own pay is over €7,200. We use it only if it saves more than the second-earner band.';
+  'Tick if your spouse or partner works in the home caring for a child you get Child Benefit for, someone aged 65 or over, or someone permanently incapacitated. Home Carer Tax Credit up to €1,950 in 2026 (€2,050 in 2027), reduced if their own pay is over €7,200. We use it only if it saves more than the second-earner band.';
 const OVER_65_HINT =
   'Adds the Age Tax Credit (€245, or €490 for a couple). If total income is €18,000 or less (€36,000 for a couple) there is no income tax, and just above that marginal relief can lower it. USC and PRSI are not changed in this estimate.';
 const REDUCED_USC_HINT =
   'Reduced USC: 0.5% on the first €12,012 and 2% on the rest, if your own income is €60,000 or less. Not for a GP visit card. Medical card holders need to ask Revenue to apply it.';
 const CREDITS_HINT =
-  'Only credits not already counted, e.g. rent tax credit (up to €1,000 in 2026, €2,000 for a couple) or dependent relative credit (€305). Your personal and Employee (PAYE) credits are already included.';
+  'Only credits not already counted, e.g. rent tax credit (up to €1,000 in 2026, €2,000 for a couple; €1,150 and €2,300 in 2027) or dependent relative credit (€305). Your personal and Employee (PAYE) credits are already included.';
 
 export default function HomePage() {
   const { data: session } = useSession();
@@ -79,7 +79,7 @@ export default function HomePage() {
   const [scenarioBIncome, setScenarioBIncome] = useState(65000);
   const [showCompare, setShowCompare] = useState(false);
 
-  // 2027 is live for single people only (PM, 11 Oct 2026): no married, civil partner or single-parent options.
+  // Only if BUDGET_2027.singleOnly is set back to true: 2027 then hides the married, civil partner and single-parent options.
   const singleOnly = isSingleOnlyYear(taxYear);
   useEffect(() => {
     if (!singleOnly) return;
@@ -168,7 +168,7 @@ export default function HomePage() {
           Estimate PAYE, USC and PRSI from published bands. The {formatTaxYearLabel(getDefaultTaxYear())}{' '}
           is the default; 2025 is still available
           {isTaxYearAvailable(2027)
-            ? `, and 2027 uses the Budget 2027 figures for single people, checked ${BUDGET_2027.figuresCheckedOn ?? ''}`
+            ? `, and 2027 uses the Budget 2027 figures${BUDGET_2027.singleOnly ? ' for single people' : ''}, checked ${BUDGET_2027.figuresCheckedOn ?? ''}`
             : ''}
           . Free to use — no account needed.
         </p>
@@ -247,7 +247,7 @@ export default function HomePage() {
                 id="married-one-income-hint"
                 className="scroll-mb-[calc(var(--site-footer-offset)+5.75rem)] text-xs font-normal leading-snug text-ink-muted sm:order-last sm:col-span-2"
               >
-                {singleOnly ? COUPLES_PENDING_LINE : MARRIED_HINT}
+                {singleOnly ? SINGLE_ONLY_LINE : MARRIED_HINT}
               </p>
               {!singleOnly && maritalStatus === 'single' && (
                 <div className="flex flex-col gap-1">

@@ -42,7 +42,7 @@ const CONFIRMED: Array<[string, unknown, unknown]> = [
     BUDGET_2027.sources.speech,
     'https://www.gov.ie/en/department-of-finance/speeches/statement-by-minister-harris-on-budget-2027/',
   ],
-  // Resolved 10 Oct 2026 (Finance Bill for Budget 2027 not published yet; Revenue charts still 2026):
+  // Resolved 10 Oct 2026 before the Finance Bill was published (confirmed by Finance (No. 2) Bill 2026 s.3 on 20 Oct 2026; Revenue charts still 2026):
   ['credits.personalMarried (TPC p.18 Table 3: €100k IT 20,475 = 28,900 − 2,125 − 2,050 − 4,250)', BUDGET_2027.credits.personalMarried, 4250],
   ['credits.singlePersonChildCarer (not among TPC §2.1.1 credit changes; Revenue 2026 €1,900)', BUDGET_2027.credits.singlePersonChildCarer, 1900],
   ['usc.bands[2].upTo (TPC Table 1 no change; Tables 2–5 and Example 8 only fit €70,044)', BUDGET_2027.usc.bands[2].upTo, 70044],
@@ -54,10 +54,53 @@ const CONFIRMED: Array<[string, unknown, unknown]> = [
   ['prsi.creditTopWeekly (unchanged, DSP Class A page)', BUDGET_2027.prsi.creditTopWeekly, 424],
   ['prsi.classSMinimum (unchanged, DSP PRSI page)', BUDGET_2027.prsi.classSMinimum, 650],
   ['sources.prsi', BUDGET_2027.sources.prsi, 'https://www.irishstatutebook.ie/eli/2024/act/24/section/3/enacted/en/html'],
-  ['figuresCheckedOn', BUDGET_2027.figuresCheckedOn, '10 Oct 2026'],
-  ['figuresCheckedOnIso', BUDGET_2027.figuresCheckedOnIso, '2026-10-10'],
+  ['figuresCheckedOn', BUDGET_2027.figuresCheckedOn, '20 Oct 2026'],
+  ['figuresCheckedOnIso', BUDGET_2027.figuresCheckedOnIso, '2026-10-20'],
+  ['sources.financeBill (Oireachtas, Bill No. 98 of 2026)', BUDGET_2027.sources.financeBill, 'https://www.oireachtas.ie/en/bills/bill/2026/98/'],
+  ['singleOnly (off: Finance (No. 2) Bill 2026 s.3 confirms the couple and one-parent figures)', BUDGET_2027.singleOnly, false],
   ['status', BUDGET_2027.status, 'confirmed'],
 ];
+
+// Finance (No. 2) Bill 2026 (Bill No. 98 of 2026, published 19 Oct 2026), section 3, for 2027 and later years.
+// Each couple and one-parent figure checked against the Bill text on 20 Oct 2026.
+const FINANCE_BILL_S3: Array<[string, unknown, unknown]> = [
+  ['s.3(a)(i) TCA s.15(3)(i): two-earner increase €37,500 (was €35,000)', BUDGET_2027.incomeTax.twoEarnerMaxIncrease, 37500],
+  ['s.3(a)(ii) TCA s.15 Table Part 1: single, first €46,500 at 20%', BUDGET_2027.incomeTax.bandSingle, 46500],
+  ['s.3(a)(ii) TCA s.15 Table Part 2: single person child carer, first €50,500 at 20%', BUDGET_2027.incomeTax.bandOneParent, 50500],
+  ['s.3(a)(ii) TCA s.15 Table Part 3: married / civil partners, first €55,500 at 20%', BUDGET_2027.incomeTax.bandMarriedOneEarner, 55500],
+  ['s.3(a)(ii) Part 3 is also the two-earner base band', BUDGET_2027.incomeTax.bandMarriedTwoEarners, 55500],
+  ['s.3(b)(i) TCA s.461(a): married / civil partner personal credit €4,250 (was €4,000)', BUDGET_2027.credits.personalMarried, 4250],
+  ['s.3(b)(iii) TCA s.461(c): single personal credit €2,125 (was €2,000)', BUDGET_2027.credits.personalSingle, 2125],
+  ['s.3(c) TCA s.466A(2): home carer credit €2,050 (was €1,950)', BUDGET_2027.credits.homeCarer, 2050],
+  ['s.3(d) TCA s.472(4): employee credit €2,125 (was €2,000)', BUDGET_2027.credits.employeePaye, 2125],
+  ['s.3(e) TCA s.472AB: earned income credit €2,125 (was €2,000)', BUDGET_2027.credits.earnedIncome, 2125],
+  ['TCA s.462B not amended: Single Person Child Carer Credit stays €1,900', BUDGET_2027.credits.singlePersonChildCarer, 1900],
+  ['s.4(1)(b) TCA s.473B(13): rent credit €1,150 single', BUDGET_2027.credits.rentSingle, 1150],
+  ['s.4(1)(b) TCA s.473B(13): rent credit €2,300 couple', BUDGET_2027.credits.rentCouple, 2300],
+  ['rates unchanged at 20% / 40% (s.3(a)(ii) Table)', [BUDGET_2027.incomeTax.standardRate, BUDGET_2027.incomeTax.higherRate], [0.2, 0.4]],
+];
+
+describe('Finance (No. 2) Bill 2026 s.3', () => {
+  it.each(FINANCE_BILL_S3)('%s', (_label, actual, expected) => {
+    expect(actual).toEqual(expected);
+  });
+
+  it('every couple and one-parent figure cites the Bill in the config', () => {
+    const src = fs.readFileSync(path.join(__dirname, '..', '..', 'lib/config/taxYear2027.ts'), 'utf8');
+    for (const [key, cite] of [
+      ['bandMarriedOneEarner', 'Finance (No. 2) Bill 2026 s.3(a)(ii)'],
+      ['bandMarriedTwoEarners', 'Finance (No. 2) Bill 2026 s.3(a)(ii)'],
+      ['twoEarnerMaxIncrease', 'Finance (No. 2) Bill 2026 s.3(a)(i)'],
+      ['bandOneParent', 'Finance (No. 2) Bill 2026 s.3(a)(ii)'],
+      ['personalMarried', 'Finance (No. 2) Bill 2026 s.3(b)(i)'],
+      ['homeCarer', 'Finance (No. 2) Bill 2026 s.3(c)'],
+      ['singlePersonChildCarer', 'does not amend TCA s.462B'],
+    ]) {
+      const line = src.split('\n').find((l) => l.trim().startsWith(`${key}:`));
+      expect(line).toContain(cite);
+    }
+  });
+});
 
 const STILL_NULL: Array<[string, unknown]> = [
   ['autoEnrolmentEmployeeRate (unchanged)', BUDGET_2027.autoEnrolmentEmployeeRate],
@@ -119,12 +162,19 @@ describe('Budget 2027 figures (confirmed)', () => {
   });
 });
 
-// Couples and single parents are hidden for 2027 (PM, 11 Oct 2026) until the Finance Bill confirms the figures.
-describe('2027 couples and single parents', () => {
-  it('the engine refuses them', () => {
-    expect(() => calculateNetIncome({ income: 55000, period: 'annual', maritalStatus: 'married', homeCarer: true, taxYear: 2027 })).toThrow(
-      /single people only/,
-    );
+// TPC p.19 Table 3: married couple, one income, two children (home carer credit), PAYE, Class A — "proposed" columns.
+// Couples are on for 2027 since the Finance (No. 2) Bill 2026 s.3 confirmed the figures (20 Oct 2026).
+describe('TPC Table 3 (married, one income, home carer)', () => {
+  it.each([
+    [45000, 575, 1974, 867],
+    [55000, 2575, 2413, 1167],
+    [75000, 10475, 3291, 2015],
+    [100000, 20475, 4388, 4015],
+  ])('€%i → income tax €%i, PRSI €%i, USC €%i', (gross, it_, prsi, usc) => {
+    const r = calculateNetIncome({ income: gross, period: 'annual', maritalStatus: 'married', homeCarer: true, taxYear: 2027 });
+    expect(round(r.payeAfterCredits)).toBe(it_);
+    expect(round(r.prsi)).toBe(prsi);
+    expect(round(r.uscTotal)).toBe(usc);
   });
 });
 
@@ -136,7 +186,7 @@ describe('/budget-2027 confirmed', () => {
     expect(html).toMatch(/a week better off/);
     expect(html).toContain('Difference a week');
     expect(html).toMatch(/<table/);
-    expect(html).toContain('Figures checked: 10 Oct 2026.');
+    expect(html).toContain('Figures checked: 20 Oct 2026.');
     expect(html).not.toContain('The figures are coming');
     expect(html).toContain('4.5% from 1 October 2027');
     expect(html).toContain('€70,044');
@@ -145,18 +195,40 @@ describe('/budget-2027 confirmed', () => {
     expect(html).not.toMatch(/accurate|precise|guaranteed|accountant|ACCA/i);
   });
 
-  it('is single-only: no married, civil partner or single-parent rows or lines, plus the plain line', () => {
-    expect(html).toContain('Couples and single parents: added once the Finance Bill confirms the figures.');
-    const rest = html.split('Couples and single parents: added once the Finance Bill confirms the figures.').join('');
-    expect(rest).not.toMatch(/married|civil partner|single parent|couple|one-earner|both earning|home carer|Child Carer/i);
-    expect(html).not.toMatch(/4,250|55,500|50,500|37,500|2,300|2,050/);
+  it('covers couples and single parents (Finance (No. 2) Bill 2026), and the pending line is gone', () => {
+    expect(html).not.toContain('Couples and single parents: added once the Finance Bill confirms the figures.');
+    expect(html).not.toMatch(/added once the Finance Bill/i);
+    expect(html).toContain('Single parent (Single Person Child Carer Credit)');
+    expect(html).toContain('Couple: married or civil partners, one earner');
+    expect(html).toContain('Couple: married or civil partners, both earning');
+    expect(html).toContain('€55,500');
+    expect(html).toContain('€37,500');
+    expect(html).toContain('€50,500');
+    expect(html).toContain('€4,250');
+    expect(html).toContain('€2,050');
+    expect(html).toContain('The Single Person Child Carer Credit stays at €1,900.');
+    expect(html).toContain('€2,300');
     expect(html).toContain('€46,500');
     expect(html).toContain('€2,125');
     expect(html).toContain('€1,150');
     expect(html).toContain('€30,300');
     expect(html).toContain('Table 2');
     expect(html).toContain('Example 8');
-    expect(String(metadata.description)).not.toMatch(/married/i);
+    // Married one earner €60,000: 2027 take-home €49,526; single parent €60,000: €48,301 (both from calculateNetIncome).
+    expect(html).toContain('€49,526');
+    expect(html).toContain('€48,301');
+    expect(String(metadata.description)).toMatch(/married/i);
+    expect(String(metadata.description)).toMatch(/single parent/i);
+  });
+
+  it('lists the Finance Bill as a source', () => {
+    expect(html).toContain('href="https://www.oireachtas.ie/en/bills/bill/2026/98/"');
+    expect(html).toContain('Finance (No. 2) Bill 2026</a>');
+  });
+
+  it('the compare widget offers single, single parent and married', () => {
+    expect(html).toContain('<option value="singleParent">A single parent</option>');
+    expect(html).toContain('<option value="married">Married or civil partners</option>');
   });
 
   it('is indexable', () => {
@@ -167,6 +239,6 @@ describe('/budget-2027 confirmed', () => {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     const sitemap = require('../../app/sitemap').default as () => { url: string; lastModified?: string }[];
     const e = sitemap().find((x) => x.url.endsWith('/budget-2027'));
-    expect(e?.lastModified).toBe('2026-10-10');
+    expect(e?.lastModified).toBe('2026-10-20');
   });
 });

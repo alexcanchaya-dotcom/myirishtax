@@ -5,7 +5,7 @@ const BASE = 'https://myirishtax.com';
 
 /** Each page and the date its content last changed (sitemap lastmod). Keep in step with new pages. */
 export const SITEMAP_LASTMOD: Record<string, string> = {
-  '/': '2026-10-10',
+  '/': '2026-10-20',
   '/about': '2026-10-07',
   '/privacy': '2026-10-04',
   '/terms': '2026-09-29',

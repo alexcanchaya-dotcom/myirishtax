@@ -1,18 +1,26 @@
 'use client';
 import React, { useMemo, useState } from 'react';
 import { CalculatorInput } from '@/components/CalculatorInput';
-import { compareYears, headlineWeekly, RENT_CREDIT } from '@/lib/budget/compareYears';
-import { COUPLES_PENDING_LINE } from '@/lib/config/taxYear2027';
+import { SelectField } from '@/components/SelectField';
+import { compareYears, headlineWeekly, RENT_CREDIT, type Household } from '@/lib/budget/compareYears';
+import { BUDGET_2027 } from '@/lib/config/taxYear2027';
 
 const eur = (n: number) => `€${Math.round(n).toLocaleString('en-IE')}`;
 const eur2 = (n: number) => `€${n.toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 const signed = (n: number, f = eur) => (Math.abs(n) < 0.5 ? '€0' : `${n > 0 ? '+' : '−'}${f(Math.abs(n))}`);
 
-/** Only rendered once Budget 2027 is confirmed (the page shows the pending line until then). */
+/** Only rendered once Budget 2027 is confirmed. Single, single parent, or married / civil partners (one or two incomes). */
 export function Budget2027Compare() {
   const [income, setIncome] = useState(45000);
+  const [household, setHousehold] = useState<Household>('single');
+  const [spouse, setSpouse] = useState(0);
   const [rent, setRent] = useState(false);
-  const c = useMemo(() => compareYears({ income, rent }), [income, rent]);
+  const married = household === 'married';
+  const c = useMemo(
+    () => compareYears({ income, household, ...(married ? { spouseIncome: spouse } : {}), rent }),
+    [income, household, married, spouse, rent],
+  );
+  const rent26 = RENT_CREDIT[2026];
   const rent27 = RENT_CREDIT[2027];
 
   const row = (label: string, a: number, b: number, minusIsGood = true) => (
@@ -29,15 +37,41 @@ export function Budget2027Compare() {
       <h2 id="compare-heading" className="text-xl font-semibold text-ink">2027 vs 2026: your take-home</h2>
       <div className="mt-4 grid gap-4 sm:grid-cols-2">
         <CalculatorInput label="Your pay (per year)" value={income} onChange={setIncome} prefix="€" />
-        <p className="self-end text-sm text-ink-muted">Single person. {COUPLES_PENDING_LINE}</p>
+        <SelectField
+          label="You are"
+          value={household}
+          onChange={(v) => setHousehold(v as Household)}
+          options={[
+            { label: 'Single', value: 'single' },
+            { label: 'A single parent', value: 'singleParent' },
+            { label: 'Married or civil partners', value: 'married' },
+          ]}
+          hint={
+            household === 'singleParent'
+              ? `With the Single Person Child Carer Credit (€1,900 in 2026 and €${(BUDGET_2027.credits.singlePersonChildCarer ?? 1900).toLocaleString('en-IE')} in 2027) and the higher 20% band.`
+              : married
+                ? 'Taxed jointly. Figures are for the two of you together.'
+                : undefined
+          }
+        />
+        {married && (
+          <CalculatorInput
+            label="Spouse or partner’s pay (per year)"
+            value={spouse}
+            onChange={setSpouse}
+            prefix="€"
+            hint="Leave at 0 if only one of you earns."
+          />
+        )}
         <label className="flex items-start gap-2 text-sm text-ink sm:col-span-2">
           <input type="checkbox" className="mt-1 h-4 w-4" checked={rent} onChange={(e) => setRent(e.target.checked)} />
           <span>
             I pay rent and claim the Rent Tax Credit
             {rent27 ? (
               <span className="block text-xs text-ink-muted">
-                Full credit both years: €1,000 in 2026 and {eur(rent27.single)} in 2027. Assumes rent of at least 5 times
-                the credit.
+                Full credit both years: {eur(rent26?.single ?? 1000)} in 2026 and {eur(rent27.single)} in 2027 (
+                {eur(rent26?.couple ?? 2000)} and {eur(rent27.couple)} for a couple taxed jointly). Assumes rent of at least
+                5 times the credit.
               </span>
             ) : null}
           </span>

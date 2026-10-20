@@ -50,7 +50,7 @@ describe('One-parent: Single Person Child Carer Credit + €4,000 wider band (Re
     expect(toSearch({ ...s, maritalStatus: 'married' }, d)).not.toContain('parent');
     const home = readFileSync(join(__dirname, '../../app/HomeClient.tsx'), 'utf8');
     expect(home).toContain('I’m a single parent');
-    expect(home).toContain('Single Person Child Carer Credit (€1,900 in 2026) and €4,000 more taxed at 20%');
+    expect(home).toContain('Single Person Child Carer Credit (€1,900 in 2026 and 2027) and €4,000 more taxed at 20%');
     expect(readFileSync(join(__dirname, '../../app/api/calc/route.ts'), 'utf8')).toContain('singleParent: z.boolean().optional()');
   });
 });
