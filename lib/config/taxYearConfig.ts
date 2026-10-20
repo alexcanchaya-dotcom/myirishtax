@@ -338,7 +338,7 @@ export function assertHouseholdSupported(input: {
 }): void {
   if (!isSingleOnlyYear(input.taxYear)) return;
   if (input.maritalStatus !== 'single' || input.singleParent === true || input.homeCarer === true || (input.spouseIncome ?? 0) > 0) {
-    throw new Error(`${input.taxYear} is available for single people only (couples and single parents are added once the Finance Bill confirms the figures).`);
+    throw new Error(`${input.taxYear} is available for single people only for now.`);
   }
 }
 

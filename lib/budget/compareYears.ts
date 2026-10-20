@@ -1,16 +1,23 @@
 import { calculateNetIncome } from '../taxEngine';
 import { BUDGET_2027 } from '../config/taxYear2027';
 
-/** Rent Tax Credit maximum by year (Revenue tax relief charts; 2027 from Budget 2027 TPC p.6). */
-export const RENT_CREDIT: Record<number, { single: number } | undefined> = {
-  2025: { single: 1000 },
-  2026: { single: 1000 },
-  ...(BUDGET_2027.credits.rentSingle !== null ? { 2027: { single: BUDGET_2027.credits.rentSingle } } : {}),
+/** Rent Tax Credit maximum by year (Revenue tax relief charts; 2027 from Budget 2027 TPC p.6 and Finance (No. 2) Bill 2026 s.4). */
+export const RENT_CREDIT: Record<number, { single: number; couple: number } | undefined> = {
+  2025: { single: 1000, couple: 2000 },
+  2026: { single: 1000, couple: 2000 },
+  ...(BUDGET_2027.credits.rentSingle !== null && BUDGET_2027.credits.rentCouple !== null
+    ? { 2027: { single: BUDGET_2027.credits.rentSingle, couple: BUDGET_2027.credits.rentCouple } }
+    : {}),
 };
 
-/** Single people only while Budget 2027 is single-only (PM, 11 Oct 2026). */
+export type Household = 'single' | 'singleParent' | 'married';
+
 export type CompareInput = {
   income: number;
+  /** Defaults to 'single'. 'married' = married or civil partners taxed jointly. */
+  household?: Household;
+  /** Married or civil partners only: the other person's pay (0 = one income). */
+  spouseIncome?: number;
   /** Claim the full Rent Tax Credit in both years (rent of at least 5 × the credit). */
   rent?: boolean;
 };
@@ -25,12 +32,17 @@ export type YearCompare = {
 };
 
 function lines(input: CompareInput, year: number, rentTable: typeof RENT_CREDIT): YearLines {
+  const household = input.household ?? 'single';
+  const married = household === 'married';
   const rentRow = rentTable[year];
-  const rentCredit = input.rent && rentRow ? rentRow.single : 0;
+  const rentCredit = input.rent && rentRow ? (married ? rentRow.couple : rentRow.single) : 0;
+  const spouse = married ? Math.max(0, input.spouseIncome ?? 0) : 0;
   const r = calculateNetIncome({
     income: input.income,
     period: 'annual',
-    maritalStatus: 'single',
+    maritalStatus: married ? 'married' : 'single',
+    ...(household === 'singleParent' ? { singleParent: true } : {}),
+    ...(spouse > 0 ? { spouseIncome: spouse } : {}),
     additionalCredits: rentCredit,
     taxYear: year,
   });
@@ -39,9 +51,14 @@ function lines(input: CompareInput, year: number, rentTable: typeof RENT_CREDIT)
 
 /**
  * 2026 vs 2027 (or any two years) from calculateNetIncome, the same engine as the take-home calculator.
- * Headline is the weekly difference; month and year are shown next to it.
+ * Headline is the weekly difference; month and year are shown next to it. For a couple, figures are for the household.
  */
-export function compareYears(input: CompareInput, from = 2026, to = 2027, rentTable = RENT_CREDIT): YearCompare {
+export function compareYears(
+  input: CompareInput,
+  from = 2026,
+  to = 2027,
+  rentTable: typeof RENT_CREDIT = RENT_CREDIT,
+): YearCompare {
   const before = lines(input, from, rentTable);
   const after = lines(input, to, rentTable);
   const year = after.takeHome - before.takeHome;

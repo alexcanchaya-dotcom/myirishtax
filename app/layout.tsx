@@ -25,7 +25,7 @@ const title = BUDGET_2027_LIVE
   ? 'Irish take-home pay 2027 and 2026 | Budget 2027 calculator | MyIrishTax'
   : 'Irish take-home pay | 2026 tax year | MyIrishTax';
 const description = BUDGET_2027_LIVE
-  ? 'Free Irish PAYE, USC and PRSI calculator with Budget 2027 rates for single people and 2026 for comparison. Estimate only; not financial or tax advice.'
+  ? 'Free Irish PAYE, USC and PRSI calculator with Budget 2027 rates and 2026 for comparison: single, single parents or couples. Estimate only; not financial or tax advice.'
   : 'Free Irish PAYE, USC and PRSI calculator for the 2026 tax year (2025 still available). Based on published Irish tax bands; not advice.';
 
 export const metadata = {
