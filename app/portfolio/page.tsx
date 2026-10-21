@@ -193,7 +193,7 @@ export default function PortfolioPage() {
               <p className="mt-1 text-sm text-gray-700">
                 Irish funds and most EU ETFs pay exit tax, not CGT.{" "}
                 <Link href="/exit-tax-ireland" className="font-medium underline underline-offset-2">
-                  Exit tax: 38% now, 35% announced in Budget 2027
+                  Exit tax: 38% now, 35% from 1 January 2027 (Finance Bill)
                 </Link>
               </p>
             </div>

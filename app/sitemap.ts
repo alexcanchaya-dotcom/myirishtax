@@ -19,7 +19,7 @@ export const SITEMAP_LASTMOD: Record<string, string> = {
   '/small-benefit-exemption': '2026-10-07',
   '/second-income-form-12': '2026-10-10',
   '/payslip-october-prsi': '2026-10-07',
-  '/exit-tax-ireland': '2026-10-07',
+  '/exit-tax-ireland': '2026-10-21',
   '/marginal-tax-rate-ireland': '2026-10-10',
   '/emergency-tax-ireland': '2026-10-15',
 };
