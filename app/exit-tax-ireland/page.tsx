@@ -7,9 +7,9 @@ import { EXIT_TAX, deemedDisposalExample, exitTaxExampleRows } from '@/lib/exitT
 import { pageMeta } from '@/lib/pageMeta';
 
 export const metadata = pageMeta({
-  title: 'Exit tax in Ireland: 38% now, 35% announced in Budget 2027 | MyIrishTax',
+  title: 'Exit tax in Ireland: 38% now, 35% from 1 January 2027 (Finance Bill) | MyIrishTax',
   description:
-    'Exit tax on Irish funds, ETFs and life assurance policies is 38%. Budget 2027 announced a cut to 35%, due in 2027; the start date will be set in the Finance Bill. Deemed disposal is unchanged. Worked examples. Not advice.',
+    'Exit tax on Irish funds, ETFs and life assurance policies is 38%. The Finance (No. 2) Bill 2026 cuts it to 35% from 1 January 2027 (section 29); not law until the Bill is passed. Deemed disposal is unchanged. Worked examples. Not advice.',
   path: '/exit-tax-ireland',
 });
 
@@ -18,6 +18,7 @@ const list = 'mt-3 list-disc space-y-2 pl-5';
 const link = 'text-ink underline decoration-line underline-offset-2 hover:text-brand-700';
 
 const EBRIEF_016 = 'https://www.revenue.ie/en/tax-professionals/ebrief/2026/no-0162026.aspx';
+const BILL_98 = 'https://data.oireachtas.ie/ie/oireachtas/bill/2026/98/eng/initiated/b9826d.pdf';
 const TPC = 'https://assets.gov.ie/static/documents/c6792805/Budget_2027_-_Tax_Policy_Changes_-_Publication_Version.pdf';
 const PQ_DEEMED = 'https://www.oireachtas.ie/en/debates/question/2026-02-11/68/';
 const TDM_27_01A_02 =
@@ -34,11 +35,12 @@ export default function ExitTaxIrelandPage() {
   const ddNext = deemedDisposalExample(20000, 30000, EXIT_TAX.announced.rate);
   return (
     <main className="mx-auto max-w-2xl px-4 py-12 sm:px-6 sm:py-16">
-      <PageHeader title="Exit tax in Ireland: 38% now, 35% announced">
+      <PageHeader title="Exit tax in Ireland: 38% now, 35% from 1 January 2027">
         <TrustStrip
           kind="guide"
           sources={[
             { label: 'Revenue', href: EBRIEF_016 },
+            { label: 'Oireachtas', href: BILL_98 },
             { label: 'gov.ie', href: TPC },
           ]}
         />
@@ -54,7 +56,13 @@ export default function ExitTaxIrelandPage() {
           </p>
           <div className="mt-4 rounded-xl border border-line bg-white p-4 text-ink" data-testid="budget-2027-exit-tax">
             <p>
-              <strong>Budget 2027 announced a cut to {next}, due in 2027; the start date will be set in the Finance Bill.</strong>
+              <strong>
+                The Finance (No. 2) Bill 2026 cuts it to {next} from {EXIT_TAX.announced.startDate} (section 29).
+              </strong>
+            </p>
+            <p className="mt-2">
+              This is in the Bill as presented to the Dáil on 19 October 2026. It becomes law only when the Finance Act is passed
+              and signed, and the Oireachtas can still amend it.
             </p>
             <p className="mt-2">Deemed disposal (the 8-year rule) is unchanged.</p>
           </div>
@@ -138,7 +146,16 @@ export default function ExitTaxIrelandPage() {
                 Budget 2027 Tax Policy Changes, section 2.2 (page 5)
               </a>
               : the rates are &quot;being reduced from 38% to 35%&quot;, listed in Table 1, &quot;Tax measures for
-              introduction in 2027&quot;. No start date is given.
+              introduction in 2027&quot;.
+            </li>
+            <li>
+              <a href={BILL_98} className={link} target="_blank" rel="noopener noreferrer">
+                Finance (No. 2) Bill 2026 (Bill 98 of 2026, as initiated), section 29
+              </a>
+              : subsection (1) amends sections 730F, 730J, 730K, 739D, 739E, 747D and 747E of the Taxes Consolidation
+              Act 1997 &quot;by the substitution of &lsquo;35 per cent&rsquo; for &lsquo;38 per cent&rsquo;&quot;;
+              subsection (2) applies each change to chargeable events, payments or disposals &quot;on or after 1 January
+              2027&quot;.
             </li>
             <li>
               <a href={PQ_DEEMED} className={link} target="_blank" rel="noopener noreferrer">

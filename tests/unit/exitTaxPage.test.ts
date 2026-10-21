@@ -6,11 +6,12 @@ const read = (p: string) => readFileSync(join(__dirname, '..', '..', p), 'utf8')
 const page = read('app/exit-tax-ireland/page.tsx');
 
 describe('/exit-tax-ireland', () => {
-  it('rates: 38% now (Revenue eBrief 016/26), 35% announced with no start date (TPC 2.2, p.5)', () => {
+  it('rates: 38% now (Revenue eBrief 016/26), 35% from 1 January 2027 per Finance (No. 2) Bill 2026 s.29, not yet enacted', () => {
     expect(EXIT_TAX.current.rate).toBe(0.38);
     expect(EXIT_TAX.current.from).toBe('1 January 2026');
     expect(EXIT_TAX.announced.rate).toBe(0.35);
-    expect(EXIT_TAX.announced.startDate).toBeNull();
+    expect(EXIT_TAX.announced.startDate).toBe('1 January 2027');
+    expect(EXIT_TAX.announced.enacted).toBe(false);
     expect(EXIT_TAX.deemedDisposalYears).toBe(8);
   });
 
@@ -26,10 +27,13 @@ describe('/exit-tax-ireland', () => {
     expect(deemedDisposalExample(20000, 30000, 0.38)).toEqual({ gain: 10000, tax: 3800, newBase: 30000 });
   });
 
-  it('uses the agreed wording, says deemed disposal is unchanged, and states no effective date', () => {
-    expect(page).toContain('Budget 2027 announced a cut to {next}, due in 2027; the start date will be set in the Finance Bill.');
+  it('states the Bill start date with section 29, says it is not law yet, deemed disposal unchanged', () => {
+    expect(page).toContain('The Finance (No. 2) Bill 2026 cuts it to {next} from {EXIT_TAX.announced.startDate} (section 29).');
+    expect(page).toContain('It becomes law only when the Finance Act is passed');
+    expect(page).toContain('https://data.oireachtas.ie/ie/oireachtas/bill/2026/98/eng/initiated/b9826d.pdf');
+    expect(page).toContain('&quot;on or after 1 January');
+    expect(page).not.toContain('will be set in the Finance Bill');
     expect(page).toContain('Deemed disposal (the 8-year rule) is unchanged.');
-    expect(page).not.toMatch(/1 January 2027|from January 2027|1 Jan 2027|effective from/i);
     expect(page).toContain('&quot;being reduced from 38% to 35%&quot;');
   });
 
