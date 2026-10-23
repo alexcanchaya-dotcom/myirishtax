@@ -1,5 +1,6 @@
 import RentTaxCreditClient from './RentTaxCreditClient';
 import { pageMeta } from '@/lib/pageMeta';
+import { AffiliateRefundCTA } from '@/components/AffiliateRefundCTA';
 
 export const metadata = pageMeta({
   title: 'Rent tax credit: calculator and how to claim in myAccount | MyIrishTax',
@@ -9,5 +10,12 @@ export const metadata = pageMeta({
 });
 
 export default function Page() {
-  return <RentTaxCreditClient />;
+  return (
+    <>
+      <RentTaxCreditClient />
+      <div className="mx-auto max-w-4xl px-4 pb-12 sm:px-6 empty:hidden">
+        <AffiliateRefundCTA page="rent-credit" />
+      </div>
+    </>
+  );
 }
