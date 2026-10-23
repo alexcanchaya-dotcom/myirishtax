@@ -3,6 +3,7 @@ import { PageHeader } from '@/components/PageHeader';
 import { TaxDisclaimer } from '@/components/TaxDisclaimer';
 import { TrustStrip } from '@/components/TrustStrip';
 import { RelatedCalculators } from '@/components/RelatedCalculators';
+import { AffiliateRefundCTA } from '@/components/AffiliateRefundCTA';
 import { pageMeta } from '@/lib/pageMeta';
 
 export const metadata = pageMeta({
@@ -149,6 +150,8 @@ export default function EmergencyTaxPage() {
             </Link>
           </p>
         </section>
+
+        <AffiliateRefundCTA page="emergency-tax" />
 
         <TaxDisclaimer />
 
