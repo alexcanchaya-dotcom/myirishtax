@@ -6,6 +6,7 @@ import { NavBar } from '@/components/NavBar';
 import Link from 'next/link';
 import { BUDGET_2027 } from '@/lib/config/taxYear2027';
 import { Analytics } from '@vercel/analytics/next';
+import { ConsentBanner } from '@/components/ConsentBanner';
 
 const sans = Source_Sans_3({
   subsets: ['latin'],
@@ -133,6 +134,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           </footer>
         </SessionProvider>
         <Analytics />
+        <ConsentBanner />
       </body>
     </html>
   );

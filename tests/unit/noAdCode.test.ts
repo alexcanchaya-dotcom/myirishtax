@@ -14,12 +14,18 @@ function walk(dir: string, out: string[] = []): string[] {
 
 // Updated 23 Oct 2026 (Al: scaffold monetisation behind flags that default OFF). Ad/affiliate markup may live
 // ONLY in the flag-gated files below; those files have their own tests proving they render nothing when off.
-const FLAGGED = ['components/AffiliateRefundCTA.tsx', 'lib/monetisation/'];
+const FLAGGED = [
+  'components/AffiliateRefundCTA.tsx',
+  'lib/monetisation/',
+  'components/AdSlot.tsx',
+  'components/ConsentBanner.tsx',
+  'lib/ads.ts',
+  'app/ads.txt/',
+];
 
 describe('no affiliate links, #Ad slots or ad code outside the flag-gated components', () => {
   it('ad and affiliate components and the dead static ad pages/scripts are gone', () => {
     for (const f of [
-      'components/AdSlot.tsx',
       'components/AffiliateCTA.tsx',
       'public/index.html',
       'public/styleguide.html',
