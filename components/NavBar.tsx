@@ -33,6 +33,8 @@ const mobileGroups: { heading: string; links: { href: string; label: string }[] 
       { href: '/payslip-october-prsi', label: 'Why October pay dropped' },
       { href: '/exit-tax-ireland', label: 'Exit tax (funds and ETFs)' },
       { href: '/emergency-tax-ireland', label: 'Emergency tax' },
+      { href: '/paye-refund-check', label: 'PAYE refund check (4 years)' },
+      { href: '/tax-back-leaving-ireland', label: 'Tax back when leaving Ireland' },
     ],
   },
   { heading: 'MyIrishTax', links: [{ href: '/about', label: 'About' }] },

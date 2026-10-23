@@ -14,7 +14,9 @@ export type CalculatorKey =
   | 'emergency-tax'
   | 'exit-tax'
   | 'second-income'
-  | 'small-benefit';
+  | 'small-benefit'
+  | 'leaving-ireland'
+  | 'paye-refund-check';
 
 const CALCULATORS: { key: CalculatorKey; href: string; label: string; blurb: string }[] = [
   { key: 'take-home', href: '/', label: 'Take-home pay', blurb: 'PAYE, USC and PRSI on your salary.' },
@@ -81,6 +83,18 @@ const CALCULATORS: { key: CalculatorKey; href: string; label: string; blurb: str
     href: '/exit-tax-ireland',
     label: 'Exit tax (funds and ETFs)',
     blurb: 'Tax on fund gains and the 8-year rule.',
+  },
+  {
+    key: 'paye-refund-check',
+    href: '/paye-refund-check',
+    label: 'PAYE refund check',
+    blurb: 'Claim back overpaid tax for the past 4 years.',
+  },
+  {
+    key: 'leaving-ireland',
+    href: '/tax-back-leaving-ireland',
+    label: 'Tax back when leaving Ireland',
+    blurb: 'Claim your refund when you move abroad.',
   },
 ];
 

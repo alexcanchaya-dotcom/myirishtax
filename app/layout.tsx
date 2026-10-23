@@ -95,6 +95,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                     <li><Link href="/second-income-form-12" className="hover:text-brand-700">Second income / Form 12</Link></li>
                     <li><Link href="/payslip-october-prsi" className="hover:text-brand-700">Why October pay dropped</Link></li>
                     <li><Link href="/exit-tax-ireland" className="hover:text-brand-700">Exit tax (funds and ETFs)</Link></li>
+                    <li><Link href="/paye-refund-check" className="hover:text-brand-700">PAYE refund check</Link></li>
+                    <li><Link href="/tax-back-leaving-ireland" className="hover:text-brand-700">Tax back when leaving Ireland</Link></li>
                   </ul>
                 </div>
                 <div>

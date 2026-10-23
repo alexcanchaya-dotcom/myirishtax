@@ -22,6 +22,8 @@ export const SITEMAP_LASTMOD: Record<string, string> = {
   '/exit-tax-ireland': '2026-10-21',
   '/marginal-tax-rate-ireland': '2026-10-10',
   '/emergency-tax-ireland': '2026-10-15',
+  '/paye-refund-check': '2026-10-23',
+  '/tax-back-leaving-ireland': '2026-10-23',
 };
 export const SITEMAP_PATHS = Object.keys(SITEMAP_LASTMOD);
 

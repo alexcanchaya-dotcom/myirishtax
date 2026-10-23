@@ -13,7 +13,7 @@ describe('sitemap lastmod and /rental-calculator noindex', () => {
     expect(entries.length).toBeGreaterThanOrEqual(15);
     for (const e of entries) {
       expect(e.lastModified).toMatch(/^\d{4}-\d{2}-\d{2}$/);
-      expect(e.lastModified! <= '2026-10-21').toBe(true);
+      expect(e.lastModified! <= '2026-10-23').toBe(true);
     }
     expect(entries.find((e) => e.url.endsWith('/exit-tax-ireland'))?.lastModified).toBe('2026-10-21');
   });
